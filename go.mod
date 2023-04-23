@@ -1,4 +1,4 @@
-module yock
+module github.com/ansurfen/yock
 
 go 1.20
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"yock"
+	"github.com/ansurfen/yock"
 )
 
 func main() {
