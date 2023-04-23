@@ -1,2 +1,1 @@
-# yock
-Yock is a command mapping solution to cross platform and termnial.
+Yock is a solution to cross platform and termnial, which make try itself best to use of raw command of platform. Using Yock, you can write simple linux command to run on each platform.
