@@ -63,7 +63,6 @@ func (curl *CurlCmd) Exec(arg string) ([]byte, error) {
 				return NilByte, fmt.Errorf("error sending request: %v", err)
 			}
 			defer resp.Body.Close()
-
 			bodyBytes, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				return NilByte, fmt.Errorf("error reading response body: %v", err)

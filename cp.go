@@ -10,6 +10,7 @@ import (
 type CpCmd struct {
 	Src string
 	Dst string
+	r   bool
 }
 
 func NewCpCmd() Cmd {
@@ -18,7 +19,8 @@ func NewCpCmd() Cmd {
 
 func (cp *CpCmd) Exec(args string) ([]byte, error) {
 	initCmd(cp, args, func(cli *flag.FlagSet, cc *CpCmd) {
-	}, map[string]uint8{}, func(cc *CpCmd, s string) error {
+		cli.BoolVar(&cp.r, "r", false, "")
+	}, map[string]uint8{"-r": FlagBool}, func(cc *CpCmd, s string) error {
 		if len(cc.Src) == 0 {
 			cc.Src = s
 		} else {
@@ -30,11 +32,17 @@ func (cp *CpCmd) Exec(args string) ([]byte, error) {
 	case "windows":
 		switch utils.CurPlatform.Ver {
 		case "10", "11":
+			if cp.r {
+				return exec.Command("powershell", []string{"cp", "-r", cp.Src, cp.Dst}...).CombinedOutput()
+			}
 			return exec.Command("powershell", []string{"cp", cp.Src, cp.Dst}...).CombinedOutput()
 		default:
 			return exec.Command("cmd", []string{"/C", "copy", cp.Src, cp.Dst}...).CombinedOutput()
 		}
 	case "linux", "darwin":
+		if cp.r {
+			return exec.Command("/bin/bash", []string{"/C", "cp", "-r", cp.Src, cp.Dst}...).CombinedOutput()
+		}
 		return exec.Command("/bin/bash", []string{"/C", "cp", cp.Src, cp.Dst}...).CombinedOutput()
 	}
 	return []byte(""), nil
