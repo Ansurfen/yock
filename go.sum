@@ -56,8 +56,8 @@ github.com/alessio/shellescape v1.4.1 h1:V7yhSDDn8LP4lc4jS8pFkt0zCnzVJlG5JXy9BVK
 github.com/alessio/shellescape v1.4.1/go.mod h1:PZAiSCk0LJaZkiCSkPv8qIobYglO3FPpyFjDCtHLS30=
 github.com/andybalholm/cascadia v1.3.1 h1:nhxRkql1kdYCc8Snf7D5/D3spOX+dBgjA6u8x004T2c=
 github.com/andybalholm/cascadia v1.3.1/go.mod h1:R4bJ1UQfqADjvDa4P6HZHLh/3OxWWEqc0Sk8XGwHqvA=
-github.com/ansurfen/cushion v0.0.0-20230501054057-77ed5331b639 h1:/YE/Vnx/h4cnGV7dKuo14S1nmcNU87sNGz44B9AAJH4=
-github.com/ansurfen/cushion v0.0.0-20230501054057-77ed5331b639/go.mod h1:bftHbNyqjF/HGJY+0HJzvCnH/XKfo6PeAI5vSyavrW0=
+github.com/ansurfen/cushion v0.0.0-20230503022223-eef5ad53a9e0 h1:kf77sQujmDSijfDpE1q3efov2GdA/yG/I96pTinfoa0=
+github.com/ansurfen/cushion v0.0.0-20230503022223-eef5ad53a9e0/go.mod h1:bftHbNyqjF/HGJY+0HJzvCnH/XKfo6PeAI5vSyavrW0=
 github.com/antchfx/htmlquery v1.3.0 h1:5I5yNFOVI+egyia5F2s/5Do2nFWxJz41Tr3DyfKD25E=
 github.com/antchfx/htmlquery v1.3.0/go.mod h1:zKPDVTMhfOmcwxheXUsx4rKJy8KEY/PU6eXr/2SebQ8=
 github.com/antchfx/xmlquery v1.3.15 h1:aJConNMi1sMha5G8YJoAIF5P+H+qG1L73bSItWHo8Tw=

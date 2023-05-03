@@ -2,7 +2,7 @@ module github.com/ansurfen/yock
 
 go 1.20
 
-require github.com/ansurfen/cushion v0.0.0-20230501054057-77ed5331b639
+require github.com/ansurfen/cushion v0.0.0-20230503022223-eef5ad53a9e0
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
