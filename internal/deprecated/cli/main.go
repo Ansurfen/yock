@@ -1,3 +1,4 @@
+// Deprecated version 0.0.2
 package main
 
 import (
@@ -13,7 +14,7 @@ import (
 	"github.com/ansurfen/cushion/utils"
 	_ "github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/cushion/utils/build"
-	"github.com/ansurfen/yock"
+	"github.com/ansurfen/yock/internal/deprecated"
 	"github.com/gocolly/colly"
 	lua "github.com/yuin/gopher-lua"
 )

@@ -2,7 +2,7 @@ module github.com/ansurfen/yock
 
 go 1.20
 
-require github.com/ansurfen/cushion v0.0.0-20230503022223-eef5ad53a9e0
+require github.com/ansurfen/cushion v0.0.0-20230507145948-9dc7c133c262
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
@@ -12,8 +12,10 @@ require (
 	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
+	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 )
