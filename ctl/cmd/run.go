@@ -11,9 +11,10 @@ import (
 )
 
 type runCmdParameter struct {
-	file    string
-	modes   []string
-	protect bool
+	file           string
+	modes          []string
+	protect        bool
+	disableAnalyse bool
 }
 
 var (
@@ -35,7 +36,10 @@ var (
 				runParameter.modes = append(runParameter.modes, arg)
 			}
 			yock := scheduler.New()
-			proto := yock.Compile(runParameter.file)
+			go yock.EventLoop()
+			proto := yock.Compile(scheduler.CompileOpt{
+				DisableAnalyse: runParameter.disableAnalyse,
+			}, runParameter.file)
 			if err := yock.DoCompliedFile(proto); err != nil {
 				panic(err)
 			}
@@ -55,4 +59,5 @@ var (
 func init() {
 	yockCmd.AddCommand(runCmd)
 	runCmd.PersistentFlags().BoolVarP(&runParameter.protect, "protect", "p", false, "")
+	runCmd.PersistentFlags().BoolVarP(&runParameter.disableAnalyse, "disable-analyze", "a", false, "")
 }

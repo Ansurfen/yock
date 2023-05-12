@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
+	"text/template"
 
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/cushion/utils/build"
 	"github.com/yuin/gopher-lua/ast"
 )
 
@@ -91,10 +94,6 @@ func stmtBuilder(buf *bytes.Buffer, chunk []ast.Stmt, filter map[int]bool) {
 			continue
 		}
 		switch v := stmt.(type) {
-		// case *ast.AssignStmt:
-		// 	fmt.Println("6", v)
-		// case *ast.FuncDefStmt:
-		// 	fmt.Println("6", v)
 		case *ast.AssignStmt:
 			exprBuilder(buf, v.Lhs[0], exprFrame{})
 			buf.WriteString("=")
@@ -150,7 +149,13 @@ func BuildLuaScript(chunk []ast.Stmt, filter map[int]bool) string {
 	return buf.String()
 }
 
-func Decomposition(chunk []ast.Stmt) {
+type DecompositionOpt struct {
+	File  string
+	Modes []string
+	Tpl  string
+}
+
+func Decomposition(opt DecompositionOpt, chunk []ast.Stmt) {
 	tasks := make(map[string][]string)
 	records := make(map[string]int)
 	for idx, stmt := range chunk {
@@ -188,13 +193,11 @@ func Decomposition(chunk []ast.Stmt) {
 		default:
 		}
 	}
-	fmt.Println(tasks, records)
-	modes := []string{"all", "pony", "build2"}
 	modesline := make([]struct {
 		limit  int
 		filter map[int]bool
-	}, len(modes))
-	for i, m := range modes {
+	}, len(opt.Modes))
+	for i, m := range opt.Modes {
 		if modesline[i].filter == nil {
 			modesline[i].filter = make(map[int]bool)
 		}
@@ -222,4 +225,36 @@ func Decomposition(chunk []ast.Stmt) {
 		}
 		utils.WriteFile(unique+prefix+strconv.Itoa(idx)+".lua", []byte(BuildLuaScript(chunk[:m.limit+1], m.filter)))
 	}
+	if len(opt.File) == 0 {
+		opt.File = unique + prefix
+	}
+	buildBootScript(opt.File, opt.Tpl, opt.Modes)
+}
+
+func buildBootScript(file string, tpl string, modes []string) {
+	tmpl := build.NewTemplate()
+	type mode struct {
+		Name string
+	}
+	text, err := utils.ReadStraemFromFile(tpl)
+	if err != nil {
+		panic(err)
+	}
+	tmpl.Funcs(template.FuncMap{
+		"add": func(a, b int) int {
+			return a + b
+		},
+	})
+	var ms []mode
+	for _, m := range modes {
+		ms = append(ms, mode{Name: m})
+	}
+	out, err := tmpl.OnceParse(string(text), ms)
+	if err != nil {
+		panic(err)
+	}
+	if !strings.HasSuffix(file, ".lua") {
+		file = file + ".lua"
+	}
+	utils.WriteFile(file, []byte(out))
 }

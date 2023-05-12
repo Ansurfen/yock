@@ -8,12 +8,15 @@ import (
 
 	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/parser"
+	"github.com/ansurfen/yock/scheduler"
 	"github.com/spf13/cobra"
 )
 
 type compileCmdParameter struct {
-	file  string
-	modes []string
+	file          string
+	modes         []string
+	decomposition bool
+	output        string
 }
 
 var (
@@ -27,33 +30,46 @@ var (
 				fmt.Println("file not found")
 				os.Exit(1)
 			}
-			compileParameter.file = args[0]
-			include := utils.OpenConfFromPath("test/include.yaml")
-			if err := include.ReadInConfig(); err != nil {
-				panic(err)
-			}
-
-			files := include.GetStringSlice("file")
-			methods := include.GetStringSlice("method")
-			anlyzer := parser.NewLuaDependencyAnalyzer()
-			// import stdlib
-			out, err := utils.ReadStraemFromFile("../parser/stdlib.json")
-			if err != nil {
-				panic(err)
-			}
-			if err = json.Unmarshal(out, anlyzer); err != nil {
-				panic(err)
-			}
-			for _, method := range methods {
-				if !strings.HasSuffix(method, "()") {
-					method = method + "()"
+			for i := 0; i < len(args); i++ {
+				if i == 0 {
+					compileParameter.file = args[i]
+					continue
 				}
-				anlyzer.Preload(method, parser.LuaMethod{Pkg: "g"})
+				compileParameter.modes = append(compileParameter.modes, args[i])
 			}
-			for _, file := range files {
-				anlyzer.Load(file)
+			if compileParameter.decomposition {
+				parser.Decomposition(parser.DecompositionOpt{
+					Modes: compileParameter.modes,
+					File:  compileParameter.output,
+					Tpl:   scheduler.Pathf("@/sdk/yock/decomposition.tpl"),
+				}, parser.ParserASTFromFile(compileParameter.file))
+			} else {
+				include := utils.OpenConfFromPath(scheduler.Pathf("@/include.yaml"))
+				if err := include.ReadInConfig(); err != nil {
+					panic(err)
+				}
+				files := include.GetStringSlice("file")
+				methods := include.GetStringSlice("method")
+				anlyzer := parser.NewLuaDependencyAnalyzer()
+				// import stdlib
+				out, err := utils.ReadStraemFromFile(scheduler.Pathf("@/sdk/yock/deps/stdlib.json"))
+				if err != nil {
+					panic(err)
+				}
+				if err = json.Unmarshal(out, anlyzer); err != nil {
+					panic(err)
+				}
+				for _, method := range methods {
+					if !strings.HasSuffix(method, "()") {
+						method = method + "()"
+					}
+					anlyzer.Preload(method, parser.LuaMethod{Pkg: "g"})
+				}
+				for _, file := range files {
+					anlyzer.Load(scheduler.Pathf(file))
+				}
+				fmt.Println(anlyzer.Tidy(compileParameter.file))
 			}
-			fmt.Println(anlyzer.Tidy(compileParameter.file))
 		},
 	}
 )
@@ -61,4 +77,6 @@ var (
 func init() {
 	yockCmd.AddCommand(compileCmd)
 	compileCmd.PersistentFlags().StringSliceVarP(&compileParameter.modes, "modes", "m", nil, "")
+	compileCmd.PersistentFlags().BoolVarP(&compileParameter.decomposition, "decomposition", "d", false, "")
+	compileCmd.PersistentFlags().StringVarP(&compileParameter.output, "output", "o", "", "")
 }

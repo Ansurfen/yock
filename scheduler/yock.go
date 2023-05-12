@@ -26,6 +26,12 @@ var (
 	DriverPath string
 )
 
+func init() {
+	WorkSpace = filepath.ToSlash(path.Join(utils.GetEnv().Workdir(), ".yock"))
+	PluginPath = path.Join(WorkSpace, "plugin")
+	DriverPath = path.Join(WorkSpace, "driver")
+}
+
 type YockScheduler struct {
 	runtime.VirtualMachine
 	env     *lua.LTable
@@ -51,14 +57,11 @@ func New() *YockScheduler {
 		signals:        &sync.Map{},
 		jobs:           make(map[string][]*yockJob),
 	}
-	WorkSpace = filepath.ToSlash(path.Join(utils.GetEnv().Workdir(), ".yock"))
-	PluginPath = path.Join(WorkSpace, "plugin")
-	DriverPath = path.Join(WorkSpace, "driver")
 
 	utils.SafeBatchMkdirs([]string{PluginPath, DriverPath})
 
-	vm.globalDNS = CreateDNS(pathf("@/global.json"))
-	vm.localDNS = CreateDNS(pathf("@/local.json"))
+	vm.globalDNS = CreateDNS(Pathf("@/global.json"))
+	vm.localDNS = CreateDNS(Pathf("@/local.json"))
 
 	vm.parseFlags()
 	vm.injectGlobal()
@@ -71,6 +74,7 @@ func (vm *YockScheduler) parseFlags() {
 	args := &lua.LTable{}
 	vm.env.RawSetString("args", args)
 	vm.env.RawSetString("platform", luar.New(vm.Interp(), utils.CurPlatform))
+	vm.env.RawSetString("workdir", lua.LString(WorkSpace))
 	for i, j := 0, 1; i < len(os.Args); i++ {
 		if os.Args[i] == "--" {
 			idx = i
@@ -102,13 +106,13 @@ func (vm *YockScheduler) injectGlobal() {
 		"env":     vm.env,
 		"plugins": vm.plugins,
 	})
-	files, err := os.ReadDir("../sdk/yock")
+	files, err := os.ReadDir(Pathf("@/sdk/yock"))
 	if err != nil {
 		panic(err)
 	}
 	for _, file := range files {
 		if file.Name() != "yock.lua" {
-			vm.EvalFile("../sdk/yock/" + file.Name())
+			vm.EvalFile(Pathf("@/sdk/yock/") + file.Name())
 		}
 	}
 	vm.loadRandom()
@@ -188,7 +192,11 @@ func (vm *YockScheduler) EventLoop() {
 	}
 }
 
-func (vm *YockScheduler) Compile(file string) *lua.FunctionProto {
+type CompileOpt struct {
+	DisableAnalyse bool
+}
+
+func (vm *YockScheduler) Compile(opt CompileOpt, file string) *lua.FunctionProto {
 	fp, err := os.Open(file)
 	if err != nil {
 		panic(err)
@@ -199,25 +207,29 @@ func (vm *YockScheduler) Compile(file string) *lua.FunctionProto {
 	if err != nil {
 		panic(err)
 	}
-	anlyzer := parser.NewLuaDependencyAnalyzer()
-	out, err := utils.ReadStraemFromFile("../sdk/deps/stdlib.json")
-	if err != nil {
-		panic(err)
-	}
-	if err = json.Unmarshal(out, anlyzer); err != nil {
-		panic(err)
-	}
-	files, err := os.ReadDir("../sdk/yock")
-	if err != nil {
-		panic(err)
-	}
-	for _, file := range files {
-		anlyzer.Load("../sdk/yock/" + file.Name())
-	}
-	undefines, _ := anlyzer.Tidy(file)
-	for _, undefine := range undefines {
-		undefine = strings.TrimSuffix(undefine, "()")
-		vm.Eval(fmt.Sprintf(`%s = uninit_driver("%s")`, undefine, undefine))
+	if !opt.DisableAnalyse {
+		anlyzer := parser.NewLuaDependencyAnalyzer()
+		out, err := utils.ReadStraemFromFile(Pathf("@/sdk/yock/deps/stdlib.json"))
+		if err != nil {
+			panic(err)
+		}
+		if err = json.Unmarshal(out, anlyzer); err != nil {
+			panic(err)
+		}
+		files, err := os.ReadDir(Pathf("@/sdk/yock"))
+		if err != nil {
+			panic(err)
+		}
+		for _, file := range files {
+			if filepath.Ext(file.Name()) == ".lua" {
+				anlyzer.Load(Pathf("@/sdk/yock/") + file.Name())
+			}
+		}
+		undefines, _ := anlyzer.Tidy(file)
+		for _, undefine := range undefines {
+			undefine = strings.TrimSuffix(undefine, "()")
+			vm.Eval(fmt.Sprintf(`%s = uninit_driver("%s")`, undefine, undefine))
+		}
 	}
 	proto, err := lua.Compile(chunk, file)
 	if err != nil {

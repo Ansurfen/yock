@@ -58,7 +58,8 @@ end
 ---{{.optional}}
 ---
 ---@param cases table
-function optional(cases)
+---@param bad_case fun()
+function optional(cases, bad_case)
 
 end
 
@@ -181,6 +182,7 @@ local platform = {}
 ---@field platform platform
 ---@field flags table
 ---@field job string
+---@field workdir string
 ---
 env = {}
 
@@ -286,6 +288,13 @@ function gdns:GetPlugin(domain)
     return {}
 end
 
+---@param domain string
+---@param url string
+---@param path string
+function gdns:UpdatePlugin(domain, url, path)
+
+end
+
 ---
 ---{{.go}}
 ---
@@ -368,6 +377,12 @@ end
 ---
 function path.exist(filepath)
     return false
+end
+
+---@vararg string
+---@return string
+function path.join(...)
+    return ""
 end
 
 ---
@@ -542,4 +557,73 @@ end
 ---@return boolean
 function is_localhost(url)
     return false
+end
+
+---@class sshClient
+local sshClient = {}
+
+---@param cmds table
+function sshClient:Exec(cmds)
+
+end
+
+function sshClient:Shell()
+
+end
+
+---@class sshOpt
+---@field user string
+---@field pwd string
+---@field ip string
+---@field network string
+---@field redirect boolean
+local sshOpt = {}
+
+---@param opt sshOpt
+---@param cb fun(client: sshClient)
+---@return sshClient
+function ssh(opt, cb)
+    return {}
+end
+
+---@param dir string
+function mkdir(dir)
+
+end
+
+---@param src string
+---@param dst string
+function cp(src, dst)
+
+end
+
+---@param src string
+---@param dst string
+function mv(src, dst)
+
+end
+
+---@param opt table
+---@vararg string
+function installs(opt, ...)
+
+end
+
+---@param plugin string
+---@param opt table
+function install(plugin, opt)
+
+end
+
+---@param file string
+---@return string
+function load_plugin(file)
+    return ""
+end
+
+plugins = {}
+
+---@param opt table
+function plugin(opt)
+
 end

@@ -8,7 +8,6 @@ job("multi", function(cenv)
         end
         notify("x")
     end)
-
     go(function()
         print("task 2")
         wait("x")

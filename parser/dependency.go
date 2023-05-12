@@ -46,7 +46,7 @@ func (analyzer *luaDependencyAnalyzer) Lookup(name string) []LuaMethod {
 	return analyzer.Includes[name]
 }
 
-// Load to anaylze declare of method in specify lua script
+// Load to anaylse declare of method in specify lua script
 func (analyzer *luaDependencyAnalyzer) Load(str string) {
 	var ast []ast.Stmt
 	scope := "g"

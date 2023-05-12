@@ -70,7 +70,10 @@ end
 
 -- uninit_driver is a shell that wrap exist and non-exist driver
 -- if driver is non-exist, it'll be set in null_driver
+---@param fn string
 function uninit_driver(fn)
+    ---@param opt table
+    ---@vararg string
     return function(opt, ...)
         -- try to find and execute driver or fetch driver from remote
         if opt ~= nil and opt.driver ~= nil then
@@ -125,5 +128,38 @@ function uninit_driver(fn)
         -- the worst condition, not url and local cache
         -- it'll set null_driver (@/driver/null.lua) as default driver that haven't implement.
         set_driver(fn, "null")
+    end
+end
+
+---@see installs
+function installs(opt, ...)
+    if opt ~= nil and opt.plugins ~= nil then
+        pull({ plugins = opt.plugins })
+        for _, plugin in ipairs(opt.plugins) do
+            if ldns:GetPlugin(plugin).URL ~= "" then
+                local uid = load_plugin(pathf("@/plugin/") .. ldns:GetPlugin(plugin).Path .. ".lua")
+                plugins[uid].install()
+            end
+            if gdns:GetPlugin(plugin).URL ~= "" then
+                load_plugin(pathf("@/plugin/") .. gdns:GetPlugin(plugin).Path .. ".lua")
+            end
+        end
+    end
+end
+
+---@see install
+function install(plugin, opt)
+    if ldns:GetPlugin(plugin).URL ~= "" then
+        local uid = load_plugin(pathf("@/plugin/") .. ldns:GetPlugin(plugin).Path .. ".lua")
+        plugins[uid].install(opt)
+        return
+    end
+    pull({ plugins = { plugin } })
+    if ldns:GetPlugin(plugin).URL ~= "" then
+        local uid = load_plugin(pathf("@/plugin/") .. ldns:GetPlugin(plugin).Path .. ".lua")
+        plugins[uid].install(opt)
+    end
+    if gdns:GetPlugin(plugin).URL ~= "" then
+        load_plugin(pathf("@/plugin/") .. gdns:GetPlugin(plugin).Path .. ".lua")
     end
 end

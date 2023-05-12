@@ -1,8 +1,12 @@
 package scheduler
 
 import (
+	"fmt"
+
 	"github.com/ansurfen/cushion/runtime"
+	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/cmd"
+	yock "github.com/ansurfen/yock/internal/deprecated"
 	"github.com/yuin/gluamapper"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -24,6 +28,20 @@ func loadIO() runtime.Handles {
 				}
 			}
 			cmd.Rm(opt, targets)
+			return 0
+		},
+		"mkdir": func(l *lua.LState) int {
+			utils.SafeMkdirs(l.CheckString(1))
+			return 0
+		},
+		"mv": func(l *lua.LState) int {
+			mv := yock.NewMoveCmd()
+			mv.Exec(fmt.Sprintf("%s %s", l.CheckString(1), l.CheckString(2)))
+			return 0
+		},
+		"cp": func(l *lua.LState) int {
+			cp := yock.NewCpCmd()
+			cp.Exec(fmt.Sprintf("-r %s %s", l.CheckString(1), l.CheckString(2)))
 			return 0
 		},
 	}

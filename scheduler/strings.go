@@ -52,13 +52,13 @@ func loadStrings(vm *YockScheduler) runtime.Handles {
 			return 1
 		},
 		"pathf": func(l *lua.LState) int {
-			l.Push(lua.LString(pathf(l.CheckString(1))))
+			l.Push(lua.LString(Pathf(l.CheckString(1))))
 			return 1
 		},
 	}
 }
 
-func pathf(path string) string {
+func Pathf(path string) string {
 	if len(path) > 0 && path[0] == '@' {
 		path = WorkSpace + path[1:]
 	}

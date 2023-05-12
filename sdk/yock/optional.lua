@@ -12,7 +12,7 @@ function case(...)
     end
 end
 
-function optional(cases)
+function optional(cases, bad_case)
     local max = -1
     local fn
     for _, case in ipairs(cases) do
@@ -26,5 +26,7 @@ function optional(cases)
     end
     if max ~= -1 then
         fn()
+    else
+        bad_case()
     end
 end

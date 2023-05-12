@@ -134,5 +134,11 @@ func TestRestoreScript5(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(BuildLuaScript(chunk, nil))
-	Decomposition(chunk)
+	Decomposition(DecompositionOpt{
+		Modes: []string{"all", "pony", "build2"},
+	}, chunk)
+}
+
+func TestBuildBootScript(t *testing.T) {
+	buildBootScript("temp.lua", "decomposition.tpl", []string{"host1", "host2"})
 }
