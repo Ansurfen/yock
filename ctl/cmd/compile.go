@@ -13,10 +13,10 @@ import (
 )
 
 type compileCmdParameter struct {
-	file          string
-	modes         []string
-	decomposition bool
-	output        string
+	file      string
+	modes     []string
+	decompose bool
+	output    string
 }
 
 var (
@@ -37,12 +37,13 @@ var (
 				}
 				compileParameter.modes = append(compileParameter.modes, args[i])
 			}
-			if compileParameter.decomposition {
-				parser.Decomposition(parser.DecompositionOpt{
+			if compileParameter.decompose {
+				yockpack := parser.YockPack[parser.NilFrame]{}
+				yockpack.Decompose(parser.DecomposeOpt{
 					Modes: compileParameter.modes,
 					File:  compileParameter.output,
-					Tpl:   scheduler.Pathf("@/sdk/yock/decomposition.tpl"),
-				}, parser.ParserASTFromFile(compileParameter.file))
+					Tpl:   scheduler.Pathf("@/sdk/yock/decompose.tpl"),
+				}, yockpack.ParseFile(compileParameter.file))
 			} else {
 				include := utils.OpenConfFromPath(scheduler.Pathf("@/include.yaml"))
 				if err := include.ReadInConfig(); err != nil {
@@ -77,6 +78,6 @@ var (
 func init() {
 	yockCmd.AddCommand(compileCmd)
 	compileCmd.PersistentFlags().StringSliceVarP(&compileParameter.modes, "modes", "m", nil, "")
-	compileCmd.PersistentFlags().BoolVarP(&compileParameter.decomposition, "decomposition", "d", false, "")
+	compileCmd.PersistentFlags().BoolVarP(&compileParameter.decompose, "decomposition", "d", false, "")
 	compileCmd.PersistentFlags().StringVarP(&compileParameter.output, "output", "o", "", "")
 }
