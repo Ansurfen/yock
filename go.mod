@@ -3,13 +3,23 @@ module github.com/ansurfen/yock
 go 1.20
 
 require (
-	github.com/ansurfen/cushion v0.0.0-20230507145948-9dc7c133c262
+	github.com/ansurfen/cushion v0.0.0-20230512104631-b9dff43eefdc
 	github.com/gocolly/colly v1.2.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/yuin/gluamapper v0.0.0-20150323120927-d836955830e7
 	github.com/yuin/gopher-lua v1.1.0
+	go.uber.org/zap v1.21.0
 	layeh.com/gopher-luar v1.0.10
+)
+
+require (
+	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
+	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
+	github.com/tklauser/go-sysconf v0.3.11 // indirect
+	github.com/tklauser/numcpus v0.6.0 // indirect
+	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 )
 
 require (
@@ -74,6 +84,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
+	github.com/shirou/gopsutil/v3 v3.23.4
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -84,7 +95,6 @@ require (
 	github.com/vadv/gopher-lua-libs v0.4.1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect

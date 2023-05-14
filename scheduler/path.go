@@ -30,5 +30,31 @@ func loadPath(vm *YockScheduler) {
 		l.Push(lua.LString(filepath.Join(elem...)))
 		return 1
 	}))
+	path.RawSetString("dir", vm.Interp().NewClosure(func(l *lua.LState) int {
+		l.Push(lua.LString(filepath.Dir(l.CheckString(1))))
+		return 1
+	}))
+	path.RawSetString("base", vm.Interp().NewClosure(func(l *lua.LState) int {
+		l.Push(lua.LString(filepath.Base(l.CheckString(1))))
+		return 1
+	}))
+	path.RawSetString("clean", vm.Interp().NewClosure(func(l *lua.LState) int {
+		l.Push(lua.LString(filepath.Clean(l.CheckString(1))))
+		return 1
+	}))
+	path.RawSetString("ext", vm.Interp().NewClosure(func(l *lua.LState) int {
+		l.Push(lua.LString(filepath.Ext(l.CheckString(1))))
+		return 1
+	}))
+	path.RawSetString("abs", vm.Interp().NewClosure(func(l *lua.LState) int {
+		abs, err := filepath.Abs(l.CheckString(1))
+		l.Push(lua.LString(abs))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 2
+	}))
 	vm.SetGlobalVar("path", path)
 }

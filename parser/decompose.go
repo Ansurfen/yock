@@ -1,0 +1,98 @@
+package parser
+
+import (
+	"strconv"
+
+	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
+	"github.com/yuin/gopher-lua/ast"
+)
+
+// DecomposeOpt indicates configuration of Decompose
+type DecomposeOpt struct {
+	// file to be decomposed
+	File string
+	// divide file into modes to be specified
+	Modes []string
+	// template file, is used to generate control script.
+	Tpl string
+}
+
+type modeBlock struct {
+	limit  int
+	filter map[int]bool
+}
+
+func (yockpack *YockPack[T]) Decompose(opt DecomposeOpt, stmts []ast.Stmt) {
+	var frame T
+	tasks := make(map[string][]string)
+	records := make(map[string]int)
+	yockpack.VisitStmt(stmts, frame, VisitStmtHandle[T]{
+		StmtFuncCall: func(si int, stmt yockStmt, frame T) {
+			v := stmt.(FuncCallStmt)
+			yockpack.VisitExpr([]yockExpr{v.Expr}, frame, VisitExprHandle[T]{
+				ExprFuncCall: func(ei int, expr yockExpr, frame T) {
+					v := expr.(FuncCallExpr)
+					if vv, ok := v.Func.(*ast.IdentExpr); ok && vv.Value == "jobs" {
+						if len(v.Args) < 2 {
+							return
+						}
+						taskName := ""
+						jobs := []string{}
+						for idx, arg := range v.Args {
+							if str, ok := arg.(*ast.StringExpr); ok {
+								if idx == 0 {
+									taskName = str.Value
+								} else {
+									jobs = append(jobs, str.Value)
+								}
+							}
+						}
+						if len(taskName) > 0 {
+							tasks[taskName] = jobs
+						}
+					} else if ok && vv.Value == "job" {
+						if len(v.Args) < 2 {
+							return
+						}
+						if str, ok := v.Args[0].(*ast.StringExpr); ok {
+							records[str.Value] = si
+							tasks[str.Value] = append(tasks[str.Value], str.Value)
+						}
+					}
+				},
+			})
+		},
+	})
+	modeBlocks := make([]modeBlock, len(opt.Modes))
+	for i, mode := range opt.Modes {
+		if modeBlocks[i].filter == nil {
+			modeBlocks[i].filter = make(map[int]bool)
+		}
+		max := -1
+		for _, record := range records {
+			modeBlocks[i].filter[record] = true
+		}
+		for _, job := range tasks[mode] {
+			jobPos := records[job]
+			modeBlocks[i].filter[jobPos] = false
+			if max < jobPos {
+				max = jobPos
+			}
+		}
+		modeBlocks[i].limit = max
+	}
+	prefix := "host"
+	unique := utils.RandString(3)
+	for idx, mb := range modeBlocks {
+		if mb.limit == -1 {
+			util.YchoWarn("yockpack.decompose", "invalid mode block")
+			continue
+		}
+		utils.WriteFile(unique+prefix+strconv.Itoa(idx)+".lua", []byte(BuildLuaScript(stmts[:mb.limit+1], mb.filter)))
+	}
+	if len(opt.File) == 0 {
+		opt.File = unique + prefix
+	}
+	buildBootScript(opt.File, opt.Tpl, opt.Modes)
+}

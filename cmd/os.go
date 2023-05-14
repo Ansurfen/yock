@@ -1,48 +1,48 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"os/exec"
 
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 )
 
+// ExecOpt indicates configuration of exec
 type ExecOpt struct {
+	// Redirect set stdout, stderr, stdin stream
 	Redirect bool
-	Debug    bool
-	Quiet    bool
-	Terminal struct{}
+	// Debug prints output when it's true
+	Debug bool
+	// Caller is used to mark parent caller of HTTP function
+	//
+	// It'll printed on console when debug is true
+	Caller string
+	Quiet  bool
+	// Strict will exit at once when error occur
+	Strict bool
+
+	err error
 }
 
 func Exec(opt ExecOpt, cmds []string) error {
-	for _, raw := range cmds {
-		var cmd *exec.Cmd
+	for _, cmd := range cmds {
+		var term *terminal
 		switch utils.CurPlatform.OS {
 		case "windows":
-			switch utils.CurPlatform.Ver {
-			case "10", "11":
-				cmd = exec.Command("powershell", raw)
-			default:
-				cmd = exec.Command("cmd", []string{"/C", raw}...)
-			}
-		case "linux", "darwin":
-			cmd = exec.Command("/bin/bash", []string{"/C", raw}...)
+			term = windowsTerm(cmd)
 		default:
-			return errors.New("not support platform")
+			term = posixTerm()
 		}
-		if opt.Redirect {
-			cmd.Stdin = os.Stdin
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			cmd.Run()
-		} else {
-			out, _ := cmd.CombinedOutput()
-			if !opt.Quiet {
-				fmt.Print(string(out))
+		if err := term.exec(&opt); err != nil {
+			if opt.Debug {
+				util.YchoWarn(opt.Caller, fmt.Sprintf("%s err: %s", cmd, err.Error()))
+			}
+			if opt.Strict {
+				return err
+			} else {
+				opt.err = ErrGeneral
 			}
 		}
 	}
-	return nil
+	return opt.err
 }

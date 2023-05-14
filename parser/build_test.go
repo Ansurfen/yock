@@ -134,8 +134,10 @@ func TestRestoreScript5(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(BuildLuaScript(chunk, nil))
-	Decomposition(DecompositionOpt{
-		Modes: []string{"all", "pony", "build2"},
+	yockpack := YockPack[NilFrame]{}
+	yockpack.Decompose(DecomposeOpt{
+		Modes: []string{"all", ""},
+		Tpl:   "./decompose.tpl",
 	}, chunk)
 }
 

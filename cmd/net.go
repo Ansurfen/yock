@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -9,71 +10,167 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 )
 
+// HttpOpt indicates configuration of HTTP request
 type HttpOpt struct {
-	Data   string
-	Method string
-	Save   bool
-	Dir    string
-	Debug  bool
+	// Header contains the request header fields either received
+	// by the server or to be sent by the client.
 	Header map[string]string
-	Fn     func(string) string
+	// Method specifies the HTTP method (GET, POST, PUT, etc.).
+	Method string
+	Data   string
 	Cookie *http.Cookie
+	// Save will write body into specify file
+	Save bool
+	// Dir set root directionary of file to be saved
+	Dir string
+	// Filename returns filename that will be saved according to url
+	Filename func(string) string
+	// Debug prints output when it's true
+	Debug bool
+	// Caller is used to mark parent caller of HTTP function
+	//
+	// It'll printed on console when debug is true
+	Caller string
+	// Strict will exit at once when error occur
+	Strict bool
+
+	// Async will enable goroutines when it's true.
+	//
+	// maxRequestCount and wg to limit count of concurrent goroutines
+	Async           bool
+	maxRequestCount chan struct{}
+	wg              *sync.WaitGroup
+
+	err error
 }
 
+// httpExceptionHandle controls return of HTTP function when value of return is true
+func httpExceptionHandle(err error, opt *HttpOpt, exception string) bool {
+	if err != nil {
+		if opt.Debug {
+			util.YchoWarn(opt.Caller, exception)
+		}
+		if opt.Strict {
+			return true
+		} else {
+			opt.err = ErrGeneral
+		}
+	}
+	return false
+}
+
+// Http is similar with curl, which is used to send HTTP request according to opt and urls.
 func HTTP(opt HttpOpt, urls []string) error {
 	for _, url := range urls {
-		if opt.Debug {
-			fmt.Print("curl: ", url)
-		}
-		if !utils.IsURL(url) {
-			if opt.Debug {
-				fmt.Println("\nerr url: ", url)
-			}
-			continue
+		if !utils.IsURL(url) && httpExceptionHandle(ErrGeneral, &opt, ErrInvalidURL) {
+			return errors.New(ErrInvalidURL)
 		}
 		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			fmt.Println(err)
-			return fmt.Errorf("error creating request: %v", err)
+
+		switch opt.Method = strings.ToUpper(opt.Method); opt.Method {
+		case "": // default GET method
+		case "GET", "HEAD", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH":
+			req.Method = opt.Method
+		default:
+			if httpExceptionHandle(ErrGeneral, &opt, ErrInvalidMethod) {
+				return errors.New(ErrInvalidMethod)
+			}
 		}
+
+		if httpExceptionHandle(err, &opt, ErrBadCreateFile) {
+			return errors.New(BadCreateRequest)
+		}
+
 		for k, v := range opt.Header {
 			req.Header.Add(k, v)
 		}
 		if opt.Cookie != nil {
 			req.AddCookie(opt.Cookie)
 		}
-		switch strings.ToUpper(opt.Method) {
-		case "GET":
-		case "POST":
-			req.Method = "POST"
+
+		if len(opt.Data) != 0 {
 			req.Body = ioutil.NopCloser(strings.NewReader(opt.Data))
-		default:
-			return fmt.Errorf("error method")
 		}
-		res, err := http.DefaultClient.Do(req)
-		if err != nil {
-			fmt.Println(err)
-			return fmt.Errorf("error sending request: %v", err)
-		}
-		defer res.Body.Close()
-		if opt.Save {
-			dst := path.Join(opt.Dir, opt.Fn(url)+".lua")
-			dir := filepath.Dir(dst)
-			utils.SafeMkdirs(dir)
-			file, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0666)
-			if err != nil {
-				return fmt.Errorf("fail to create file")
-			}
-			defer file.Close()
-			io.Copy(file, res.Body)
-		}
+
 		if opt.Debug {
-			fmt.Println("✔")
+			util.YchoInfo(opt.Caller, fmt.Sprintf("%s %s", req.Method, url))
+		}
+
+		if opt.Async {
+			if opt.maxRequestCount == nil {
+				opt.maxRequestCount = make(chan struct{}, 10)
+				opt.wg = &sync.WaitGroup{}
+			}
+
+			opt.maxRequestCount <- struct{}{}
+
+			u := url // to avoid loop variable url captured by func literal
+
+			go func() {
+				defer opt.wg.Done()
+
+				res, err := http.DefaultClient.Do(req)
+
+				if httpExceptionHandle(err, &opt, ErrBadSendRequest) {
+					return
+				}
+
+				defer res.Body.Close()
+
+				if opt.Save {
+					dst := path.Join(opt.Dir, opt.Filename(u))
+					dir := filepath.Dir(dst)
+
+					if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, ErrBadCreateDir) {
+						return
+					}
+
+					file, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0666)
+					if err != nil {
+						return
+					}
+					defer file.Close()
+					io.Copy(file, res.Body)
+				}
+				<-opt.maxRequestCount
+			}()
+		} else {
+			res, err := http.DefaultClient.Do(req)
+
+			if httpExceptionHandle(err, &opt, ErrBadSendRequest) {
+				return errors.New(ErrBadSendRequest)
+			}
+
+			defer res.Body.Close()
+
+			if opt.Save {
+				dst := path.Join(opt.Dir, opt.Filename(url))
+				dir := filepath.Dir(dst)
+
+				if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, ErrBadCreateDir) {
+					return errors.New(ErrBadCreateDir)
+				}
+
+				file, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0666)
+				if httpExceptionHandle(err, &opt, ErrBadCreateFile) {
+					return errors.New(ErrBadCreateFile)
+				}
+				defer file.Close()
+				io.Copy(file, res.Body)
+			}
 		}
 	}
-	return nil
+
+	if opt.Async {
+		close(opt.maxRequestCount)
+		opt.wg.Wait()
+	}
+
+	return opt.err
 }

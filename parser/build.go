@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -147,88 +146,6 @@ func BuildLuaScript(chunk []ast.Stmt, filter map[int]bool) string {
 	var buf *bytes.Buffer = new(bytes.Buffer)
 	stmtBuilder(buf, chunk, filter)
 	return buf.String()
-}
-
-type DecompositionOpt struct {
-	File  string
-	Modes []string
-	Tpl  string
-}
-
-func Decomposition(opt DecompositionOpt, chunk []ast.Stmt) {
-	tasks := make(map[string][]string)
-	records := make(map[string]int)
-	for idx, stmt := range chunk {
-		switch v := stmt.(type) {
-		case *ast.FuncCallStmt:
-			if vv, ok := v.Expr.(*ast.FuncCallExpr); ok {
-				if vvv, ok := vv.Func.(*ast.IdentExpr); ok && vvv.Value == "jobs" {
-					if len(vv.Args) < 2 {
-						continue
-					}
-					ns := ""
-					jobs := []string{}
-					for idx, arg := range vv.Args {
-						if a, ok := arg.(*ast.StringExpr); ok {
-							if idx == 0 {
-								ns = a.Value
-							} else {
-								jobs = append(jobs, a.Value)
-							}
-						} else {
-							continue
-						}
-					}
-					tasks[ns] = jobs
-				} else if ok && vvv.Value == "job" {
-					if len(vv.Args) < 2 {
-						continue
-					}
-					if a, ok := vv.Args[0].(*ast.StringExpr); ok {
-						records[a.Value] = idx
-						tasks[a.Value] = append(tasks[a.Value], a.Value)
-					}
-				}
-			}
-		default:
-		}
-	}
-	modesline := make([]struct {
-		limit  int
-		filter map[int]bool
-	}, len(opt.Modes))
-	for i, m := range opt.Modes {
-		if modesline[i].filter == nil {
-			modesline[i].filter = make(map[int]bool)
-		}
-		max := -1
-		for _, ii := range records {
-			modesline[i].filter[ii] = true
-		}
-		for _, t := range tasks[m] {
-			line := records[t]
-
-			modesline[i].filter[line] = false
-			if max < line {
-				max = line
-			}
-		}
-		modesline[i].limit = max
-	}
-	fmt.Println(modesline)
-	prefix := "host"
-	unique := utils.RandString(3)
-	for idx, m := range modesline {
-		if m.limit == -1 {
-			fmt.Println("err")
-			continue
-		}
-		utils.WriteFile(unique+prefix+strconv.Itoa(idx)+".lua", []byte(BuildLuaScript(chunk[:m.limit+1], m.filter)))
-	}
-	if len(opt.File) == 0 {
-		opt.File = unique + prefix
-	}
-	buildBootScript(opt.File, opt.Tpl, opt.Modes)
 }
 
 func buildBootScript(file string, tpl string, modes []string) {

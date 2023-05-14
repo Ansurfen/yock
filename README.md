@@ -7,3 +7,31 @@
 English | [简体中文](./docs/zh_cn/README.md)
 
 Yock is a solution of cross platform to compose distributed build stream.
+
+## Install
+
+### Embed in Go
+
+To start, fetchs library by go mod.
+```cmd
+go get "github.com/ansurfen/yock"
+```
+
+Then, import library to use it on your project.
+```go
+package main
+
+import . "github.com/ansurfen/yock/cmd"
+
+func main() {
+	HTTP(HttpOpt{
+		Method: "GET",
+		Save:   true,
+		Debug:  true,
+		Dir:    ".",
+		Filename: func(s string) string {
+			return s
+		},
+	}, []string{"https://www.github.com"})    
+}
+```

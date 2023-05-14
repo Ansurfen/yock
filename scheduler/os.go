@@ -1,6 +1,8 @@
 package scheduler
 
 import (
+	"os"
+
 	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/yock/cmd"
 	"github.com/yuin/gluamapper"
@@ -25,6 +27,16 @@ func loadOS() runtime.Handles {
 			}
 			cmd.Exec(opt, cmds)
 			return 0
+		},
+		"pwd": func(l *lua.LState) int {
+			path, err := os.Getwd()
+			l.Push(lua.LString(path))
+			if err != nil {
+				l.Push(lua.LFalse)
+			} else {
+				l.Push(lua.LTrue)
+			}
+			return 2
 		},
 	}
 }
