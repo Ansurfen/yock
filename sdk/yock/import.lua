@@ -16,5 +16,15 @@ function import(module)
     if strings.HasPrefix(module, "./") or strings.HasPrefix(module, "../") then
         return require(path.join(debug.getinfo(2, "S").source, "..", module))
     end
-    return require(path.join(module))
+    local root = path.join(debug.getinfo(2, "S").source, "..")
+    local pkg, err = io.open(path.join(root, "yock.json"), "r")
+    local pkgFile
+    if type(pkg) ~= "nil" then
+        pkgFile = json.decode(pkg:read("*a"))
+    end
+    return require(path.join(module, pkgFile["dependency"][module]))
+end
+
+function cur_dir()
+    return path.join(debug.getinfo(2, "S").source, "..")
 end

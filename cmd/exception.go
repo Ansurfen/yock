@@ -2,24 +2,22 @@ package cmd
 
 import "errors"
 
-const (
+var (
 	// net
 
-	ErrInvalidURL     = "invalid url"
-	ErrInvalidMethod  = "invalid method"
-	BadCreateRequest  = "error createing request"
-	ErrBadSendRequest = "error sending request"
+	ErrInvalidURL       = errors.New("invalid url")
+	ErrInvalidMethod    = errors.New("invalid method")
+	ErrBadCreateRequest = errors.New("error createing request")
+	ErrBadSendRequest   = errors.New("error sending request")
 
 	// os
 
-	ErrNoSupportPlatform = "not support platform"
+	ErrNoSupportPlatform = errors.New("not support platform")
 
 	// io
 
-	ErrBadCreateDir  = "fail to create dir"
-	ErrBadCreateFile = "fail to create file"
-)
+	ErrBadCreateDir  = errors.New("fail to create dir")
+	ErrBadCreateFile = errors.New("fail to create file")
 
-var (
 	ErrGeneral = errors.New("error happen")
 )

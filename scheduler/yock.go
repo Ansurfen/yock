@@ -39,6 +39,8 @@ type YockScheduler struct {
 	drivers *lua.LTable
 	opt     *lua.LTable
 
+	envVar utils.EnvVar
+
 	globalDNS *DNS
 	localDNS  *DNS
 
@@ -56,6 +58,7 @@ func New() *YockScheduler {
 		goroutines:     make(chan func(), 10),
 		signals:        &sync.Map{},
 		jobs:           make(map[string][]*yockJob),
+		envVar:         utils.NewEnvVar(),
 	}
 
 	utils.SafeBatchMkdirs([]string{PluginPath, DriverPath})
@@ -69,12 +72,102 @@ func New() *YockScheduler {
 	return vm
 }
 
+func envVarTypeCvt(v lua.LValue) any {
+	switch vv := v.(type) {
+	case lua.LString:
+		return vv.String()
+	case *lua.LTable:
+		str := []string{}
+		vv.ForEach(func(_, s lua.LValue) {
+			str = append(str, s.String())
+		})
+		return str
+	default:
+		return nil
+	}
+}
+
 func (vm *YockScheduler) parseFlags() {
 	idx := 0
 	args := &lua.LTable{}
 	vm.env.RawSetString("args", args)
 	vm.env.RawSetString("platform", luar.New(vm.Interp(), utils.CurPlatform))
 	vm.env.RawSetString("workdir", lua.LString(WorkSpace))
+	vm.env.RawSetString("set_path", vm.Interp().NewClosure(func(l *lua.LState) int {
+		err := vm.envVar.SetPath(l.CheckString(1))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 1
+	}))
+	vm.env.RawSetString("safe_set", vm.Interp().NewClosure(func(l *lua.LState) int {
+		err := vm.envVar.SafeSet(l.CheckString(1), envVarTypeCvt(l.CheckAny(2)))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 1
+	}))
+	vm.env.RawSetString("set", vm.Interp().NewClosure(func(l *lua.LState) int {
+		err := vm.envVar.Set(l.CheckString(1), envVarTypeCvt(l.CheckAny(2)))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 1
+	}))
+	vm.env.RawSetString("unset", vm.Interp().NewClosure(func(l *lua.LState) int {
+		err := vm.envVar.Unset(l.CheckString(1))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 1
+	}))
+	vm.env.RawSetString("setl", vm.Interp().NewClosure(func(l *lua.LState) int {
+		err := vm.envVar.SetL(l.CheckString(1), l.CheckString(2))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 1
+	}))
+	vm.env.RawSetString("safe_setl", vm.Interp().NewClosure(func(l *lua.LState) int {
+		err := vm.envVar.SafeSetL(l.CheckString(1), l.CheckString(2))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 1
+	}))
+	vm.env.RawSetString("export", vm.Interp().NewClosure(func(l *lua.LState) int {
+		err := vm.envVar.Export(l.CheckString(1))
+		if err != nil {
+			l.Push(lua.LString(err.Error()))
+		} else {
+			l.Push(lua.LString(""))
+		}
+		return 1
+	}))
+	vm.env.RawSetString("print", vm.Interp().NewClosure(func(l *lua.LState) int {
+		vm.envVar.Print()
+		return 0
+	}))
+	vm.env.RawSetString("get_all", vm.Interp().NewClosure(func(l *lua.LState) int {
+		envs := &lua.LTable{}
+		for i, e := range os.Environ() {
+			envs.Insert(i+1, lua.LString(e))
+		}
+		l.Push(envs)
+		return 1
+	}))
 	for i, j := 0, 1; i < len(os.Args); i++ {
 		if os.Args[i] == "--" {
 			idx = i
@@ -119,6 +212,7 @@ func (vm *YockScheduler) injectGlobal() {
 	loadPath(vm)
 	loadTime(vm)
 	loadSync(vm)
+	loadJSON(vm)
 	vm.Eval(`Import({"cushion-check", "cushion-vm"})`)
 }
 

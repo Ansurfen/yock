@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ansurfen/cushion/runtime"
@@ -41,7 +40,6 @@ func goroutineWait(vm *YockScheduler) func(*runtime.LuaInterp) int {
 		}
 		cnt := 0
 		for {
-			fmt.Println(vm.signals.Load(sig))
 			if sig, ok := vm.signals.Load(sig); ok && sig.(bool) {
 				break
 			}

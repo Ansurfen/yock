@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+**/lua_modules
+**/yock.json
+*.lua

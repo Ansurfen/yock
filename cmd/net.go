@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -51,10 +50,10 @@ type HttpOpt struct {
 }
 
 // httpExceptionHandle controls return of HTTP function when value of return is true
-func httpExceptionHandle(err error, opt *HttpOpt, exception string) bool {
+func httpExceptionHandle(err error, opt *HttpOpt, exception error) bool {
 	if err != nil {
 		if opt.Debug {
-			util.YchoWarn(opt.Caller, exception)
+			util.YchoWarn(opt.Caller, exception.Error())
 		}
 		if opt.Strict {
 			return true
@@ -69,7 +68,7 @@ func httpExceptionHandle(err error, opt *HttpOpt, exception string) bool {
 func HTTP(opt HttpOpt, urls []string) error {
 	for _, url := range urls {
 		if !utils.IsURL(url) && httpExceptionHandle(ErrGeneral, &opt, ErrInvalidURL) {
-			return errors.New(ErrInvalidURL)
+			return ErrInvalidURL
 		}
 		req, err := http.NewRequest("GET", url, nil)
 
@@ -79,12 +78,12 @@ func HTTP(opt HttpOpt, urls []string) error {
 			req.Method = opt.Method
 		default:
 			if httpExceptionHandle(ErrGeneral, &opt, ErrInvalidMethod) {
-				return errors.New(ErrInvalidMethod)
+				return ErrInvalidMethod
 			}
 		}
 
 		if httpExceptionHandle(err, &opt, ErrBadCreateFile) {
-			return errors.New(BadCreateRequest)
+			return ErrBadCreateRequest
 		}
 
 		for k, v := range opt.Header {
@@ -144,7 +143,7 @@ func HTTP(opt HttpOpt, urls []string) error {
 			res, err := http.DefaultClient.Do(req)
 
 			if httpExceptionHandle(err, &opt, ErrBadSendRequest) {
-				return errors.New(ErrBadSendRequest)
+				return ErrBadSendRequest
 			}
 
 			defer res.Body.Close()
@@ -154,12 +153,12 @@ func HTTP(opt HttpOpt, urls []string) error {
 				dir := filepath.Dir(dst)
 
 				if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, ErrBadCreateDir) {
-					return errors.New(ErrBadCreateDir)
+					return ErrBadCreateDir
 				}
 
 				file, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0666)
 				if httpExceptionHandle(err, &opt, ErrBadCreateFile) {
-					return errors.New(ErrBadCreateFile)
+					return ErrBadCreateFile
 				}
 				defer file.Close()
 				io.Copy(file, res.Body)

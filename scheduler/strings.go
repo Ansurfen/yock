@@ -11,17 +11,17 @@ func loadStrings(vm *YockScheduler) runtime.Handles {
 	str := &lua.LTable{}
 	str.RawSetString("HasPrefix", vm.Interp().NewClosure(func(l *lua.LState) int {
 		if strings.HasPrefix(l.CheckString(1), l.CheckString(2)) {
-			vm.Interp().Push(lua.LTrue)
+			l.Push(lua.LTrue)
 		} else {
-			vm.Interp().Push(lua.LFalse)
+			l.Push(lua.LFalse)
 		}
 		return 1
 	}))
 	str.RawSetString("HasSuffix", vm.Interp().NewClosure(func(l *lua.LState) int {
 		if strings.HasSuffix(l.CheckString(1), l.CheckString(2)) {
-			vm.Interp().Push(lua.LTrue)
+			l.Push(lua.LTrue)
 		} else {
-			vm.Interp().Push(lua.LFalse)
+			l.Push(lua.LFalse)
 		}
 		return 1
 	}))

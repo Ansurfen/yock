@@ -97,10 +97,6 @@ type (
 	FunctionExpr       = *ast.FunctionExpr
 )
 
-func (*YockPack[T]) Compile() {}
-
-func (*YockPack[T]) LoadDeps() {}
-
 func (*YockPack[T]) ParseStr(str string) []ast.Stmt {
 	reader := bufio.NewReader(strings.NewReader(str))
 	chunk, err := parse.Parse(reader, "<string>")

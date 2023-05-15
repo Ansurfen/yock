@@ -1,4 +1,4 @@
-# Yock
+#  <img src="../yock.ico" width = "60" height = "60" alt="logo" align=center />Yock
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/ansurfen/cushion)](https://goreportcard.com/report/github.com/ansurfen/yock)
 ![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)

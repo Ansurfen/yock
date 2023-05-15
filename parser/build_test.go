@@ -1,53 +1,42 @@
 package parser
 
 import (
-	"bufio"
 	"fmt"
-	"strings"
 	"testing"
-
-	"github.com/yuin/gopher-lua/parse"
 )
 
 func TestRestoreScript(t *testing.T) {
-	reader := bufio.NewReader(strings.NewReader(`
-    local function foo()
-        print("Hello, world!")
-		return true, 10, false
-    end
-
-    foo()
-    `))
-	chunk, err := parse.Parse(reader, "<string>")
-	fmt.Println(parse.Dump(chunk))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(BuildLuaScript(chunk, nil))
+	str := `
+local function foo()
+	print("Hello, world!")
+	return true, 10, false
+end
+foo()`
+	yockpack := YockPack[NilFrame]{}
+	fmt.Println(yockpack.DumpStr(str))
+	chunk := yockpack.ParseStr(str)
+	fmt.Println(yockpack.BuildScript(chunk, nil))
 }
 
 func TestRestoreScript2(t *testing.T) {
-	reader := bufio.NewReader(strings.NewReader(`
-	job("c", function(cenv)
-    print("c")
-    table.dump(cenv)
-    cenv.c = 6
-    table.dump(cenv)
-    a = 10
-    return true
-end)
-    `))
-	chunk, err := parse.Parse(reader, "<string>")
-	fmt.Println(parse.Dump(chunk))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(BuildLuaScript(chunk, nil))
+	str := `
+job("c", function(cenv)
+	print("c")
+	table.dump(cenv)
+	cenv.c = 6
+	table.dump(cenv)
+	a = 10
+	return true
+end)`
+	yockpack := YockPack[NilFrame]{}
+	fmt.Println(yockpack.DumpStr(str))
+	chunk := yockpack.ParseStr(str)
+	fmt.Println(yockpack.BuildScript(chunk, nil))
 }
 
 func TestRestoreScript3(t *testing.T) {
-	reader := bufio.NewReader(strings.NewReader(`
-	set_driver("unzip", "yock")
+	str := `
+set_driver("unzip", "yock")
 
 unzip({
 
@@ -58,19 +47,15 @@ set_driver("unzip", "bandizip")
 unzip({
     out = "D:/al/yock/yock/cli/test/out",
 	10
-}, "./test/test.zip")
-
-    `))
-	chunk, err := parse.Parse(reader, "<string>")
-	fmt.Println(parse.Dump(chunk))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(BuildLuaScript(chunk, nil))
+}, "./test/test.zip")`
+	yockpack := YockPack[NilFrame]{}
+	fmt.Println(yockpack.DumpStr(str))
+	chunk := yockpack.ParseStr(str)
+	fmt.Println(yockpack.BuildScript(chunk, nil))
 }
 
 func TestRestoreScript4(t *testing.T) {
-	reader := bufio.NewReader(strings.NewReader(`
+	str := `
 	co({
 		task3 = function(this)
 			for i = 1, 10 do
@@ -90,19 +75,16 @@ func TestRestoreScript4(t *testing.T) {
 			end
 			this.notify("x")
 		end
-	})
-	
-    `))
-	chunk, err := parse.Parse(reader, "<string>")
-	fmt.Println(parse.Dump(chunk))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(BuildLuaScript(chunk, nil))
+	})`
+	yockpack := YockPack[NilFrame]{}
+	fmt.Println(yockpack.DumpStr(str))
+	chunk := yockpack.ParseStr(str)
+	fmt.Println(yockpack.BuildScript(chunk, nil))
 }
 
 func TestRestoreScript5(t *testing.T) {
-	reader := bufio.NewReader(strings.NewReader(`print("checkpoint one")
+	str := `
+	print("checkpoint one")
 
 	job("build1", function(cenv)
 		print("build1")
@@ -127,14 +109,11 @@ func TestRestoreScript5(t *testing.T) {
 	end)
 	
 	jobs("all", "build1", "build2", "clean", "deploy")
-	jobs("pony", "clean", "deploy")`))
-	chunk, err := parse.Parse(reader, "<string>")
-	fmt.Println(parse.Dump(chunk))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(BuildLuaScript(chunk, nil))
+	jobs("pony", "clean", "deploy")`
 	yockpack := YockPack[NilFrame]{}
+	fmt.Println(yockpack.DumpStr(str))
+	chunk := yockpack.ParseStr(str)
+	fmt.Println(yockpack.BuildScript(chunk, nil))
 	yockpack.Decompose(DecomposeOpt{
 		Modes: []string{"all", ""},
 		Tpl:   "./decompose.tpl",
@@ -142,5 +121,10 @@ func TestRestoreScript5(t *testing.T) {
 }
 
 func TestBuildBootScript(t *testing.T) {
-	buildBootScript("temp.lua", "decomposition.tpl", []string{"host1", "host2"})
+	yockpack := YockPack[NilFrame]{}
+	yockpack.buildBoot(buildBootOpt{
+		tpl:   "temp.lua",
+		file:  "decompose.tpl",
+		modes: []string{"host1", "host2"},
+	})
 }

@@ -174,6 +174,8 @@ end
 ---
 local platform = {}
 
+---@alias err string | nil
+
 ---
 ---{{.env}}
 ---
@@ -185,6 +187,61 @@ local platform = {}
 ---@field workdir string
 ---
 env = {}
+
+---@param path string
+---@return err
+function env.set_path(path)
+
+end
+
+---@param k string
+---@param v any
+---@return err
+function env.set(k, v)
+
+end
+
+---@param k string
+---@param v any
+---@return err
+function env.safe_set(k, v)
+
+end
+
+---@param k string
+---@param v any
+---@return err
+function env.setl(k, v)
+
+end
+
+---@param k string
+---@param v any
+---@return err
+function env.safe_setl(k, v)
+
+end
+
+---@param k string
+---@return err
+function env.unset(k)
+
+end
+
+---@param file string
+---@return err
+function env.export(file)
+
+end
+
+function env.print()
+
+end
+
+---@return table
+function env.get_all()
+    return {}
+end
 
 --
 ---{{.cmdf}}
@@ -739,4 +796,18 @@ end
 ---@return any
 function import(module)
 
+end
+
+json = {}
+
+---@param v any
+---@return string
+function json.encode(v)
+    return ""
+end
+
+---@param str string
+---@return table
+function json.decode(str)
+    return {}
 end

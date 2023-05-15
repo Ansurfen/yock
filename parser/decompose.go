@@ -15,13 +15,16 @@ type DecomposeOpt struct {
 	// divide file into modes to be specified
 	Modes []string
 	// template file, is used to generate control script.
-	Tpl string
+	Tpl    string
+	Prefix string
 }
 
 type modeBlock struct {
 	limit  int
 	filter map[int]bool
 }
+
+const defaultPrefix = "host"
 
 func (yockpack *YockPack[T]) Decompose(opt DecomposeOpt, stmts []ast.Stmt) {
 	var frame T
@@ -33,14 +36,14 @@ func (yockpack *YockPack[T]) Decompose(opt DecomposeOpt, stmts []ast.Stmt) {
 			yockpack.VisitExpr([]yockExpr{v.Expr}, frame, VisitExprHandle[T]{
 				ExprFuncCall: func(ei int, expr yockExpr, frame T) {
 					v := expr.(FuncCallExpr)
-					if vv, ok := v.Func.(*ast.IdentExpr); ok && vv.Value == "jobs" {
+					if vv, ok := v.Func.(IdentExpr); ok && vv.Value == "jobs" {
 						if len(v.Args) < 2 {
 							return
 						}
 						taskName := ""
 						jobs := []string{}
 						for idx, arg := range v.Args {
-							if str, ok := arg.(*ast.StringExpr); ok {
+							if str, ok := arg.(StringExpr); ok {
 								if idx == 0 {
 									taskName = str.Value
 								} else {
@@ -55,7 +58,7 @@ func (yockpack *YockPack[T]) Decompose(opt DecomposeOpt, stmts []ast.Stmt) {
 						if len(v.Args) < 2 {
 							return
 						}
-						if str, ok := v.Args[0].(*ast.StringExpr); ok {
+						if str, ok := v.Args[0].(StringExpr); ok {
 							records[str.Value] = si
 							tasks[str.Value] = append(tasks[str.Value], str.Value)
 						}
@@ -82,17 +85,24 @@ func (yockpack *YockPack[T]) Decompose(opt DecomposeOpt, stmts []ast.Stmt) {
 		}
 		modeBlocks[i].limit = max
 	}
-	prefix := "host"
+	prefix := defaultPrefix
+	if len(opt.Prefix) > 0 {
+		prefix = opt.Prefix
+	}
 	unique := utils.RandString(3)
 	for idx, mb := range modeBlocks {
 		if mb.limit == -1 {
 			util.YchoWarn("yockpack.decompose", "invalid mode block")
 			continue
 		}
-		utils.WriteFile(unique+prefix+strconv.Itoa(idx)+".lua", []byte(BuildLuaScript(stmts[:mb.limit+1], mb.filter)))
+		utils.WriteFile(unique+prefix+strconv.Itoa(idx)+".lua", []byte(yockpack.BuildScript(stmts[:mb.limit+1], mb.filter)))
 	}
 	if len(opt.File) == 0 {
 		opt.File = unique + prefix
 	}
-	buildBootScript(opt.File, opt.Tpl, opt.Modes)
+	yockpack.buildBoot(buildBootOpt{
+		file:  opt.File,
+		tpl:   opt.Tpl,
+		modes: opt.Modes,
+	})
 }

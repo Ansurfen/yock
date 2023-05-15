@@ -11,5 +11,6 @@ func TestHTTP(t *testing.T) {
 		Filename: func(s string) string {
 			return s
 		},
+		Caller: "TestHTTP",
 	}, []string{"https://www.github.com"})
 }
