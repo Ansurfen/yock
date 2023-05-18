@@ -26,14 +26,14 @@ type ExecOpt struct {
 
 func Exec(opt ExecOpt, cmds []string) error {
 	for _, cmd := range cmds {
-		var term *terminal
+		var term *Terminal
 		switch utils.CurPlatform.OS {
 		case "windows":
-			term = windowsTerm(cmd)
+			term = WindowsTerm(cmd)
 		default:
-			term = posixTerm()
+			term = PosixTerm()
 		}
-		if err := term.exec(&opt); err != nil {
+		if _, err := term.Exec(&opt); err != nil {
 			if opt.Debug {
 				util.YchoWarn(opt.Caller, fmt.Sprintf("%s err: %s", cmd, err.Error()))
 			}
@@ -45,4 +45,19 @@ func Exec(opt ExecOpt, cmds []string) error {
 		}
 	}
 	return opt.err
+}
+
+func Cmd(opt ExecOpt, cmd string) (string, error) {
+	var term *Terminal
+	switch utils.CurPlatform.OS {
+	case "windows":
+		term = WindowsTerm(cmd)
+	default:
+		term = PosixTerm()
+	}
+	if out, err := term.Exec(&opt); err != nil {
+		return "", err
+	} else {
+		return string(out), nil
+	}
 }

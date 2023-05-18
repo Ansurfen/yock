@@ -60,6 +60,8 @@ github.com/ansurfen/cushion v0.0.0-20230507145948-9dc7c133c262 h1:YIokE/3BaF47X/
 github.com/ansurfen/cushion v0.0.0-20230507145948-9dc7c133c262/go.mod h1:bftHbNyqjF/HGJY+0HJzvCnH/XKfo6PeAI5vSyavrW0=
 github.com/ansurfen/cushion v0.0.0-20230512104631-b9dff43eefdc h1:f84os0Zy9txOGyAfP9chub/C/0M0wPdZ1We3AfjgSs4=
 github.com/ansurfen/cushion v0.0.0-20230512104631-b9dff43eefdc/go.mod h1:bftHbNyqjF/HGJY+0HJzvCnH/XKfo6PeAI5vSyavrW0=
+github.com/ansurfen/cushion v0.0.0-20230516044255-034f11c76d52 h1:gICuZUv9S+cp0vpb+ycwE8Ng3cWmVnLNP7ud4MUeNCQ=
+github.com/ansurfen/cushion v0.0.0-20230516044255-034f11c76d52/go.mod h1:bftHbNyqjF/HGJY+0HJzvCnH/XKfo6PeAI5vSyavrW0=
 github.com/antchfx/htmlquery v1.3.0 h1:5I5yNFOVI+egyia5F2s/5Do2nFWxJz41Tr3DyfKD25E=
 github.com/antchfx/htmlquery v1.3.0/go.mod h1:zKPDVTMhfOmcwxheXUsx4rKJy8KEY/PU6eXr/2SebQ8=
 github.com/antchfx/xmlquery v1.3.15 h1:aJConNMi1sMha5G8YJoAIF5P+H+qG1L73bSItWHo8Tw=

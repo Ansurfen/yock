@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/ansurfen/cushion/runtime"
+	. "github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -124,11 +125,4 @@ func loadStrings(vm *YockScheduler) runtime.Handles {
 			return 1
 		},
 	}
-}
-
-func Pathf(path string) string {
-	if len(path) > 0 && path[0] == '@' {
-		path = WorkSpace + path[1:]
-	}
-	return path
 }

@@ -5,32 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/yuin/gopher-lua/parse"
-
 	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/parser"
+	parser "github.com/ansurfen/yock/pack"
+	. "github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
+	"github.com/yuin/gopher-lua/parse"
 	luar "layeh.com/gopher-luar"
 )
-
-var (
-	WorkSpace  string
-	PluginPath string
-	DriverPath string
-)
-
-func init() {
-	WorkSpace = filepath.ToSlash(path.Join(utils.GetEnv().Workdir(), ".yock"))
-	PluginPath = path.Join(WorkSpace, "plugin")
-	DriverPath = path.Join(WorkSpace, "driver")
-}
 
 type YockScheduler struct {
 	runtime.VirtualMachine
@@ -58,7 +45,7 @@ func New() *YockScheduler {
 		goroutines:     make(chan func(), 10),
 		signals:        &sync.Map{},
 		jobs:           make(map[string][]*yockJob),
-		envVar:         utils.NewEnvVar(),
+		// envVar:         utils.NewEnvVar(),
 	}
 
 	utils.SafeBatchMkdirs([]string{PluginPath, DriverPath})
@@ -192,27 +179,34 @@ func (vm *YockScheduler) injectGlobal() {
 		loadStrings(vm),
 		loadPlugin(vm),
 		loadDriver(vm),
-		loadJob(vm))
+		loadJob(vm),
+		loadGNU())
 	vm.setGlobalVars(map[string]lua.LValue{
 		"ldns":    luar.New(vm.Interp(), vm.localDNS),
 		"gdns":    luar.New(vm.Interp(), vm.globalDNS),
 		"env":     vm.env,
 		"plugins": vm.plugins,
 	})
-	files, err := os.ReadDir(Pathf("@/sdk/yock"))
+	files, err := os.ReadDir(Pathf("~/lib"))
 	if err != nil {
 		panic(err)
 	}
 	for _, file := range files {
-		if file.Name() != "yock.lua" {
-			vm.EvalFile(Pathf("@/sdk/yock/") + file.Name())
+		if fn := file.Name(); filepath.Ext(fn) == ".lua" {
+			if err := vm.EvalFile(Pathf("~/lib/") + fn); err != nil {
+				panic(err)
+			}
 		}
+	}
+	if err := vm.EvalFile(Pathf("~/ypm/ypm.lua")); err != nil {
+		panic(err)
 	}
 	vm.loadRandom()
 	loadPath(vm)
 	loadTime(vm)
 	loadSync(vm)
 	loadJSON(vm)
+	loadPsutil(vm)
 	vm.Eval(`Import({"cushion-check", "cushion-vm"})`)
 }
 
@@ -301,7 +295,8 @@ func (vm *YockScheduler) Compile(opt CompileOpt, file string) *lua.FunctionProto
 	if err != nil {
 		panic(err)
 	}
-	if !opt.DisableAnalyse {
+	// it's depreated
+	if false && !opt.DisableAnalyse {
 		anlyzer := parser.NewLuaDependencyAnalyzer()
 		out, err := utils.ReadStraemFromFile(Pathf("@/sdk/yock/deps/stdlib.json"))
 		if err != nil {
@@ -310,13 +305,13 @@ func (vm *YockScheduler) Compile(opt CompileOpt, file string) *lua.FunctionProto
 		if err = json.Unmarshal(out, anlyzer); err != nil {
 			panic(err)
 		}
-		files, err := os.ReadDir(Pathf("@/sdk/yock"))
+		files, err := os.ReadDir(Pathf("~/lib"))
 		if err != nil {
 			panic(err)
 		}
 		for _, file := range files {
-			if filepath.Ext(file.Name()) == ".lua" {
-				anlyzer.Load(Pathf("@/sdk/yock/") + file.Name())
+			if fn := file.Name(); filepath.Ext(fn) == ".lua" {
+				anlyzer.Load(Pathf("~/lib/") + fn)
 			}
 		}
 		undefines, _ := anlyzer.Tidy(file)

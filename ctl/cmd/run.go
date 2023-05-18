@@ -21,7 +21,7 @@ var (
 	runParameter runCmdParameter
 	runCmd       = &cobra.Command{
 		Use:   "run [file] [modes...]",
-		Short: ``,
+		Short: `Run runs the yock script or module.`,
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 || filepath.Ext(args[0]) != ".lua" {

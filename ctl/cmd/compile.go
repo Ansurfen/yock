@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/parser"
-	"github.com/ansurfen/yock/scheduler"
+	parser "github.com/ansurfen/yock/pack"
+	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ var (
 	compileParameter compileCmdParameter
 	compileCmd       = &cobra.Command{
 		Use:   "compile [file]",
-		Short: ``,
+		Short: `Compile preprocess yock script to meet different r.`,
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
@@ -42,10 +42,10 @@ var (
 				yockpack.Decompose(parser.DecomposeOpt{
 					Modes: compileParameter.modes,
 					File:  compileParameter.output,
-					Tpl:   scheduler.Pathf("@/sdk/yock/decompose.tpl"),
+					Tpl:   util.Pathf("@/sdk/yock/decompose.tpl"),
 				}, yockpack.ParseFile(compileParameter.file))
 			} else {
-				include := utils.OpenConfFromPath(scheduler.Pathf("@/include.yaml"))
+				include := utils.OpenConfFromPath(util.Pathf("@/include.yaml"))
 				if err := include.ReadInConfig(); err != nil {
 					panic(err)
 				}
@@ -53,7 +53,7 @@ var (
 				methods := include.GetStringSlice("method")
 				anlyzer := parser.NewLuaDependencyAnalyzer()
 				// import stdlib
-				out, err := utils.ReadStraemFromFile(scheduler.Pathf("@/sdk/yock/deps/stdlib.json"))
+				out, err := utils.ReadStraemFromFile(util.Pathf("@/sdk/yock/deps/stdlib.json"))
 				if err != nil {
 					panic(err)
 				}
@@ -67,7 +67,7 @@ var (
 					anlyzer.Preload(method, parser.LuaMethod{Pkg: "g"})
 				}
 				for _, file := range files {
-					anlyzer.Load(scheduler.Pathf(file))
+					anlyzer.Load(util.Pathf(file))
 				}
 				fmt.Println(anlyzer.Tidy(compileParameter.file))
 			}

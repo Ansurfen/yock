@@ -3,7 +3,7 @@ module github.com/ansurfen/yock
 go 1.20
 
 require (
-	github.com/ansurfen/cushion v0.0.0-20230512104631-b9dff43eefdc
+	github.com/ansurfen/cushion v0.0.0-20230516044255-034f11c76d52
 	github.com/gocolly/colly v1.2.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0

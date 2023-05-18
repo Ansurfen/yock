@@ -7,6 +7,7 @@ import (
 
 	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
+	. "github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 

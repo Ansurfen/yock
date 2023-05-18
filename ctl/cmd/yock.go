@@ -8,8 +8,13 @@ import (
 
 var yockCmd = &cobra.Command{
 	Use:   "yock",
-	Short: "",
-	Long:  ``,
+	Short: "Yock is a solution of cross platform to compose distributed build stream.",
+	Long: `Yock is a solution of cross platform to compose distributed build stream. 
+It's able to act as software package tool, like Homebrew, rpm, winget and so on. It also is
+used for dependency manager (pip, npm, maven, etc.) of programming languages. On top of this,
+yock also implements distributed build tasks based on grpc and goroutines (and can even build 
+cluster for this). You can think of it as the lua version of the nodejs framework, except that
+it focuses on composition and is more lightweight.`,
 }
 
 func Execute() {
@@ -18,5 +23,3 @@ func Execute() {
 		os.Exit(1)
 	}
 }
-
-func init() {}

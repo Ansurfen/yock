@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 )
 
 // RmOpt indicates configuration of rm
@@ -17,11 +18,14 @@ type RmOpt struct {
 	// Caller is used to mark parent caller of HTTP function
 	//
 	// It'll printed on console when debug is true
-	Caller  string
+	Caller string
+	// Strict will exit at once when error occur
+	Strict bool
+	// Pattern delete file to be matched
 	Pattern string
 }
 
-func Rm(opt RmOpt, targets []string) int {
+func Rm(opt RmOpt, targets []string) error {
 	if len(opt.Pattern) != 0 {
 		for _, t := range targets {
 			filepath.Walk(t, func(path string, info os.FileInfo, err error) error {
@@ -48,18 +52,18 @@ func Rm(opt RmOpt, targets []string) int {
 		if opt.Safe {
 			for _, t := range targets {
 				if err := os.Remove(t); err != nil && opt.Debug {
-					fmt.Println(err)
+					util.YchoWarn(opt.Caller, err.Error())
 				}
 			}
 		} else {
 			for _, t := range targets {
 				if err := os.RemoveAll(t); err != nil && opt.Debug {
-					fmt.Println(err)
+					util.YchoWarn(opt.Caller, err.Error())
 				}
 			}
 		}
 	}
-	return 0
+	return nil
 }
 
 // CpOpt indicates configuration of cp
@@ -74,32 +78,33 @@ type CpOpt struct {
 }
 
 func Cp(opt CpOpt, src, dst string) error {
-	var term *terminal
+	var term *Terminal
 	switch utils.CurPlatform.OS {
 	case "windows":
-		term = windowsTerm()
+		term = WindowsTerm()
 		if term.this == TermPowershell {
 			if opt.Recurse {
-				term.setCmds("cp", "-r", src, dst)
+				term.SetCmds("cp", "-r", src, dst)
 			} else {
-				term.setCmds("cp", src, dst)
+				term.SetCmds("cp", src, dst)
 			}
 		} else {
-			term.setCmds("copy", src, dst)
+			term.SetCmds("copy", src, dst)
 		}
 	default:
-		term = posixTerm()
+		term = PosixTerm()
 		if opt.Recurse {
-			term.setCmds("cp", "-r", src, dst)
+			term.SetCmds("cp", "-r", src, dst)
 		} else {
-			term.setCmds("cp", src, dst)
+			term.SetCmds("cp", src, dst)
 		}
 	}
-	return term.exec(&ExecOpt{
+	_, err := term.Exec(&ExecOpt{
 		Debug:  opt.Debug,
 		Caller: opt.Caller,
 		Quiet:  true,
 	})
+	return err
 }
 
 // MvOpt indicates configuration of mv
@@ -113,21 +118,22 @@ type MvOpt struct {
 }
 
 func Mv(opt MvOpt, src, dst string) error {
-	var term *terminal
+	var term *Terminal
 	switch utils.CurPlatform.OS {
 	case "windows":
-		term = windowsTerm()
+		term = WindowsTerm()
 		if term.this == TermPowershell {
-			term.setCmds("mv", src, dst)
+			term.SetCmds("mv", src, dst)
 		} else {
-			term.setCmds("move", src, dst)
+			term.SetCmds("move", src, dst)
 		}
 	default:
-		term = posixTerm("mv", src, dst)
+		term = PosixTerm("mv", src, dst)
 	}
-	return term.exec(&ExecOpt{
+	_, err := term.Exec(&ExecOpt{
 		Debug:  opt.Debug,
 		Caller: opt.Caller,
 		Quiet:  true,
 	})
+	return err
 }

@@ -1,0 +1,8 @@
+env.safe_set("YOCK_HOME", "TEMP")
+env.setl("LOCAL_YOCK_HOME", "TEMP")
+print(env.set_path("user"))
+env.print()
+local wd, ok = pwd()
+assert(ok)
+print(env.safe_set("Path", { wd, "" }))
+wait("a")

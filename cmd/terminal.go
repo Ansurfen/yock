@@ -17,14 +17,14 @@ const (
 	TermBash
 )
 
-// terminal is a struct to abstract different termnial
-type terminal struct {
+// Terminal is a struct to abstract different termnial
+type Terminal struct {
 	cmd  []string
 	boot []string
 	this uint8
 }
 
-func (term *terminal) exec(opt *ExecOpt) error {
+func (term *Terminal) Exec(opt *ExecOpt) ([]byte, error) {
 	name := term.boot[0]
 	args := []string{}
 	if len(term.boot) > 1 {
@@ -41,29 +41,41 @@ func (term *terminal) exec(opt *ExecOpt) error {
 		cmd.Stdin = os.Stdin
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
-		return cmd.Run()
+		return nil, cmd.Run()
 	}
 
 	out, err := cmd.CombinedOutput()
 	if !opt.Quiet {
 		fmt.Print(string(out))
 	}
-	return err
+	return out, err
 }
 
-func (term *terminal) setCmds(cmds ...string) {
+func (term *Terminal) SetCmds(cmds ...string) {
 	term.cmd = cmds
 }
 
-func windowsTerm(cmds ...string) *terminal {
+func (term *Terminal) AppendCmds(cmds ...string) {
+	term.cmd = append(term.cmd, cmds...)
+}
+
+func (term *Terminal) Clear() {
+	term.cmd = []string{}
+}
+
+func (term *Terminal) Type() uint8 {
+	return term.this
+}
+
+func WindowsTerm(cmds ...string) *Terminal {
 	switch utils.CurPlatform.Ver {
 	case "10", "11":
-		return &terminal{boot: []string{"powershell"}, cmd: cmds, this: TermPowershell}
+		return &Terminal{boot: []string{"powershell"}, cmd: cmds, this: TermPowershell}
 	default:
-		return &terminal{boot: []string{"cmd", "/C"}, cmd: cmds, this: TermCmd}
+		return &Terminal{boot: []string{"cmd", "/C"}, cmd: cmds, this: TermCmd}
 	}
 }
 
-func posixTerm(cmds ...string) *terminal {
-	return &terminal{boot: []string{"/bin/bash", "/C"}, cmd: cmds, this: TermBash}
+func PosixTerm(cmds ...string) *Terminal {
+	return &Terminal{boot: []string{"/bin/bash", "/C"}, cmd: cmds, this: TermBash}
 }

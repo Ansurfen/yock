@@ -8,7 +8,7 @@ import (
 func (vm *YockScheduler) loadRandom() {
 	random := &lua.LTable{}
 	random.RawSetString("str", vm.Interp().NewClosure(func(l *lua.LState) int {
-		l.Push(lua.LString(utils.RandString(8)))
+		l.Push(lua.LString(utils.RandString(int(l.CheckNumber(1)))))
 		return 1
 	}))
 	vm.SetGlobalVar("random", random)

@@ -18,7 +18,7 @@ func loadNet(vm *YockScheduler) runtime.Handles {
 			opt := cmd.HttpOpt{Method: "GET"}
 			urls := []string{}
 			if mode.Type() == lua.LTTable {
-				if fn := l.CheckTable(1).RawGetString("fn"); fn.Type() == lua.LTFunction {
+				if fn := l.CheckTable(1).RawGetString("filename"); fn.Type() == lua.LTFunction {
 					opt.Filename = func(s string) string {
 						lvm, _ := vm.Interp().NewThread()
 						if err := lvm.CallByParam(lua.P{
