@@ -33,5 +33,10 @@ func loadIO() runtime.Handles {
 			handleErr(l, err)
 			return 1
 		},
+		"is_exist": func(l *lua.LState) int {
+			ok := utils.IsExist(l.CheckString(1))
+			handleBool(l, ok)
+			return 1
+		},
 	}
 }

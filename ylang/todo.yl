@@ -1,0 +1,56 @@
+a = 10 // local a = 10
+pub a = 10 // a = 10
+arr = [1, "a", 2.0] // local arr = {1, "a", 2.0}
+class user {
+    name: string;
+    pwd: string;
+    id: number;
+    level: number;
+
+    user() {
+        level = perm.USER;
+    }
+
+    fn toString(): string {
+        return lua.json.encode(this);
+    }
+}
+
+class adminuser extends user {
+    adminuser() {
+        super();
+        this.level = perm.ADMIN;
+    }
+
+    @override
+    string toString() {
+        return "override";
+    }
+}
+
+enum perm {
+    USER, ADMIN, ROOT // perm = {USER = 0, ADMIN = 1, ROOT = 2}
+}
+
+fn echo(...) => void {
+    return lua.print(...);
+}
+
+fn println(...) => void {
+    return lua.print(..., '\n');
+}
+
+fn str(s) => string {
+    return s;
+}
+
+user_ansurfen = user{name = "ansurfen"}
+user_ansurfen, "Hello World" >> lua.json.encode | str >> echo
+// local user_ansurfen = {name = "ansurfen"}
+// json.encode(user_ansurfen)
+// if not has_err(json.encode("Hello World")) then return ... else return str("Hello World") end
+// echo(...)
+
+import { a, b } from "xx";
+
+// local a, b = import("xx")

@@ -66,6 +66,7 @@ func goroutineWaits(vm *YockScheduler) func(*runtime.LuaInterp) int {
 			for i := 0; i < len(sigs); i++ {
 				if sig, ok := vm.signals.Load(sigs[i]); !ok || (ok && !sig.(bool)) {
 					flag = false
+					break
 				}
 			}
 			if flag {

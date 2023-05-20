@@ -10,17 +10,19 @@ job("build", function(cenv)
     parse_flags(cenv, {
         o = flag_type.string_type
     })
-    local err
     optional({
         case(Windows(), function()
             err = exec({
-                debug = true
-            }, "go env -w GOOS=windows", "go build -o ../yock/yock.exe .")
+                    debug = true,
+                    redirect = true
+                }, "go env -w GOOS=windows",
+                [[go build -o ../yock/yock.exe -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
         end),
     }, function() -- ? PosixOS: linux, darwin, etc.
         err = exec({
-            debug = true
-        }, "go env -w GOOS=linux", "go build -o ../yock/yock .")
+                debug = true
+            }, "go env -w GOOS=linux",
+            [[go build -o ../yock/yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
     end)
     yassert(err)
     local yock_lib_path = path.join(yock_path, "lib")

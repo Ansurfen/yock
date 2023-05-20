@@ -1,8 +1,8 @@
 flag_type = {
     string_type = 0,
-    number_type = 1,
-    array_type = 2,
-    bool_type = 3
+    number_type = 0,
+    array_type = 1,
+    bool_type = 2
 }
 
 function parse_flags(env, todo)
@@ -17,7 +17,6 @@ function parse_flags(env, todo)
             arg = string.sub(arg, 3, #arg)
             local job, jobflag, ok = strings.Cut(arg, "-")
             if ok and job == env.job then
-                -- ! ip
                 if todo[jobflag] == flag_type.string_type then
                     idx = idx + 1
                     if idx > #env.args then
@@ -34,7 +33,43 @@ function parse_flags(env, todo)
                     if idx > #env.args then
                         break
                     end
-                    table.insert(env.flags[jobflag], env.args[idx])
+                    local value = env.args[idx]
+                    if strings.Contains(value, ",") then
+                        local s = strings.Split(value, ",")
+                        for _, v in ipairs(s) do
+                            table.insert(env.flags[arg], v)
+                        end
+                    else
+                        table.insert(env.flags[arg], value)
+                    end
+                end
+            end
+        elseif strings.HasPrefix(arg, "-") then
+            arg = string.sub(arg, 2, #arg)
+            if todo[arg] == flag_type.string_type then
+                idx = idx + 1
+                if idx > #env.args then
+                    break
+                end
+                env.flags[arg] = env.args[idx]
+            elseif todo[arg] == flag_type.bool_type then
+                env.flags[arg] = true
+            elseif todo[arg] == flag_type.array_type then
+                if env.flags[arg] == nil or type(env.flags[arg]) ~= "table" then
+                    env.flags[arg] = {}
+                end
+                idx = idx + 1
+                if idx > #env.args then
+                    break
+                end
+                local value = env.args[idx]
+                if strings.Contains(value, ",") then
+                    local s = strings.Split(value, ",")
+                    for _, v in ipairs(s) do
+                        table.insert(env.flags[arg], v)
+                    end
+                else
+                    table.insert(env.flags[arg], value)
                 end
             end
         end

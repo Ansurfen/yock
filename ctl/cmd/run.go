@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/ansurfen/yock/scheduler"
+	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
 )
 
@@ -15,6 +15,8 @@ type runCmdParameter struct {
 	modes          []string
 	protect        bool
 	disableAnalyse bool
+	debug          bool
+	cooperate      bool
 }
 
 var (
@@ -25,8 +27,7 @@ var (
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 || filepath.Ext(args[0]) != ".lua" {
-				fmt.Println("file not found")
-				os.Exit(1)
+				util.YchoFatal("", util.ErrFileNotExist.Error())
 			}
 			for idx, arg := range args {
 				if idx == 0 {
@@ -35,17 +36,27 @@ var (
 				}
 				runParameter.modes = append(runParameter.modes, arg)
 			}
-			yock := scheduler.New()
+			
+			opts := []scheduler.YockSchedulerOption{}
+			if runParameter.cooperate {
+				opts = append(opts, scheduler.OptionUpgradeSingalStream())
+			}
+			
+			yock := scheduler.New(opts...)
 			go yock.EventLoop()
+
 			proto := yock.Compile(scheduler.CompileOpt{
 				DisableAnalyse: runParameter.disableAnalyse,
 			}, runParameter.file)
 			if err := yock.DoCompliedFile(proto); err != nil {
-				panic(err)
+				util.YchoFatal("", err.Error())
 			}
 			var jobs sync.WaitGroup
 			for _, mode := range runParameter.modes {
 				jobs.Add(1)
+				if runParameter.debug {
+					util.YchoInfo("", fmt.Sprintf("%s start to run", mode))
+				}
 				go func(mode string) {
 					yock.RunJob(mode)
 					jobs.Done()
@@ -59,5 +70,7 @@ var (
 func init() {
 	yockCmd.AddCommand(runCmd)
 	runCmd.PersistentFlags().BoolVarP(&runParameter.protect, "protect", "p", false, "")
-	runCmd.PersistentFlags().BoolVarP(&runParameter.disableAnalyse, "disable-analyze", "a", false, "")
+	runCmd.PersistentFlags().BoolVarP(&runParameter.disableAnalyse, "analyze", "a", false, "")
+	runCmd.PersistentFlags().BoolVarP(&runParameter.debug, "debug", "d", false, "")
+	runCmd.PersistentFlags().BoolVarP(&runParameter.cooperate, "cooperate", "c", false, "")
 }

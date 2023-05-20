@@ -105,6 +105,14 @@ func loadStrings(vm *YockScheduler) runtime.Handles {
 		l.Push(lua.LString(strings.ReplaceAll(l.CheckString(1), l.CheckString(2), l.CheckString(3))))
 		return 1
 	}))
+	str.RawSetString("Split", vm.Interp().NewClosure(func(l *lua.LState) int {
+		res := &lua.LTable{}
+		for i, s := range strings.Split(l.CheckString(1), l.CheckString(2)) {
+			res.Insert(i+1, lua.LString(s))
+		}
+		l.Push(res)
+		return 1
+	}))
 	vm.SetGlobalVar("strings", str)
 	return runtime.Handles{
 		"cmdf": func(l *runtime.LuaInterp) int {

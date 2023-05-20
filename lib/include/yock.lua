@@ -176,6 +176,7 @@ local platform = {}
 ---@field flags table
 ---@field job string
 ---@field workdir string
+---@field params table?
 ---
 env = {}
 
@@ -232,6 +233,11 @@ end
 ---@return table
 function env.get_all()
     return {}
+end
+
+---@param args table
+function env.set_args(args)
+
 end
 
 --
@@ -705,6 +711,13 @@ function strings.Compare(a, b)
     return 0
 end
 
+---@param str string
+---@param sep string
+---@return table
+function strings.Split(str, sep)
+    return {}
+end
+
 ---@param url string
 ---@return boolean
 function is_localhost(url)
@@ -994,4 +1007,42 @@ jsonfile = {}
 ---@return jsonfile
 function jsonfile:open(filename)
     return {}
+end
+
+---@param path string
+---@return boolean
+function is_exist(path)
+    return false
+end
+
+---@class command
+---@field Use string
+---@field Short string
+---@field Long string
+---@field Run fun(cmd: command, args: table)
+local command = {}
+
+---@return command
+function new_command()
+    return {}
+end
+
+---@vararg command
+function command:AddCommand(...)
+
+end
+
+---@return any
+function command:PersistentFlags()
+    return {}
+end
+
+---@return err
+function command:Execute()
+
+end
+
+---@param tbl table
+function ctl(tbl)
+
 end

@@ -1,3 +1,3 @@
 # Decompose
 
-![decompose](../../static/decompose.excalidraw.svg)
+![decompose](../../static/decompose.png)

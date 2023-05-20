@@ -150,3 +150,11 @@ func handleErr(l *lua.LState, err error) {
 		l.Push(lua.LNil)
 	}
 }
+
+func handleBool(l *lua.LState, b bool) {
+	if b {
+		l.Push(lua.LTrue)
+	} else {
+		l.Push(lua.LFalse)
+	}
+}

@@ -16,8 +16,6 @@ var (
 	YockPath string
 )
 
-const build = "dev"
-
 func init() {
 	WorkSpace = filepath.ToSlash(path.Join(utils.GetEnv().Workdir(), ".yock"))
 	PluginPath = path.Join(WorkSpace, "plugin")
@@ -26,7 +24,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	if build == "dev" {
+	if YockBuild == "dev" {
 		wd, err := os.Getwd()
 		if err != nil {
 			panic(err)
@@ -34,6 +32,11 @@ func init() {
 		exfPath = wd
 	}
 	YockPath = filepath.Join(exfPath, "..")
+	utils.InitLogger(utils.LoggerOpt{
+		FileName: "yock.log",
+		Path:     Pathf("@/log"),
+		Stdout:   true,
+	})
 }
 
 // Pathf to format path

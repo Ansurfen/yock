@@ -1,0 +1,93 @@
+syntax = "proto3";
+option go_package="./;yocki";
+option java_package = "yocki";
+option csharp_namespace = "yocki";
+
+package Yock;
+
+service YockInterface {
+    // Ping is used to detect whether the connection is available
+    rpc Ping (PingRequest) returns (PingResponse);
+    // Wait is used to request signal from the daemon
+    rpc Wait (WaitRequest) returns (WaitResponse);
+    // Notify pushes signal to Daemon
+    rpc Notify (NotifyRequest) returns (NotifyResponse);
+    // Upload pushes file information to peers so that peers can download files
+    rpc Upload (UploadRequest) returns (UploadResponse);
+    // Download file in other peer
+    rpc Download (stream DownloadRequest) returns (stream DownloadResponse);
+    // Register tells the daemon the address of the peer.
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    // Unregister tells the daemon to remove the peer according to addrs.
+    rpc Unregister (UnregisterRequest) returns (UnregisterResponse);
+    // Info can obtain the meta information of the target node, 
+    // including CPU, DISK, MEM and so on. 
+    // You can specify it by InfoRequest, and by default only basic parameters 
+    // (the name of the node, the file uploaded, and the connection information) are returned.
+    rpc Info (InfoRequest) returns (InfoResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {}
+
+message WaitRequest {
+    string sig = 1;
+}
+
+message WaitResponse {
+    bool ok = 1;
+}
+
+message NotifyRequest {
+    string sig = 1;
+}
+
+message NotifyResponse {}
+
+message UploadRequest {
+    string filename = 1;
+    string owner = 2;
+    int64 size = 3;
+    string hash = 4;
+    string create_at = 5;
+}
+
+message UploadResponse {}
+
+message DownloadRequest {
+    string filename = 1;
+    string sender = 2;
+}
+
+message DownloadResponse {
+    bytes data = 1;
+}
+
+message RegisterRequest {
+    repeated string addrs = 1;
+}
+
+message RegisterResponse {
+    repeated string addrs = 1;
+}
+
+message UnregisterRequest {
+    repeated string addrs = 1;
+}
+
+message UnregisterResponse {}
+
+message InfoRequest {
+    bool all = 1;
+    bool cpu = 2;
+    bool mem = 3;
+    bool disk = 4;
+    bool net = 5;
+    bool host = 6;
+}
+
+message InfoResponse {
+    string name = 1;
+    string payload = 2;
+}

@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ypm"
 	"github.com/spf13/cobra"
 )
@@ -22,12 +20,11 @@ var (
 		must not already exist.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 || args[0][0] == '-' {
-				fmt.Println("invalid module name")
-				os.Exit(1)
+				util.YchoFatal("", util.ErrInvalidModuleName.Error())
 			}
 			newParameter.opt.Module = args[0]
 			if err := ypm.New(newParameter.opt); err != nil {
-				panic(err)
+				util.YchoFatal("", err.Error())
 			}
 		},
 	}

@@ -6,26 +6,26 @@ import (
 	"go.uber.org/zap"
 )
 
-func Ycho(call, msg string) string {
+func ychof(call, msg string) string {
 	return fmt.Sprintf("%s\t%s", call, msg)
 }
 
 func YchoInfo(call, msg string) {
-	zap.S().Info(Ycho(call, msg))
+	zap.S().Info(ychof(call, msg))
 }
 
 func YchoWarn(call, msg string) {
-	zap.S().Warn(Ycho(call, msg))
+	zap.S().Warn(ychof(call, msg))
 }
 
 func YchoPanic(call, msg string) {
-	zap.S().Panic(Ycho(call, msg))
+	zap.S().Panic(ychof(call, msg))
 }
 
 func YchoFatal(call, msg string) {
-	zap.S().Fatal(Ycho(call, msg))
+	zap.S().Fatal(ychof(call, msg))
 }
 
 func YchoDebug(call, msg string) {
-	zap.S().Debug(Ycho(call, msg))
+	zap.S().Debug(ychof(call, msg))
 }

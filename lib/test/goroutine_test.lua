@@ -7,6 +7,7 @@ job("multi", function(cenv)
             idx = idx + 1
         end
         notify("x")
+        print("task1 fine")
     end)
     go(function()
         print("task 2")
@@ -23,8 +24,9 @@ job("multi", function(cenv)
     go(function()
         time.sleep(20 * time.second)
         notify("a")
+        print("push a")
     end)
 
-    waits("x", "a")
+    waits("x", "a", "b")
     return true
 end)

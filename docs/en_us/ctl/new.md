@@ -1,3 +1,3 @@
 # New
 
-![new](../../static/new.excalidraw.svg)
+![new](../../static/new.png)

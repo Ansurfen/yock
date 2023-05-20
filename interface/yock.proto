@@ -1,0 +1,32 @@
+syntax = "proto3";
+option go_package="./;yocki";
+option java_package = "yocki";
+option csharp_namespace = "yocki";
+
+package Yock;
+
+service YockInterface {
+    // Ping is used to detect whether the connection is available
+    rpc Ping (PingRequest) returns (PingResponse);
+    rpc Call (CallRequest) returns (CallResponse);
+    rpc Info (InfoRequest) returns (InfoResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {}
+
+message CallRequest {
+    string Fn = 1;
+    string Arg = 2;
+}
+
+message CallResponse {
+    string Buf = 1;
+}
+
+message InfoRequest {
+}
+
+message InfoResponse {
+}

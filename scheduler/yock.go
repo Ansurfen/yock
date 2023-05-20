@@ -7,13 +7,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
 	parser "github.com/ansurfen/yock/pack"
-	. "github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/parse"
 	luar "layeh.com/gopher-luar"
@@ -33,30 +32,36 @@ type YockScheduler struct {
 
 	jobs       map[string][]*yockJob
 	goroutines chan func()
-	signals    *sync.Map
+	signals    SignalStream
 }
 
-func New() *YockScheduler {
-	vm := &YockScheduler{
+func New(opts ...YockSchedulerOption) *YockScheduler {
+	scheduler := &YockScheduler{
 		VirtualMachine: runtime.NewVirtualMachine().Default(),
 		env:            &lua.LTable{},
 		drivers:        &lua.LTable{},
 		plugins:        &lua.LTable{},
 		goroutines:     make(chan func(), 10),
-		signals:        &sync.Map{},
+		signals:        NewSingleSignalStream(),
 		jobs:           make(map[string][]*yockJob),
 		// envVar:         utils.NewEnvVar(),
 	}
 
-	utils.SafeBatchMkdirs([]string{PluginPath, DriverPath})
+	for _, opt := range opts {
+		if err := opt(scheduler); err != nil {
+			util.YchoFatal("", err.Error())
+		}
+	}
 
-	vm.globalDNS = CreateDNS(Pathf("@/global.json"))
-	vm.localDNS = CreateDNS(Pathf("@/local.json"))
+	utils.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath})
 
-	vm.parseFlags()
-	vm.injectGlobal()
+	scheduler.globalDNS = CreateDNS(util.Pathf("@/global.json"))
+	scheduler.localDNS = CreateDNS(util.Pathf("@/local.json"))
 
-	return vm
+	scheduler.parseFlags()
+	scheduler.injectGlobal()
+
+	return scheduler
 }
 
 func envVarTypeCvt(v lua.LValue) any {
@@ -79,68 +84,40 @@ func (vm *YockScheduler) parseFlags() {
 	args := &lua.LTable{}
 	vm.env.RawSetString("args", args)
 	vm.env.RawSetString("platform", luar.New(vm.Interp(), utils.CurPlatform))
-	vm.env.RawSetString("workdir", lua.LString(WorkSpace))
+	vm.env.RawSetString("workdir", lua.LString(util.WorkSpace))
 	vm.env.RawSetString("set_path", vm.Interp().NewClosure(func(l *lua.LState) int {
 		err := vm.envVar.SetPath(l.CheckString(1))
-		if err != nil {
-			l.Push(lua.LString(err.Error()))
-		} else {
-			l.Push(lua.LString(""))
-		}
+		handleErr(l, err)
 		return 1
 	}))
 	vm.env.RawSetString("safe_set", vm.Interp().NewClosure(func(l *lua.LState) int {
 		err := vm.envVar.SafeSet(l.CheckString(1), envVarTypeCvt(l.CheckAny(2)))
-		if err != nil {
-			l.Push(lua.LString(err.Error()))
-		} else {
-			l.Push(lua.LString(""))
-		}
+		handleErr(l, err)
 		return 1
 	}))
 	vm.env.RawSetString("set", vm.Interp().NewClosure(func(l *lua.LState) int {
 		err := vm.envVar.Set(l.CheckString(1), envVarTypeCvt(l.CheckAny(2)))
-		if err != nil {
-			l.Push(lua.LString(err.Error()))
-		} else {
-			l.Push(lua.LString(""))
-		}
+		handleErr(l, err)
 		return 1
 	}))
 	vm.env.RawSetString("unset", vm.Interp().NewClosure(func(l *lua.LState) int {
 		err := vm.envVar.Unset(l.CheckString(1))
-		if err != nil {
-			l.Push(lua.LString(err.Error()))
-		} else {
-			l.Push(lua.LString(""))
-		}
+		handleErr(l, err)
 		return 1
 	}))
 	vm.env.RawSetString("setl", vm.Interp().NewClosure(func(l *lua.LState) int {
 		err := vm.envVar.SetL(l.CheckString(1), l.CheckString(2))
-		if err != nil {
-			l.Push(lua.LString(err.Error()))
-		} else {
-			l.Push(lua.LString(""))
-		}
+		handleErr(l, err)
 		return 1
 	}))
 	vm.env.RawSetString("safe_setl", vm.Interp().NewClosure(func(l *lua.LState) int {
 		err := vm.envVar.SafeSetL(l.CheckString(1), l.CheckString(2))
-		if err != nil {
-			l.Push(lua.LString(err.Error()))
-		} else {
-			l.Push(lua.LString(""))
-		}
+		handleErr(l, err)
 		return 1
 	}))
 	vm.env.RawSetString("export", vm.Interp().NewClosure(func(l *lua.LState) int {
 		err := vm.envVar.Export(l.CheckString(1))
-		if err != nil {
-			l.Push(lua.LString(err.Error()))
-		} else {
-			l.Push(lua.LString(""))
-		}
+		handleErr(l, err)
 		return 1
 	}))
 	vm.env.RawSetString("print", vm.Interp().NewClosure(func(l *lua.LState) int {
@@ -154,6 +131,13 @@ func (vm *YockScheduler) parseFlags() {
 		}
 		l.Push(envs)
 		return 1
+	}))
+	vm.env.RawSetString("set_args", vm.Interp().NewClosure(func(l *lua.LState) int {
+		os.Args = append(os.Args[:0], os.Args[0])
+		l.CheckTable(1).ForEach(func(_, s lua.LValue) {
+			os.Args = append(os.Args, s.String())
+		})
+		return 0
 	}))
 	for i, j := 0, 1; i < len(os.Args); i++ {
 		if os.Args[i] == "--" {
@@ -180,6 +164,7 @@ func (vm *YockScheduler) injectGlobal() {
 		loadPlugin(vm),
 		loadDriver(vm),
 		loadJob(vm),
+		loadCtl(vm),
 		loadGNU())
 	vm.setGlobalVars(map[string]lua.LValue{
 		"ldns":    luar.New(vm.Interp(), vm.localDNS),
@@ -187,18 +172,18 @@ func (vm *YockScheduler) injectGlobal() {
 		"env":     vm.env,
 		"plugins": vm.plugins,
 	})
-	files, err := os.ReadDir(Pathf("~/lib"))
+	files, err := os.ReadDir(util.Pathf("~/lib"))
 	if err != nil {
 		panic(err)
 	}
 	for _, file := range files {
 		if fn := file.Name(); filepath.Ext(fn) == ".lua" {
-			if err := vm.EvalFile(Pathf("~/lib/") + fn); err != nil {
+			if err := vm.EvalFile(util.Pathf("~/lib/") + fn); err != nil {
 				panic(err)
 			}
 		}
 	}
-	if err := vm.EvalFile(Pathf("~/ypm/ypm.lua")); err != nil {
+	if err := vm.EvalFile(util.Pathf("~/ypm/ypm.lua")); err != nil {
 		panic(err)
 	}
 	vm.loadRandom()
@@ -298,20 +283,20 @@ func (vm *YockScheduler) Compile(opt CompileOpt, file string) *lua.FunctionProto
 	// it's depreated
 	if false && !opt.DisableAnalyse {
 		anlyzer := parser.NewLuaDependencyAnalyzer()
-		out, err := utils.ReadStraemFromFile(Pathf("@/sdk/yock/deps/stdlib.json"))
+		out, err := utils.ReadStraemFromFile(util.Pathf("@/sdk/yock/deps/stdlib.json"))
 		if err != nil {
 			panic(err)
 		}
 		if err = json.Unmarshal(out, anlyzer); err != nil {
 			panic(err)
 		}
-		files, err := os.ReadDir(Pathf("~/lib"))
+		files, err := os.ReadDir(util.Pathf("~/lib"))
 		if err != nil {
 			panic(err)
 		}
 		for _, file := range files {
 			if fn := file.Name(); filepath.Ext(fn) == ".lua" {
-				anlyzer.Load(Pathf("~/lib/") + fn)
+				anlyzer.Load(util.Pathf("~/lib/") + fn)
 			}
 		}
 		undefines, _ := anlyzer.Tidy(file)
