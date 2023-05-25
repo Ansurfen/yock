@@ -36,11 +36,16 @@ func Rm(opt RmOpt, targets []string) error {
 					matched, _ := regexp.MatchString(opt.Pattern, info.Name())
 					if matched {
 						err := os.Remove(path)
-						if opt.Debug {
-							if err != nil {
-								fmt.Printf("delete %s, err: %s\n", path, err)
-							} else {
-								fmt.Printf("Deleting file %s\n", path)
+						if err != nil {
+							if opt.Debug {
+								util.Ycho.Warn(err.Error())
+							}
+							if opt.Strict {
+								return err
+							}
+						} else {
+							if opt.Debug {
+								util.Ycho.Info(fmt.Sprintf("delete %s", path))
 							}
 						}
 					}
@@ -52,13 +57,13 @@ func Rm(opt RmOpt, targets []string) error {
 		if opt.Safe {
 			for _, t := range targets {
 				if err := os.Remove(t); err != nil && opt.Debug {
-					util.YchoWarn(opt.Caller, err.Error())
+					util.Ycho.Warn(fmt.Sprintf("%s\t%s", opt.Caller, err.Error()))
 				}
 			}
 		} else {
 			for _, t := range targets {
 				if err := os.RemoveAll(t); err != nil && opt.Debug {
-					util.YchoWarn(opt.Caller, err.Error())
+					util.Ycho.Warn(fmt.Sprintf("%s\t%s", opt.Caller, err.Error()))
 				}
 			}
 		}

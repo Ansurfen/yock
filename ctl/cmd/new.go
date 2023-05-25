@@ -20,11 +20,11 @@ var (
 		must not already exist.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 || args[0][0] == '-' {
-				util.YchoFatal("", util.ErrInvalidModuleName.Error())
+				util.Ycho.Fatal(util.ErrInvalidModuleName.Error())
 			}
 			newParameter.opt.Module = args[0]
 			if err := ypm.New(newParameter.opt); err != nil {
-				util.YchoFatal("", err.Error())
+				util.Ycho.Fatal(err.Error())
 			}
 		},
 	}

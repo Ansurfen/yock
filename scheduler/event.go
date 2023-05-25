@@ -39,7 +39,6 @@ type CooperationSingalStream struct {
 }
 
 func NewCooperationSingalStream() *CooperationSingalStream {
-	*client.Gopt.Port = 9090
 	return &CooperationSingalStream{
 		SingleSignalStream: NewSingleSignalStream(),
 		cli:                client.New(client.Gopt),

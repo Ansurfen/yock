@@ -15,29 +15,29 @@ var wrapCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 || filepath.Ext(args[1]) != ".lua" {
-			util.YchoFatal("", util.ErrArgsTooLittle.Error())
+			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
 		}
 		if err := utils.SafeMkdirs(util.Pathf("@/mount")); err != nil {
-			util.YchoFatal("", err.Error())
+			util.Ycho.Fatal(err.Error())
 		}
 		switch utils.CurPlatform.OS {
 		case "windows":
 			name := args[0]
 			file, err := filepath.Abs(args[1])
 			if err != nil {
-				util.YchoFatal("", err.Error())
+				util.Ycho.Fatal(err.Error())
 			}
 			if err := utils.WriteFile(filepath.Join(util.Pathf("@/mount"), name+".bat"), []byte(fmt.Sprintf(WrapBatch, file, file))); err != nil {
-				util.YchoFatal("", err.Error())
+				util.Ycho.Fatal(err.Error())
 			}
 		default: // PosixOS
 			name := args[0]
 			file, err := filepath.Abs(args[1])
 			if err != nil {
-				util.YchoFatal("", err.Error())
+				util.Ycho.Fatal(err.Error())
 			}
 			if err := utils.WriteFile(filepath.Join(util.Pathf("@/mount"), name+".sh"), []byte(fmt.Sprintf(WrapBatch, file, file))); err != nil {
-				util.YchoFatal("", err.Error())
+				util.Ycho.Fatal(err.Error())
 			}
 		}
 	},

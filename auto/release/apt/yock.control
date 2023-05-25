@@ -1,0 +1,10 @@
+Source: yock
+Section: utils
+Priority: optional
+Maintainer: ansurfen
+Standards-Version: 1.0.0
+Homepage: https://github.com/Ansurfen/yock
+Package: yock
+Architecture: amd64
+Description: Yock is a solution of cross platform to compose distributed build stream.
+License: MIT

@@ -7,7 +7,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadGoroutine(vm *YockScheduler) runtime.Handles {
+func goroutineFuncs(vm *YockScheduler) runtime.Handles {
 	return runtime.Handles{
 		"go":     goroutineGo(vm),
 		"wait":   goroutineWait(vm),

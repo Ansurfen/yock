@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package xmlns="">
+  <metadata>
+    <id>yock</id>
+    <version>1.0.0</version>
+    <authors>ansurfen</authors>
+    <owners>ansurfen</owners>
+    <licenseUrl>https://github.com/Ansurfen/yock/blob/main/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Ansurfen/yock</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Yock is a solution of cross platform to compose distributed build stream.</description>
+</package>

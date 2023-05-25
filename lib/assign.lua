@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 ---@class assign
 assign = {}
 
@@ -18,6 +19,39 @@ end
 -- a = b when b exist
 function assign.number(a, b)
     if type(b) == "number" then
+        return b
+    end
+    return a
+end
+
+---@param a boolean
+---@param b boolean
+---@return boolean
+-- a = b when b exist
+function assign.bool(a, b)
+    if type(b) == "boolean" then
+        return b
+    end
+    return a
+end
+
+---@param a table
+---@param b table
+---@return table
+-- a = b when b exist
+function assign.table(a, b)
+    if type(b) == "table" then
+        return b
+    end
+    return a
+end
+
+---@param a function
+---@param b function
+---@return function
+-- a = b when b exist
+function assign.func(a, b)
+    if type(b) == "function" then
         return b
     end
     return a

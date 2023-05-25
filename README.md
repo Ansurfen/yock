@@ -32,8 +32,8 @@ git clone https://github.com/Ansurfen/yock.git
 
 Execute the go command and schedule the yock build script to build yock
 ```cmd
-yock> cd ctl
-yock/ctl> go run . run ../auto/build.lua -a
+cd ctl
+go run . run ../auto/build.lua all
 ```
 
 #### Embed in Go

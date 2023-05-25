@@ -35,7 +35,7 @@ func Exec(opt ExecOpt, cmds []string) error {
 		}
 		if _, err := term.Exec(&opt); err != nil {
 			if opt.Debug {
-				util.YchoWarn(opt.Caller, fmt.Sprintf("%s err: %s", cmd, err.Error()))
+				util.Ycho.Warn(fmt.Sprintf("%s\t%s", opt.Caller, fmt.Sprintf("%s err: %s", cmd, err.Error())))
 			}
 			if opt.Strict {
 				return err

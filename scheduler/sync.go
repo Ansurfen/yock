@@ -7,7 +7,7 @@ import (
 	luar "layeh.com/gopher-luar"
 )
 
-func loadSync(vm *YockScheduler) {
+func loadSync(vm *YockScheduler) lua.LValue {
 	synclib := &lua.LTable{}
 	synclib.RawSetString("new", vm.Interp().NewClosure(
 		func(l *lua.LState) int {
@@ -15,5 +15,5 @@ func loadSync(vm *YockScheduler) {
 			return 1
 		},
 	))
-	vm.SetGlobalVar("sync", synclib)
+	return synclib
 }

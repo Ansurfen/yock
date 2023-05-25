@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/ansurfen/cushion/runtime"
-	. "github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -35,7 +35,11 @@ func loadStrings(vm *YockScheduler) runtime.Handles {
 		return 1
 	}))
 	str.RawSetString("Join", vm.Interp().NewClosure(func(l *lua.LState) int {
-
+		elems := []string{}
+		l.CheckTable(1).ForEach(func(_, s lua.LValue) {
+			elems = append(elems, s.String())
+		})
+		l.Push(lua.LString(strings.Join(elems, l.CheckString(2))))
 		return 1
 	}))
 	str.RawSetString("Cut", vm.Interp().NewClosure(func(l *lua.LState) int {
@@ -129,7 +133,7 @@ func loadStrings(vm *YockScheduler) runtime.Handles {
 			return 1
 		},
 		"pathf": func(l *lua.LState) int {
-			l.Push(lua.LString(Pathf(l.CheckString(1))))
+			l.Push(lua.LString(util.Pathf(l.CheckString(1))))
 			return 1
 		},
 	}

@@ -15,3 +15,10 @@ end
 function ypm:write()
 
 end
+
+---@param opt table
+---@return function
+function ymodule(opt)
+    return function()
+    end
+end

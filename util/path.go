@@ -1,13 +1,5 @@
 package util
 
-import (
-	"os"
-	"path"
-	"path/filepath"
-
-	"github.com/ansurfen/cushion/utils"
-)
-
 var (
 	WorkSpace  string
 	PluginPath string
@@ -15,29 +7,6 @@ var (
 	// executable file path
 	YockPath string
 )
-
-func init() {
-	WorkSpace = filepath.ToSlash(path.Join(utils.GetEnv().Workdir(), ".yock"))
-	PluginPath = path.Join(WorkSpace, "plugin")
-	DriverPath = path.Join(WorkSpace, "driver")
-	exfPath, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-	if YockBuild == "dev" {
-		wd, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
-		exfPath = wd
-	}
-	YockPath = filepath.Join(exfPath, "..")
-	utils.InitLogger(utils.LoggerOpt{
-		FileName: "yock.log",
-		Path:     Pathf("@/log"),
-		Stdout:   true,
-	})
-}
 
 // Pathf to format path
 //

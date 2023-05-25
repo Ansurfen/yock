@@ -12,16 +12,16 @@ type yockJob struct {
 	fn *lua.LFunction
 }
 
-func loadJob(vm *YockScheduler) runtime.Handles {
+func taskFuncs(s *YockScheduler) runtime.Handles {
 	return runtime.Handles{
 		"job": func(l *runtime.LuaInterp) int {
 			jobName := l.CheckString(1)
 			jobFn := l.CheckFunction(2)
-			if _, ok := vm.jobs[jobName]; ok {
+			if _, ok := s.task[jobName]; ok {
 				fmt.Println("dumplicate job name")
 				os.Exit(1)
 			} else {
-				vm.jobs[jobName] = append(vm.jobs[jobName], &yockJob{
+				s.task[jobName] = append(s.task[jobName], &yockJob{
 					fn: jobFn,
 				})
 			}
@@ -36,19 +36,19 @@ func loadJob(vm *YockScheduler) runtime.Handles {
 				return 0
 			}
 			name := groups[0]
-			if _, ok := vm.jobs[name]; ok {
+			if _, ok := s.task[name]; ok {
 				fmt.Println("dumplicate job name")
 				os.Exit(1)
 			}
 			for _, n := range groups[1:] {
-				if job, ok := vm.jobs[n]; ok {
-					vm.jobs[name] = append(vm.jobs[name], job...)
+				if job, ok := s.task[n]; ok {
+					s.task[name] = append(s.task[name], job...)
 				}
 			}
 			return 0
 		},
 		"job_option": func(l *lua.LState) int {
-			vm.opt = l.CheckTable(1)
+			s.opt = l.CheckTable(1)
 			return 0
 		},
 	}

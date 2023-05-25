@@ -11,7 +11,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadNet(vm *YockScheduler) runtime.Handles {
+func netFuncs(vm *YockScheduler) runtime.Handles {
 	return runtime.Handles{
 		"http": func(l *runtime.LuaInterp) int {
 			mode := l.CheckAny(1)

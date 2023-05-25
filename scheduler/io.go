@@ -6,7 +6,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadIO() runtime.Handles {
+func ioFuncs() runtime.Handles {
 	return runtime.Handles{
 		"safe_write": func(l *lua.LState) int {
 			err := utils.SafeWriteFile(l.CheckString(1), []byte(l.CheckString(2)))
@@ -37,6 +37,22 @@ func loadIO() runtime.Handles {
 			ok := utils.IsExist(l.CheckString(1))
 			handleBool(l, ok)
 			return 1
+		},
+		"printf": func(l *lua.LState) int {
+			title := []string{}
+			rows := [][]string{}
+			l.CheckTable(1).ForEach(func(idx, el lua.LValue) {
+				title = append(title, el.String())
+			})
+			l.CheckTable(2).ForEach(func(ri, row lua.LValue) {
+				tmp := []string{}
+				row.(*lua.LTable).ForEach(func(fi, field lua.LValue) {
+					tmp = append(tmp, field.String())
+				})
+				rows = append(rows, tmp)
+			})
+			utils.Prinf(utils.PrintfOpt{MaxLen: 30}, title, rows)
+			return 0
 		},
 	}
 }

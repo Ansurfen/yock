@@ -1,17 +1,21 @@
+local versionf = function(v)
+    return strings.ReplaceAll(v, ".", "_")
+end
+
 function import(module)
-    if not strings.Contains(package.path, "lua_modules\\?.lua") then
+    if not strings.Contains(package.path, "yock_modules\\?.lua") then
         local wd, ok = pwd()
         if not ok then
             assert("fail to get work directory")
         end
         package.path = "?.lua" ..
             [[;]] ..
-            path.join(wd, "lua_modules", "?", "index.lua") ..
+            path.join(wd, "yock_modules", "?", "index.lua") ..
             [[;]] ..
-            path.join(wd, "lua_modules", "?.lua") ..
+            path.join(wd, "yock_modules", "?.lua") ..
             [[;]] ..
-            path.join(env.workdir, "..", "lua_modules", "?", "index.lua") ..
-            [[;]] .. path.join(env.workdir, "..", "lua_modules", "?.lua")
+            path.join(env.yock_path, "yock_modules", "?", "index.lua") ..
+            [[;]] .. path.join(env.yock_path, "yock_modules", "?.lua")
     end
     local version = ""
     -- module@version
@@ -27,7 +31,7 @@ function import(module)
     if strings.HasPrefix(module, "./") or strings.HasPrefix(module, "../") then
         return require(path.join(debug.getinfo(2, "S").source, "..", module))
     elseif path.abs(module) == module then
-        return require(module)
+        return require(versionf(module))
     end
     local root = path.join(debug.getinfo(2, "S").source, "..")
     local pkg, err = io.open(path.join(root, "modules.json"), "r")
@@ -44,6 +48,7 @@ function import(module)
     if #version == 0 then
         version = pkgFile["dependency"][module]
     end
+    version = versionf(version)
     return require(path.join(module, version))
 end
 

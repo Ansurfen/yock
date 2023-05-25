@@ -49,7 +49,7 @@ func loadPlugin(vm *YockScheduler) runtime.Handles {
 		},
 		"plugin": func(l *lua.LState) int {
 			uid := l.CheckString(1)
-			tbl := vm.plugins
+			tbl := vm.getPlugins()
 			cur := &lua.LTable{}
 			tbl.RawSetString(uid, cur)
 			l.CheckTable(2).ForEach(func(fn, callback lua.LValue) {

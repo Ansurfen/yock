@@ -6,7 +6,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadTime(vm *YockScheduler) {
+func loadTime(vm *YockScheduler) lua.LValue {
 	timelib := &lua.LTable{}
 	timelib.RawSetString("microsecond", lua.LNumber(time.Microsecond))
 	timelib.RawSetString("millisecond", lua.LNumber(time.Millisecond))
@@ -15,5 +15,5 @@ func loadTime(vm *YockScheduler) {
 		time.Sleep(time.Duration(l.CheckNumber(1)))
 		return 0
 	}))
-	vm.SetGlobalVar("time", timelib)
+	return timelib
 }

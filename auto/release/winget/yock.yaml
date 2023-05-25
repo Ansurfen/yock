@@ -1,0 +1,14 @@
+PackageIdentifier: ansurfen.yock
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: ansurfen
+PackageName: yock
+License: MIT
+ShortDescription: Yock is a solution of cross platform to compose distributed build stream.
+Installers:
+  - Architecture: x64
+    InstallerType: msi
+    InstallerUrl:
+    InstallerSha256:
+ManifestType: singleton
+ManifestVersion: 1.0.0

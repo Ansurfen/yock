@@ -8,10 +8,13 @@ mkdir(yock_path)
 
 job("build", function(cenv)
     parse_flags(cenv, {
-        o = flag_type.string_type
+        o = flag_type.string_type,
+        os = flag_type.string_type
     })
+    local os = env.platform.OS
+    os = assign.string(os, cenv.flags["os"])
     optional({
-        case(Windows(), function()
+        case(os == "windows", function()
             err = exec({
                     debug = true,
                     redirect = true
@@ -30,12 +33,17 @@ job("build", function(cenv)
     mkdir(path.join(yock_path, "ypm"))
     cp(path.join(wd, "../ypm/ypm.lua"), path.join(yock_path, "ypm/ypm.lua"))
     cp(path.join(wd, "../ypm/include/ypm.lua"), path.join(yock_lib_path, "include"))
+    cp(path.join(wd, "../yock-todo/ypm/source"), path.join(yock_path, "ypm"))
     rm({
         safe = false
     }, path.join(yock_lib_path, "test"), path.join(yock_lib_path, "boot"), path.join(yock_lib_path, "bash"))
     zip_name = assign.string(zip_name, cenv.flags.o)
     err = zip(path.join(wd, "../" .. zip_name .. ".zip"), yock_path)
     yassert(err)
+    return true
+end)
+
+job("zip", function(cenv)
     return true
 end)
 
@@ -46,4 +54,5 @@ job("clean", function(cenv)
     return true
 end)
 
-jobs("all", "build", "clean")
+jobs("all", "build", "zip")
+jobs("dist", "build")

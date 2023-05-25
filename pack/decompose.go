@@ -1,4 +1,4 @@
-package parser
+package yockpack
 
 import (
 	"strconv"
@@ -92,7 +92,7 @@ func (yockpack *YockPack[T]) Decompose(opt DecomposeOpt, stmts []ast.Stmt) {
 	unique := utils.RandString(3)
 	for idx, mb := range modeBlocks {
 		if mb.limit == -1 {
-			util.YchoWarn("yockpack.decompose", "invalid mode block")
+			util.Ycho.Warn("invalid mode block")
 			continue
 		}
 		utils.WriteFile(unique+prefix+strconv.Itoa(idx)+".lua", []byte(yockpack.BuildScript(stmts[:mb.limit+1], mb.filter)))

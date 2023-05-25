@@ -1,36 +1,28 @@
 package scheduler
 
 import (
-	"bufio"
-	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
-	parser "github.com/ansurfen/yock/pack"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
-	"github.com/yuin/gopher-lua/parse"
 	luar "layeh.com/gopher-luar"
 )
 
 type YockScheduler struct {
 	runtime.VirtualMachine
-	env     *lua.LTable
-	plugins *lua.LTable
-	drivers *lua.LTable
-	opt     *lua.LTable
+	env *lua.LTable
+	opt *lua.LTable
 
 	envVar utils.EnvVar
 
-	globalDNS *DNS
-	localDNS  *DNS
+	// it's deprecated in lateset version
+	driverManager *yockDriverManager
 
-	jobs       map[string][]*yockJob
+	task       map[string][]*yockJob
 	goroutines chan func()
 	signals    SignalStream
 }
@@ -39,29 +31,39 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 	scheduler := &YockScheduler{
 		VirtualMachine: runtime.NewVirtualMachine().Default(),
 		env:            &lua.LTable{},
-		drivers:        &lua.LTable{},
-		plugins:        &lua.LTable{},
 		goroutines:     make(chan func(), 10),
 		signals:        NewSingleSignalStream(),
-		jobs:           make(map[string][]*yockJob),
-		// envVar:         utils.NewEnvVar(),
+		task:           make(map[string][]*yockJob),
 	}
 
 	for _, opt := range opts {
 		if err := opt(scheduler); err != nil {
-			util.YchoFatal("", err.Error())
+			util.Ycho.Fatal(err.Error())
 		}
 	}
 
-	utils.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath})
-
-	scheduler.globalDNS = CreateDNS(util.Pathf("@/global.json"))
-	scheduler.localDNS = CreateDNS(util.Pathf("@/local.json"))
+	if err := utils.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
+		util.Ycho.Fatal(err.Error())
+	}
 
 	scheduler.parseFlags()
-	scheduler.injectGlobal()
+	scheduler.loadLibs()
 
 	return scheduler
+}
+
+func (s *YockScheduler) getPlugins() *lua.LTable {
+	if s.driverManager != nil {
+		return s.driverManager.plugins
+	}
+	return &lua.LTable{}
+}
+
+func (s *YockScheduler) getDrivers() *lua.LTable {
+	if s.driverManager != nil {
+		return s.driverManager.drivers
+	}
+	return &lua.LTable{}
 }
 
 func envVarTypeCvt(v lua.LValue) any {
@@ -139,6 +141,7 @@ func (vm *YockScheduler) parseFlags() {
 		})
 		return 0
 	}))
+	vm.env.RawSetString("yock_path", lua.LString(util.YockPath))
 	for i, j := 0, 1; i < len(os.Args); i++ {
 		if os.Args[i] == "--" {
 			idx = i
@@ -154,51 +157,100 @@ func (vm *YockScheduler) parseFlags() {
 	}
 }
 
-func (vm *YockScheduler) injectGlobal() {
-	vm.setGlobalFns(
-		loadNet(vm),
-		loadIO(),
-		loadOS(),
-		loadGoroutine(vm),
-		loadStrings(vm),
-		loadPlugin(vm),
-		loadDriver(vm),
-		loadJob(vm),
-		loadCtl(vm),
-		loadGNU())
-	vm.setGlobalVars(map[string]lua.LValue{
-		"ldns":    luar.New(vm.Interp(), vm.localDNS),
-		"gdns":    luar.New(vm.Interp(), vm.globalDNS),
-		"env":     vm.env,
-		"plugins": vm.plugins,
-	})
+const (
+	yockLibRandom = "random"
+	yockLibSSH    = "ssh"
+	yockLibTime   = "time"
+	yockLibJSON   = "json"
+	yockLibPath   = "path"
+	yockLibRegexp = "regexp"
+	yockLibSync   = "sync"
+	yockLibPsutil = "psutil"
+)
+
+type yockLib struct {
+	name   string
+	handle func(*YockScheduler) lua.LValue
+}
+
+var yockLibs = []yockLib{
+	{yockLibRandom, loadRandom},
+	{yockLibSSH, loadSSH},
+	{yockLibJSON, loadJSON},
+	{yockLibTime, loadTime},
+	{yockLibPath, loadPath},
+	{yockLibRegexp, loadRegexp},
+	{yockLibSync, loadSync},
+	{yockLibPsutil, loadPsutil},
+}
+
+type yockFunc func(*YockScheduler) runtime.LuaFuncs
+
+func wrapLuaFuns(fs runtime.LuaFuncs) yockFunc {
+	return func(ys *YockScheduler) runtime.LuaFuncs {
+		return fs
+	}
+}
+
+var yockFuncs = []yockFunc{
+	netFuncs,
+	goroutineFuncs,
+	loadStrings,
+	loadPlugin,
+	loadDriver,
+	taskFuncs,
+	loadCtl,
+	loadXML,
+	wrapLuaFuns(osFuncs),
+	wrapLuaFuns(gnuFuncs),
+	wrapLuaFuns(ioFuncs()),
+}
+
+func (s *YockScheduler) loadLibs() {
+	for _, fn := range yockFuncs {
+		s.SetGlobalFn(fn(s))
+	}
+
+	var yockGlobalVars = map[string]lua.LValue{
+		"env": s.env,
+	}
+
+	if s.driverManager != nil {
+		yockGlobalVars["plugins"] = s.driverManager.plugins
+		yockGlobalVars["ldns"] = luar.New(s.Interp(), s.driverManager.localDNS)
+		yockGlobalVars["gdns"] = luar.New(s.Interp(), s.driverManager.globalDNS)
+	}
+	s.setGlobalVars(yockGlobalVars)
+
 	files, err := os.ReadDir(util.Pathf("~/lib"))
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	for _, file := range files {
 		if fn := file.Name(); filepath.Ext(fn) == ".lua" {
-			if err := vm.EvalFile(util.Pathf("~/lib/") + fn); err != nil {
-				panic(err)
+			if err := s.EvalFile(util.Pathf("~/lib/") + fn); err != nil {
+				util.Ycho.Fatal(err.Error())
 			}
 		}
 	}
-	if err := vm.EvalFile(util.Pathf("~/ypm/ypm.lua")); err != nil {
-		panic(err)
-	}
-	vm.loadRandom()
-	loadPath(vm)
-	loadTime(vm)
-	loadSync(vm)
-	loadJSON(vm)
-	loadPsutil(vm)
-	vm.Eval(`Import({"cushion-check", "cushion-vm"})`)
-}
 
-func (vm *YockScheduler) setGlobalFns(funcs ...runtime.LuaFuncs) {
-	for _, fn := range funcs {
-		vm.SetGlobalFn(fn)
+	// self-boot
+	files, err = os.ReadDir(util.Pathf("~/lib/boot"))
+	if err != nil {
+		util.Ycho.Fatal(err.Error())
 	}
+	for _, file := range files {
+		if fn := file.Name(); filepath.Ext(fn) == ".lua" {
+			if err := s.EvalFile(util.Pathf("~/lib/") + fn); err != nil {
+				util.Ycho.Fatal(err.Error())
+			}
+		}
+	}
+
+	for _, lib := range yockLibs {
+		s.SetGlobalVar(lib.name, lib.handle(s))
+	}
+	// s.Eval(`Import({"cushion-check", "cushion-vm"})`)
 }
 
 func (vm *YockScheduler) setGlobalVars(vars map[string]lua.LValue) {
@@ -226,14 +278,14 @@ func copyTable(L *lua.LState, srcTable *lua.LTable, dstTable *lua.LTable) {
 	})
 }
 
-func (vm *YockScheduler) RunJob(name string) {
+func (vm *YockScheduler) LaunchTask(name string) {
 	var flags *lua.LTable
 	if vm.opt != nil {
 		if tmp, ok := vm.opt.RawGetString("flags").(*lua.LTable); ok {
 			flags = tmp
 		}
 	}
-	for _, job := range vm.jobs[name] {
+	for _, job := range vm.task[name] {
 		tmp, cancel := vm.Interp().NewThread()
 		tbl := DeepCopy(tmp, vm.env)
 		tbl.RawSetString("job", lua.LString(name))
@@ -245,7 +297,7 @@ func (vm *YockScheduler) RunJob(name string) {
 		if err := tmp.CallByParam(lua.P{
 			Fn: job.fn,
 		}, tbl); err != nil {
-			panic(err)
+			util.Ycho.Warn(err.Error())
 		}
 		if cancel != nil {
 			cancel()
@@ -265,56 +317,25 @@ func (vm *YockScheduler) EventLoop() {
 	}
 }
 
-type CompileOpt struct {
-	DisableAnalyse bool
-}
-
-func (vm *YockScheduler) Compile(opt CompileOpt, file string) *lua.FunctionProto {
-	fp, err := os.Open(file)
-	if err != nil {
-		panic(err)
-	}
-	defer fp.Close()
-	reader := bufio.NewReader(fp)
-	chunk, err := parse.Parse(reader, file)
-	if err != nil {
-		panic(err)
-	}
-	// it's depreated
-	if false && !opt.DisableAnalyse {
-		anlyzer := parser.NewLuaDependencyAnalyzer()
-		out, err := utils.ReadStraemFromFile(util.Pathf("@/sdk/yock/deps/stdlib.json"))
-		if err != nil {
-			panic(err)
-		}
-		if err = json.Unmarshal(out, anlyzer); err != nil {
-			panic(err)
-		}
-		files, err := os.ReadDir(util.Pathf("~/lib"))
-		if err != nil {
-			panic(err)
-		}
-		for _, file := range files {
-			if fn := file.Name(); filepath.Ext(fn) == ".lua" {
-				anlyzer.Load(util.Pathf("~/lib/") + fn)
-			}
-		}
-		undefines, _ := anlyzer.Tidy(file)
-		for _, undefine := range undefines {
-			undefine = strings.TrimSuffix(undefine, "()")
-			vm.Eval(fmt.Sprintf(`%s = uninit_driver("%s")`, undefine, undefine))
-		}
-	}
-	proto, err := lua.Compile(chunk, file)
-	if err != nil {
-		panic(err)
-	}
-	return proto
-}
-
 func (vm *YockScheduler) DoCompliedFile(proto *lua.FunctionProto) error {
 	lvm := vm.Interp()
 	lfunc := lvm.NewFunctionFromProto(proto)
 	lvm.Push(lfunc)
 	return lvm.PCall(0, lua.MultRet, nil)
+}
+
+func handleErr(l *lua.LState, err error) {
+	if err != nil {
+		l.Push(lua.LString(err.Error()))
+	} else {
+		l.Push(lua.LNil)
+	}
+}
+
+func handleBool(l *lua.LState, b bool) {
+	if b {
+		l.Push(lua.LTrue)
+	} else {
+		l.Push(lua.LFalse)
+	}
 }

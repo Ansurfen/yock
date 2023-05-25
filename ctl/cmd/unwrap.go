@@ -15,10 +15,10 @@ var unwarpCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			util.YchoFatal("", util.ErrArgsTooLittle.Error())
+			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
 		}
 		if err := utils.SafeMkdirs(util.Pathf("@/unmount")); err != nil {
-			util.YchoFatal("", err.Error())
+			util.Ycho.Fatal(err.Error())
 		}
 		file := args[0]
 		exf := ""
@@ -30,7 +30,7 @@ var unwarpCmd = &cobra.Command{
 		}
 		if err := yockc.Mv(yockc.MvOpt{}, filepath.Join(util.Pathf("@/mount"), file+exf),
 			filepath.Join(util.Pathf("@/unmount"), file+exf)); err != nil {
-			util.YchoFatal("", err.Error())
+			util.Ycho.Fatal(err.Error())
 		}
 	},
 }

@@ -176,6 +176,7 @@ local platform = {}
 ---@field flags table
 ---@field job string
 ---@field workdir string
+---@field yock_path string
 ---@field params table?
 ---
 env = {}
@@ -618,6 +619,13 @@ end
 ---@class strings
 strings = {}
 
+---@param elems table
+---@param sep string
+---@return table
+function strings.Join(elems, sep)
+    return {}
+end
+
 ---@param s string
 ---@param prefix string
 ---@return boolean
@@ -733,6 +741,20 @@ function sshClient:Exec(cmds)
 end
 
 function sshClient:Shell()
+
+end
+
+---@param src string
+---@param dst string
+---@return err
+function sshClient:Get(src, dst)
+
+end
+
+---@param src string
+---@param dst string
+---@return err
+function sshClient:Put(src, dst)
 
 end
 

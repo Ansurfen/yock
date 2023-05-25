@@ -1,4 +1,4 @@
-package parser
+package yockpack
 
 import (
 	"github.com/yuin/gopher-lua/ast"

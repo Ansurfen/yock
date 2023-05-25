@@ -34,7 +34,11 @@ func (term *Terminal) Exec(opt *ExecOpt) ([]byte, error) {
 	cmd := exec.Command(name, args...)
 
 	if opt.Debug {
-		util.YchoInfo(opt.Caller, fmt.Sprintf("exec: %s %s", name, strings.Join(args, " ")))
+		if len(opt.Caller) > 0 {
+			util.Ycho.Info(fmt.Sprintf("%s\t%s", opt.Caller, fmt.Sprintf("%s %s", name, strings.Join(args, " "))))
+		} else {
+			util.Ycho.Info(fmt.Sprintf("%s %s", name, strings.Join(args, " ")))
+		}
 	}
 
 	if opt.Redirect {

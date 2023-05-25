@@ -10,7 +10,7 @@ func Clear() error {
 	default:
 		term = PosixTerm("clear")
 	}
-	if _, err := term.Exec(&ExecOpt{}); err != nil {
+	if _, err := term.Exec(&ExecOpt{Quiet: true}); err != nil {
 		return err
 	}
 	return nil

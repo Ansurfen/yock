@@ -53,7 +53,7 @@ type HttpOpt struct {
 func httpExceptionHandle(err error, opt *HttpOpt, exception error) bool {
 	if err != nil {
 		if opt.Debug {
-			util.YchoWarn(opt.Caller, exception.Error())
+			util.Ycho.Warn(fmt.Sprintf("%s\t%s", opt.Caller, exception.Error()))
 		}
 		if opt.Strict {
 			return true
@@ -98,7 +98,7 @@ func HTTP(opt HttpOpt, urls []string) error {
 		}
 
 		if opt.Debug {
-			util.YchoInfo(opt.Caller, fmt.Sprintf("%s %s", req.Method, url))
+			util.Ycho.Info(fmt.Sprintf("%s\t%s", opt.Caller, fmt.Sprintf("%s %s", req.Method, url)))
 		}
 
 		if opt.Async {

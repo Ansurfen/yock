@@ -56,7 +56,7 @@ dependencies:
             exec({
                 redirect = true,
                 debug = true,
-            }, build_protoc("--go_out=" .. tbl["out"], "--go-grpc_out=" .. tbl["grpc_out"], spec))
+            }, build_protoc("--go_out=" .. tbl["out"], "--go-grpc_out=" .. tbl["grpc_out"], spec , tbl["proto"]))
         end)
     }, function()
         print("no support the plugin")

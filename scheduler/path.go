@@ -7,7 +7,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadPath(vm *YockScheduler) {
+func loadPath(vm *YockScheduler) lua.LValue {
 	path := &lua.LTable{}
 	path.RawSetString("exist", vm.Interp().NewClosure(func(l *lua.LState) int {
 		ok := utils.IsExist(l.CheckString(1))
@@ -56,5 +56,5 @@ func loadPath(vm *YockScheduler) {
 		}
 		return 2
 	}))
-	vm.SetGlobalVar("path", path)
+	return path
 }

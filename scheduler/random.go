@@ -5,11 +5,11 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func (vm *YockScheduler) loadRandom() {
+func loadRandom(vm *YockScheduler) lua.LValue {
 	random := &lua.LTable{}
 	random.RawSetString("str", vm.Interp().NewClosure(func(l *lua.LState) int {
 		l.Push(lua.LString(utils.RandString(int(l.CheckNumber(1)))))
 		return 1
 	}))
-	vm.SetGlobalVar("random", random)
+	return random
 }

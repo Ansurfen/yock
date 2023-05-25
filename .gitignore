@@ -24,3 +24,13 @@ go.work
 **/.antlr
 **/.dart_tool
 **/node_modules
+**/.vscode
+
+**/*.zip
+**/*.tar
+
+tutorial
+
+interface/c/libyock/cJSON.*
+interface/c/libyock/yock.pb.go
+interface/c/libyock/yock_grpc.pb.go

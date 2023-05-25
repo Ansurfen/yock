@@ -5,10 +5,10 @@ local root = "."
 local target = "yock.proto"
 
 job("dart", function(cenv)
-    local worksapce = "/dart"
+    local workspace = "/dart"
     protoc({
         plugin = "dart",
-        out = root .. worksapce,
+        out = root .. workspace,
         proto_path = root,
         proto = target
     })
@@ -16,28 +16,28 @@ job("dart", function(cenv)
 end)
 
 job("py", function(cenv)
-    local worksapce = "/python"
+    local workspace = "/python/yocki"
     protoc({
         plugin = "python",
-        out = root .. worksapce,
-        grpc_out = root .. worksapce,
+        out = root .. workspace,
+        grpc_out = root .. workspace,
         proto_path = root,
         proto = target,
         spec = {
-            pyi = root .. worksapce
+            pyi = root .. workspace
         }
     })
     return true
 end)
 
 job("java", function(cenv)
-    local worksapce = "/java/src/main/java/"
+    local workspace = "/java/src/main/java/"
     local plugin_path = ""
     protoc({
         plugin = "java",
         plugin_path = plugin_path,
-        out = root .. worksapce,
-        grpc_out = root .. worksapce,
+        out = root .. workspace,
+        grpc_out = root .. workspace,
         proto_path = root,
         proto = target
     })
@@ -45,11 +45,11 @@ job("java", function(cenv)
 end)
 
 job("go", function(cenv)
-    local worksapce = "/go"
+    local workspace = "/go"
     protoc({
         plugin = "golang",
-        out = root .. worksapce,
-        grpc_out = root .. worksapce,
+        out = root .. workspace,
+        grpc_out = root .. workspace,
         spec = {
             "--go_opt=paths=source_relative",
             "--go-grpc_opt=paths=source_relative"
@@ -60,6 +60,39 @@ job("go", function(cenv)
 end)
 
 job("c", function(cenv)
+    local repo = "https://raw.githubusercontent.com/DaveGamble/cJSON/master/"
+    local libs = { "cJSON.c", "cJSON.h" }
+    local wd, err = pwd()
+    yassert(err)
+    local workspace = "/c"
+    for _, lib in ipairs(libs) do
+        http({
+            save = true,
+            filename = function(s)
+                return path.join(wd, workspace, "libyock", lib)
+            end,
+            debug = true
+        }, repo .. lib)
+    end
+    workspace = "/c/libyock"
+    protoc({
+        plugin = "golang",
+        out = root .. workspace,
+        grpc_out = root .. workspace,
+        spec = {
+            "--go_opt=paths=source_relative",
+            "--go-grpc_opt=paths=source_relative"
+        },
+        proto = target
+    })
+    cd("./c/libyock")
+    exec({
+            debug = true,
+            redirect = true
+        }, [[./sd.exe 'package \w+' 'package main' .\yock_grpc.pb.go]],
+        [[./sd.exe 'package \w+' 'package main' .\yock.pb.go]],
+        "yock run gen.lua all")
+
     return true
 end)
 

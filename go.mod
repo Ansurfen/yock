@@ -15,6 +15,7 @@ require (
 
 require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/shoenig/go-m1cpu v0.1.5 // indirect
@@ -33,6 +34,7 @@ require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aws/aws-sdk-go v1.33.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/beevik/etree v1.2.0
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cbroglie/mustache v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
@@ -70,7 +72,9 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.1 // indirect
+	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
+	github.com/pkg/sftp v1.13.5
 	github.com/prometheus/client_golang v1.5.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.9.1 // indirect
@@ -87,7 +91,7 @@ require (
 	github.com/vadv/gopher-lua-libs v0.4.1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/term v0.5.0 // indirect

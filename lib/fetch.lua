@@ -1,13 +1,14 @@
 fetch = {}
 
 function fetch.file(url, file_type)
-    local tmp_path = path.join(env.workdir, "..", "yock_tmp")
+    local tmp_path = path.join(env.yock_path, "yock_tmp")
     local file = ypm:get_cache(url)
     if not (type(file) == "string" and #file > 0) then
         file = random.str(8)
         yassert(http({
             debug = true,
             save = true,
+            strict = true,
             dir = tmp_path,
             filename = function(s)
                 return file .. file_type
@@ -19,7 +20,13 @@ function fetch.file(url, file_type)
 end
 
 function fetch.zip(url)
-    return fetch.file(url, ".zip")
+    local suffix
+    if env.platform.OS == "windows" then
+        suffix = ".zip"
+    else
+        suffix = ".tar.gz"
+    end
+    return fetch.file(url, suffix)
 end
 
 function fetch.script(url)

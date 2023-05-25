@@ -6,5 +6,8 @@ local s = ssh({
     redirect = true,
 }, function(client)
     -- client:Shell()
-    client:Exec({ "echo 'root' | sudo -S ls" })
+    -- client:Exec({ "echo 'root' | sudo -S ls" })
 end)
+
+-- s:Get("release.tar", "a.tar")
+s:Put("../../yock.tar", "yock.tar")

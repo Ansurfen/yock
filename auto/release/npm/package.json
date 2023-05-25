@@ -1,0 +1,7 @@
+{
+    "name": "yock",
+    "version": "1.0.0",
+    "description": "Yock is a solution of cross platform to compose distributed build stream.",
+    "author": "ansurfen",
+    "license": "MIT"
+}

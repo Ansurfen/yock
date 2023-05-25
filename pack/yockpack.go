@@ -1,19 +1,28 @@
-package parser
+package yockpack
 
 import (
 	"bufio"
+	"encoding/json"
+	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/ansurfen/cushion/runtime"
+	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
+	lua "github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/ast"
 	"github.com/yuin/gopher-lua/parse"
 )
 
 type YockPack[T any] struct{}
 
-func (*YockPack[T]) Build() {}
-
 type VisitOption[T any] func(*YockPack[T])
+
+func New() YockPack[NilFrame] {
+	return YockPack[NilFrame]{}
+}
 
 const (
 	StmtAssign = iota
@@ -101,7 +110,7 @@ func (*YockPack[T]) ParseStr(str string) []ast.Stmt {
 	reader := bufio.NewReader(strings.NewReader(str))
 	chunk, err := parse.Parse(reader, "<string>")
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	return chunk
 }
@@ -109,13 +118,13 @@ func (*YockPack[T]) ParseStr(str string) []ast.Stmt {
 func (*YockPack[T]) ParseFile(file string) []ast.Stmt {
 	fp, err := os.Open(file)
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	defer fp.Close()
 	reader := bufio.NewReader(fp)
 	chunk, err := parse.Parse(reader, file)
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	return chunk
 }
@@ -128,4 +137,53 @@ func (yockpack *YockPack[T]) DumpStr(str string) string {
 func (yockpack *YockPack[T]) DumpFile(file string) string {
 	stmts := yockpack.ParseFile(file)
 	return parse.Dump(stmts)
+}
+
+type CompileOpt struct {
+	DisableAnalyse bool
+	VM             runtime.VirtualMachine
+}
+
+func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction {
+	fp, err := os.Open(file)
+	if err != nil {
+		util.Ycho.Fatal(err.Error())
+	}
+	defer fp.Close()
+	reader := bufio.NewReader(fp)
+	chunk, err := parse.Parse(reader, file)
+
+	if opt.DisableAnalyse {
+		anlyzer := NewLuaDependencyAnalyzer()
+		out, err := utils.ReadStraemFromFile(util.Pathf("~/lib/dep/stdlib.json"))
+		if err != nil {
+			util.Ycho.Fatal(err.Error())
+		}
+		if err = json.Unmarshal(out, anlyzer); err != nil {
+			util.Ycho.Fatal(err.Error())
+		}
+		files, err := os.ReadDir(util.Pathf("~/lib"))
+		if err != nil {
+			util.Ycho.Fatal(err.Error())
+		}
+		for _, file := range files {
+			if fn := file.Name(); filepath.Ext(fn) == ".lua" {
+				anlyzer.Load(util.Pathf("~/lib/") + fn)
+			}
+		}
+		undefines, _ := anlyzer.Tidy(file)
+		for _, undefine := range undefines {
+			undefine = strings.TrimSuffix(undefine, "()")
+			opt.VM.Eval(fmt.Sprintf(`%s = uninit_driver("%s")`, undefine, undefine))
+		}
+	}
+
+	if err != nil {
+		util.Ycho.Fatal(err.Error())
+	}
+	proto, err := lua.Compile(chunk, file)
+	if err != nil {
+		util.Ycho.Fatal(err.Error())
+	}
+	return opt.VM.Interp().NewFunctionFromProto(proto)
 }

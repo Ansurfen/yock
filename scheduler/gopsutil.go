@@ -12,7 +12,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadPsutil(vm *YockScheduler) {
+func loadPsutil(vm *YockScheduler) lua.LValue {
 	psutilCpu := &lua.LTable{}
 	physicalCnt, err := cpu.Counts(false)
 	if err != nil {
@@ -221,4 +221,5 @@ func loadPsutil(vm *YockScheduler) {
 		"host": psutilHost,
 		"net":  psutilNet,
 	})
+	return lua.LNil
 }

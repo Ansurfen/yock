@@ -32,8 +32,8 @@ git clone https://github.com/Ansurfen/yock.git
 
 执行go命令，调度yock构建脚本去构建yock
 ```cmd
-yock> cd ctl
-yock/ctl> go run . run ../auto/build.lua -a
+cd ctl
+go run . run ../auto/build.lua all
 ```
 
 #### 嵌入Go语言

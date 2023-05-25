@@ -4,7 +4,7 @@ require:
 
 deploy in develop:
     cd ctl
-    go run . run ..\auto\dev.lua -a
+    go run . run ..\auto\dev.lua
 ]]
 print('start to deploy')
 -- TODO: using ".yock-dev" to replace in ".yock" in develop enviroment
