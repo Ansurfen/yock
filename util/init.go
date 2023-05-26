@@ -25,7 +25,7 @@ func init() {
 		exfPath = wd
 	}
 	YockPath = filepath.Join(exfPath, "..")
-	initLogger(LoggerOpt{
+	err = initLogger(LoggerOpt{
 		Compress:    false,
 		FileName:    "yock.log",
 		Level:       "debug",
@@ -33,5 +33,14 @@ func init() {
 		Path:        Pathf("@/log"),
 		Stdout:      true,
 	})
+	if err != nil {
+		panic(err)
+	}
 	Ycho = zap.L()
+
+	yockCpu = newCPU()
+	yockMem = newMem()
+	yockDisk = newDisk()
+	yockHost = newHost()
+	yockNet = newNet()
 }

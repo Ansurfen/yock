@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 function check(...)
     local args = { ... }
     local flag = true
@@ -29,7 +30,7 @@ function OS(want_os, want_ver)
     if want_os ~= env.platform.OS then
         return false
     end
-    local cc = require("cushion-check")
+    local cc = require("check")
     return cc.CheckVersion(want_ver, env.platform.Ver)
 end
 

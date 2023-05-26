@@ -7,11 +7,13 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadJSON(vm *YockScheduler) lua.LValue {
-	json := &lua.LTable{}
-	json.RawSetString("encode", vm.Interp().NewClosure(apiEncode))
-	json.RawSetString("decode", vm.Interp().NewClosure(apiDecode))
-	return json
+func loadJSON(yocks *YockScheduler) lua.LValue {
+	return yocks.registerLib(jsonLib)
+}
+
+var jsonLib = luaFuncs{
+	"encode": apiEncode,
+	"decode": apiDecode,
 }
 
 // power by https://github.com/layeh/gopher-json

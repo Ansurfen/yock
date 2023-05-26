@@ -5,7 +5,6 @@ import (
 	"path"
 	"regexp"
 
-	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 
@@ -29,36 +28,48 @@ func newDriverManager() *yockDriverManager {
 	}
 }
 
-func loadDriver(vm *YockScheduler) runtime.Handles {
-	return runtime.Handles{
-		"set_driver": func(l *lua.LState) int {
-			driver := l.CheckString(1)
-			name := l.CheckString(2)
-			out, err := utils.ReadStraemFromFile(path.Join(util.DriverPath, name+".lua"))
-			if err != nil {
-				panic(err)
-			}
-			reg := regexp.MustCompile(`driver\s*\((.*)function`)
-			did := driver + "_" + name
-			vm.Eval(reg.ReplaceAllString(string(out), fmt.Sprintf(`driver("%s",function`, did)))
-			vm.SetGlobalVar(driver, vm.getDrivers().RawGetString(did))
-			l.Push(lua.LString(did))
-			return 1
-		},
+func loadDriver(yocks *YockScheduler) luaFuncs {
+	return luaFuncs{
+		"set_driver": driverSetDriver(yocks),
 		// driver is a callback that works on developer of yock driver
-		"driver": func(l *lua.LState) int {
-			vm.getDrivers().RawSetString(l.CheckString(1), l.CheckFunction(2))
-			return 0
-		},
-		"exec_driver": func(l *lua.LState) int {
-			if lv := vm.getDrivers().RawGetString(l.CheckString(1)); lv.Type() == lua.LTFunction {
-				args := []lua.LValue{}
-				for i := 3; i <= l.GetTop(); i++ {
-					args = append(args, l.CheckAny(i))
-				}
-				vm.EvalFunc(lv.(*lua.LFunction), append([]lua.LValue{l.CheckTable(2)}, args...))
+		"driver":      driverDriver(yocks),
+		"exec_driver": driverExecDriver(yocks),
+	}
+}
+
+func driverSetDriver(yocks *YockScheduler) lua.LGFunction {
+	return func(l *lua.LState) int {
+		driver := l.CheckString(1)
+		name := l.CheckString(2)
+		out, err := utils.ReadStraemFromFile(path.Join(util.DriverPath, name+".lua"))
+		if err != nil {
+			panic(err)
+		}
+		reg := regexp.MustCompile(`driver\s*\((.*)function`)
+		did := driver + "_" + name
+		yocks.Eval(reg.ReplaceAllString(string(out), fmt.Sprintf(`driver("%s",function`, did)))
+		yocks.SetGlobalVar(driver, yocks.getDrivers().RawGetString(did))
+		l.Push(lua.LString(did))
+		return 1
+	}
+}
+
+func driverDriver(yocks *YockScheduler) lua.LGFunction {
+	return func(l *lua.LState) int {
+		yocks.getDrivers().RawSetString(l.CheckString(1), l.CheckFunction(2))
+		return 0
+	}
+}
+
+func driverExecDriver(yocks *YockScheduler) lua.LGFunction {
+	return func(l *lua.LState) int {
+		if lv := yocks.getDrivers().RawGetString(l.CheckString(1)); lv.Type() == lua.LTFunction {
+			args := []lua.LValue{}
+			for i := 3; i <= l.GetTop(); i++ {
+				args = append(args, l.CheckAny(i))
 			}
-			return 0
-		},
+			yocks.EvalFunc(lv.(*lua.LFunction), append([]lua.LValue{l.CheckTable(2)}, args...))
+		}
+		return 0
 	}
 }

@@ -55,6 +55,8 @@ github.com/alessio/shellescape v1.4.1 h1:V7yhSDDn8LP4lc4jS8pFkt0zCnzVJlG5JXy9BVK
 github.com/alessio/shellescape v1.4.1/go.mod h1:PZAiSCk0LJaZkiCSkPv8qIobYglO3FPpyFjDCtHLS30=
 github.com/ansurfen/cushion v0.0.0-20230516044255-034f11c76d52 h1:gICuZUv9S+cp0vpb+ycwE8Ng3cWmVnLNP7ud4MUeNCQ=
 github.com/ansurfen/cushion v0.0.0-20230516044255-034f11c76d52/go.mod h1:bftHbNyqjF/HGJY+0HJzvCnH/XKfo6PeAI5vSyavrW0=
+github.com/ansurfen/cushion v0.0.0-20230525155213-45fa0ad8f513 h1:KiXYRBNMzyIghL5CugyANInCMUvIenDTM5m+91rpo7I=
+github.com/ansurfen/cushion v0.0.0-20230525155213-45fa0ad8f513/go.mod h1:bftHbNyqjF/HGJY+0HJzvCnH/XKfo6PeAI5vSyavrW0=
 github.com/atotto/clipboard v0.1.4 h1:EH0zSVneZPSuFR11BlR9YppQTVDbh5+16AmcJi4g1z4=
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/aws/aws-sdk-go v1.33.0 h1:Bq5Y6VTLbfnJp1IV8EL/qUU5qO1DYHda/zis/sqevkY=

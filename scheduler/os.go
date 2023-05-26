@@ -1,16 +1,21 @@
 package scheduler
 
 import (
-	"github.com/ansurfen/cushion/runtime"
+	"strings"
+
 	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/cmd"
+	"github.com/spf13/cobra"
 	"github.com/yuin/gluamapper"
 	lua "github.com/yuin/gopher-lua"
+	luar "layeh.com/gopher-luar"
 )
 
-var osFuncs = runtime.LuaFuncs{
-	"shell": osShell,
-	"exec":  osExec,
+var osFuncs = luaFuncs{
+	"shell":       osShell,
+	"exec":        osExec,
+	"cmdf":        osCmdf,
+	"new_command": osNewCommand,
 }
 
 func osExec(l *lua.LState) int {
@@ -40,4 +45,23 @@ func osShell(l *lua.LState) int {
 		return ""
 	})
 	return 0
+}
+
+func osCmdf(l *lua.LState) int {
+	tmp := []string{}
+	for i := 0; i <= l.GetTop(); i++ {
+		switch l.CheckAny(i).Type() {
+		case lua.LTNumber:
+			tmp = append(tmp, l.CheckNumber(i).String())
+		case lua.LTString:
+			tmp = append(tmp, l.CheckString(i))
+		}
+	}
+	l.Push(lua.LString(strings.Join(tmp, " ")))
+	return 1
+}
+
+func osNewCommand(l *lua.LState) int {
+	l.Push(luar.New(l, &cobra.Command{}))
+	return 1
 }

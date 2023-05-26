@@ -9,6 +9,7 @@ import (
 
 	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/cushion/utils/build"
+	"github.com/ansurfen/yock/util"
 	"github.com/yuin/gopher-lua/ast"
 )
 
@@ -161,7 +162,7 @@ func (yockpack *YockPack[T]) buildBoot(opt buildBootOpt) {
 	}
 	text, err := utils.ReadStraemFromFile(opt.tpl)
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	tmpl.Funcs(template.FuncMap{
 		"add": func(a, b int) int {
@@ -174,7 +175,7 @@ func (yockpack *YockPack[T]) buildBoot(opt buildBootOpt) {
 	}
 	out, err := tmpl.OnceParse(string(text), ms)
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	if !strings.HasSuffix(opt.file, ".lua") {
 		opt.file += ".lua"

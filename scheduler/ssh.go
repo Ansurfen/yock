@@ -20,9 +20,8 @@ func init() {
 	center = &SSHCenter{}
 }
 
-
-func loadSSH(vm *YockScheduler) lua.LValue {
-	return vm.Interp().NewClosure(func(l *lua.LState) int {
+func loadSSH(yocks *YockScheduler) lua.LValue {
+	return yocks.Interp().NewClosure(func(l *lua.LState) int {
 		opt := SSHOpt{}
 		mode := l.CheckAny(1)
 		if mode.Type() == lua.LTTable {
@@ -35,7 +34,7 @@ func loadSSH(vm *YockScheduler) lua.LValue {
 			}
 			if l.GetTop() >= 2 && l.CheckAny(2).Type() == lua.LTFunction {
 				fn := l.CheckFunction(2)
-				vm.FastEvalFunc(fn, []lua.LValue{luar.New(l, cli)})
+				yocks.FastEvalFunc(fn, []lua.LValue{luar.New(l, cli)})
 			}
 			l.Push(luar.New(l, cli))
 		}

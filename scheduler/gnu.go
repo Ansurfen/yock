@@ -6,14 +6,13 @@ import (
 	"os/user"
 	"strconv"
 
-	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/cmd"
 	"github.com/yuin/gluamapper"
 	lua "github.com/yuin/gopher-lua"
 )
 
-var gnuFuncs = runtime.LuaFuncs{
+var gnuFuncs = luaFuncs{
 	"pwd":    gnuPwd,
 	"whoami": gnuWhoami,
 	"echo":   gnuEcho,

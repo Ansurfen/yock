@@ -6,14 +6,17 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadTime(vm *YockScheduler) lua.LValue {
-	timelib := &lua.LTable{}
+func loadTime(yocks *YockScheduler) lua.LValue {
+	timelib := yocks.registerLib(luaFuncs{
+		"sleep": timeSleep,
+	})
 	timelib.RawSetString("microsecond", lua.LNumber(time.Microsecond))
 	timelib.RawSetString("millisecond", lua.LNumber(time.Millisecond))
 	timelib.RawSetString("second", lua.LNumber(time.Second))
-	timelib.RawSetString("sleep", vm.Interp().NewClosure(func(l *lua.LState) int {
-		time.Sleep(time.Duration(l.CheckNumber(1)))
-		return 0
-	}))
 	return timelib
+}
+
+func timeSleep(l *lua.LState) int {
+	time.Sleep(time.Duration(l.CheckNumber(1)))
+	return 0
 }

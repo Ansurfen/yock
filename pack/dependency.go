@@ -4,12 +4,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/yuin/gopher-lua/parse"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/yuin/gopher-lua/parse"
+
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	"github.com/yuin/gopher-lua/ast"
 )
 
@@ -83,7 +85,7 @@ func (analyzer *luaDependencyAnalyzer) Preload(name string, method LuaMethod) {
 func (analyzer *luaDependencyAnalyzer) Export(file string) {
 	out, err := json.Marshal(analyzer)
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	utils.WriteFile(file, out)
 }
@@ -144,13 +146,13 @@ func parseFuncExpr(expr ast.Expr) (ret string) {
 func ParserASTFromFile(file string) []ast.Stmt {
 	fp, err := os.Open(file)
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	defer fp.Close()
 	reader := bufio.NewReader(fp)
 	chunk, err := parse.Parse(reader, file)
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	return chunk
 }
@@ -159,7 +161,7 @@ func ParserASTFromString(str string) []ast.Stmt {
 	reader := bufio.NewReader(strings.NewReader(str))
 	chunk, err := parse.Parse(reader, "<string>")
 	if err != nil {
-		panic(err)
+		util.Ycho.Fatal(err.Error())
 	}
 	return chunk
 }
