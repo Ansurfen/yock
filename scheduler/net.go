@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
@@ -19,6 +23,12 @@ func netFuncs(yocks *YockScheduler) luaFuncs {
 	}
 }
 
+// netHTTP is capable of sending HTTP requests, which defaults to the GET method
+/*
+* @param opt table
+* @param urls ...string
+* @retrun err
+ */
 func netHTTP(yocks *YockScheduler) lua.LGFunction {
 	return func(l *runtime.LuaInterp) int {
 		mode := l.CheckAny(1)
@@ -46,20 +56,22 @@ func netHTTP(yocks *YockScheduler) lua.LGFunction {
 				urls = append(urls, l.CheckString(i))
 			}
 		}
-		cmd.HTTP(opt, urls)
-		return 0
+		handleErr(l, cmd.HTTP(opt, urls))
+		return 1
 	}
 }
 
+// @param url string
+//
+// @return bool
 func netIsURL(l *lua.LState) int {
-	if utils.IsURL(l.CheckString(1)) {
-		l.Push(lua.LTrue)
-	} else {
-		l.Push(lua.LFalse)
-	}
+	handleBool(l, utils.IsURL(l.CheckString(1)))
 	return 1
 }
 
+// @param url string
+//
+// @return bool
 func netIsLocalhost(l *lua.LState) int {
 	url := l.CheckString(1)
 	if url == "localhost" {

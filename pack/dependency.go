@@ -1,32 +1,49 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+// Dependency analysis was Yock's early idea of package management.
+// Scripters do not need to explicitly import dependencies,
+// but yockpack completes dependency analysis by traversing the syntax tree,
+// and automatically imports them at runtime. However, this design has a natural flaw,
+// for the same name, the same parameter function, the compiler cannot distinguish the
+// function that the user wants to use from the function registry.
+// If you want to learn about the implementation to continue, you can read on.
+// In this pattern, each global function will be treated as a driver.
+// One driver specifically solves one type of problem, and every could be overrided according to optional table
+// For added flexibility, each driver can mount multiple plugins,
+// which you can think of as a callback function during driver execution.
+
 package yockpack
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
-	"strings"
-
-	"github.com/yuin/gopher-lua/parse"
 
 	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 	"github.com/yuin/gopher-lua/ast"
 )
 
+// luaDependencyAnalyzer is used to analyze dependencies.
+// It has now been deprecated in the latest version.
 type luaDependencyAnalyzer struct {
+	// Includes is responsible for recording the metadata of driver to be scanned
 	Includes map[string][]LuaMethod `json:"includes"`
+	yockp    YockPack[NilFrame]
 }
 
 func NewLuaDependencyAnalyzer() *luaDependencyAnalyzer {
 	return &luaDependencyAnalyzer{
 		Includes: make(map[string][]LuaMethod),
+		yockp:    New(),
 	}
 }
 
-func (analyzer *luaDependencyAnalyzer) Tidy(file string) ([]string, map[string]bool) {
-	ast := ParserASTFromFile(file)
+// Completion returns undefined drivers based on the current environment comparison
+func (analyzer *luaDependencyAnalyzer) Completion(file string) ([]string, map[string]bool) {
+	ast := analyzer.yockp.ParseFile(file)
 	dec, cal := parseFuncStmt(file, ast)
 	deps := make(map[string]bool)
 	libs := []string{}
@@ -53,10 +70,10 @@ func (analyzer *luaDependencyAnalyzer) Load(str string) {
 	var ast []ast.Stmt
 	scope := "g"
 	if filepath.Ext(str) == ".lua" {
-		ast = ParserASTFromFile(str)
+		ast = analyzer.yockp.ParseFile(str)
 		scope = str
 	} else {
-		ast = ParserASTFromString(str)
+		ast = analyzer.yockp.ParseStr(str)
 	}
 	dec, _ := parseFuncStmt(scope, ast)
 	for name, method := range dec {
@@ -68,9 +85,9 @@ func (analyzer *luaDependencyAnalyzer) LoadG(str string) {
 	var ast []ast.Stmt
 	scope := "g"
 	if filepath.Ext(str) == ".lua" {
-		ast = ParserASTFromFile(str)
+		ast = analyzer.yockp.ParseFile(str)
 	} else {
-		ast = ParserASTFromString(str)
+		ast = analyzer.yockp.ParseStr(str)
 	}
 	dec, _ := parseFuncStmt(scope, ast)
 	for name, method := range dec {
@@ -82,6 +99,8 @@ func (analyzer *luaDependencyAnalyzer) Preload(name string, method LuaMethod) {
 	analyzer.Includes[name] = append(analyzer.Includes[name], method)
 }
 
+// Export writes the analyzed metadata to a file as a cache,
+// thereby skipping the process of repeated analysis.
 func (analyzer *luaDependencyAnalyzer) Export(file string) {
 	out, err := json.Marshal(analyzer)
 	if err != nil {
@@ -90,10 +109,16 @@ func (analyzer *luaDependencyAnalyzer) Export(file string) {
 	utils.WriteFile(file, out)
 }
 
+// LuaMethod stores the metadata of the driver
 type LuaMethod struct {
-	Argc int      `json:"argc"`
+	// Argc indicates the number of parameters
+	Argc int `json:"argc"`
+	// Argv collects the name of each parameter
 	Argv []string `json:"argv"`
-	Pkg  string   `json:"pkg"`
+	// Pkg indicates the scope for current driver.
+	// Generally speaking, it is the file name,
+	// and the way pkg is introduced for standard library functions and strings is g(global).
+	Pkg string `json:"pkg"`
 }
 
 func parseFuncStmt(scope string, stmts []ast.Stmt) (declares, calls map[string]LuaMethod) {
@@ -141,27 +166,4 @@ func parseFuncExpr(expr ast.Expr) (ret string) {
 		ret += v.Value
 	}
 	return
-}
-
-func ParserASTFromFile(file string) []ast.Stmt {
-	fp, err := os.Open(file)
-	if err != nil {
-		util.Ycho.Fatal(err.Error())
-	}
-	defer fp.Close()
-	reader := bufio.NewReader(fp)
-	chunk, err := parse.Parse(reader, file)
-	if err != nil {
-		util.Ycho.Fatal(err.Error())
-	}
-	return chunk
-}
-
-func ParserASTFromString(str string) []ast.Stmt {
-	reader := bufio.NewReader(strings.NewReader(str))
-	chunk, err := parse.Parse(reader, "<string>")
-	if err != nil {
-		util.Ycho.Fatal(err.Error())
-	}
-	return chunk
 }

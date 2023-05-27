@@ -1,9 +1,14 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+// dns, plugin, and driver are all derivatives of the dependency analysis pattern.
+// They are now abandoned, see pack/dependency.go for details.
 package scheduler
 
 import (
-	"errors"
-
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	"github.com/spf13/viper"
 )
 
@@ -57,7 +62,7 @@ func (dns *DNS) GetPlugin(domain string) asset {
 
 func (dns *DNS) PutPlugin(domain, url, path string) error {
 	if _, ok := dns.Plugin[domain]; ok {
-		return errors.New("plugin exist already")
+		return util.ErrPluginExist
 	}
 	dns.Plugin[domain] = asset{URL: url, Path: path}
 	dns.file.Set("plugin", dns.Plugin)
@@ -81,7 +86,7 @@ func (dns *DNS) GetDriver(domain string) asset {
 
 func (dns *DNS) PutDriver(domain, url, path string) error {
 	if _, ok := dns.Driver[domain]; ok {
-		return errors.New("domain exist already")
+		return util.ErrDomainExist
 	}
 	dns.Driver[domain] = asset{URL: url, Path: path}
 	dns.file.Set("driver", dns.Driver)
@@ -101,7 +106,7 @@ func (dns *DNS) UnputDriver(domain string) {
 
 func (dns *DNS) AliasDriver(domain, alias string) error {
 	if len(dns.GetDriver(alias).URL) > 0 {
-		return errors.New("alias exist already")
+		return util.ErrAliasExist
 	}
 	if driver := dns.GetDriver(domain); len(driver.URL) > 0 {
 		dns.PutDriver(alias, driver.URL, driver.Path)
@@ -111,7 +116,7 @@ func (dns *DNS) AliasDriver(domain, alias string) error {
 
 func (dns *DNS) AliasPlugin(domain, alias string) error {
 	if len(dns.GetPlugin(alias).URL) > 0 {
-		return errors.New("alias exist already")
+		return util.ErrAliasExist
 	}
 	if plugin := dns.GetPlugin(domain); len(plugin.URL) > 0 {
 		dns.PutPlugin(alias, plugin.URL, plugin.Path)

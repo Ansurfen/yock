@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
@@ -12,6 +16,9 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+// gnuFuncs provides some simple GNU functions.
+// Scripters can use cross-platform GNU commands in the form of global functions in Lua.
+// For specific parameters and functions, see docs.
 var gnuFuncs = luaFuncs{
 	"pwd":    gnuPwd,
 	"whoami": gnuWhoami,
@@ -30,6 +37,9 @@ var gnuFuncs = luaFuncs{
 	"rm":     gnuRm,
 }
 
+// @return path string
+//
+// @return err error
 func gnuPwd(l *lua.LState) int {
 	path, err := os.Getwd()
 	l.Push(lua.LString(path))
@@ -37,6 +47,9 @@ func gnuPwd(l *lua.LState) int {
 	return 2
 }
 
+// @return username string
+//
+// @return err error
 func gnuWhoami(l *lua.LState) int {
 	u, err := user.Current()
 	l.Push(lua.LString(u.Username))
@@ -44,6 +57,9 @@ func gnuWhoami(l *lua.LState) int {
 	return 2
 }
 
+// @param str string
+//
+// @return string
 func gnuEcho(l *lua.LState) int {
 	str := l.CheckString(1)
 	out, err := cmd.Echo(str)
@@ -62,6 +78,9 @@ func gnuEcho(l *lua.LState) int {
 	return 1
 }
 
+// @param opt table
+//
+// @return table|string, err
 func gnuLs(l *lua.LState) int {
 	var opt cmd.LsOpt
 	gluamapper.Map(l.CheckTable(1), &opt)
@@ -84,11 +103,17 @@ func gnuLs(l *lua.LState) int {
 	return 2
 }
 
+// gnuClear clears the output on the screen
 func gnuClear(l *lua.LState) int {
 	cmd.Clear()
 	return 0
 }
 
+/*
+* @param name string
+* @param mode number
+* @return err
+ */
 func gnuChmod(l *lua.LState) int {
 	mode, err := strconv.ParseInt(strconv.Itoa(int(l.CheckNumber(2))), 8, 64)
 	if err != nil {
@@ -100,24 +125,40 @@ func gnuChmod(l *lua.LState) int {
 	return 1
 }
 
+/*
+* @param name string
+* @param uid number
+* @param gid number
+* @return err
+ */
 func gnuChown(l *lua.LState) int {
 	err := cmd.Chown(l.CheckString(1), int(l.CheckNumber(2)), int(l.CheckNumber(3)))
 	handleErr(l, err)
 	return 1
 }
 
+/*
+* @param dir string
+* @return err
+ */
 func gnuCd(l *lua.LState) int {
 	err := cmd.Cd(l.CheckString(1))
 	handleErr(l, err)
 	return 1
 }
 
+// @param file string
+//
+// @return err
 func gnuTouch(l *lua.LState) int {
 	err := utils.SafeWriteFile(l.CheckString(1), nil)
 	handleErr(l, err)
 	return 1
 }
 
+// @param file string
+//
+// @return string, err
 func gnuCat(l *lua.LState) int {
 	out, err := utils.ReadStraemFromFile(l.CheckString(1))
 	l.Push(lua.LString(string(out)))
@@ -125,6 +166,11 @@ func gnuCat(l *lua.LState) int {
 	return 2
 }
 
+// @param opt string
+//
+// @param cmd string
+//
+// @return string, err
 func gnuCmd(l *lua.LState) int {
 	out, err := cmd.Cmd(cmd.ExecOpt{Redirect: false, Quiet: true}, l.CheckString(1))
 	l.Push(lua.LString(out))
@@ -132,12 +178,24 @@ func gnuCmd(l *lua.LState) int {
 	return 2
 }
 
+/*
+* @param opt table
+* @param src string
+* @param dst string
+* @return err
+ */
 func gnuMv(l *lua.LState) int {
 	err := cmd.Mv(cmd.MvOpt{}, l.CheckString(1), l.CheckString(2))
 	handleErr(l, err)
 	return 1
 }
 
+/*
+* @param opt table
+* @param src string
+* @param dst string
+* @return err
+ */
 func gnuCp(l *lua.LState) int {
 	err := cmd.Cp(cmd.CpOpt{
 		Recurse: true,
@@ -146,12 +204,20 @@ func gnuCp(l *lua.LState) int {
 	return 1
 }
 
+// @param path string
+//
+// @return err
 func gnuMkdir(l *lua.LState) int {
 	err := utils.SafeMkdirs(l.CheckString(1))
 	handleErr(l, err)
 	return 1
 }
 
+// @param opt table
+//
+// @param files ...string
+//
+// @return err
 func gnuRm(l *lua.LState) int {
 	mode := l.CheckAny(1)
 	opt := cmd.RmOpt{Safe: true}
@@ -166,6 +232,6 @@ func gnuRm(l *lua.LState) int {
 			targets = append(targets, l.CheckString(i))
 		}
 	}
-	cmd.Rm(opt, targets)
-	return 0
+	handleErr(l, cmd.Rm(opt, targets))
+	return 1
 }

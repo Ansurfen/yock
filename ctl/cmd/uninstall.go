@@ -6,15 +6,15 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-var tidyCmd = &cobra.Command{
-	Use:   "tidy",
-	Short: `Tidy completes the script definition in the workspace`,
-	Long:  `Tidy completes the script definition in the workspace`,
+var uninstallCmd = &cobra.Command{
+	Use:   "uninstall",
+	Short: `Uninstall yock`,
+	Long:  `Uninstall yock`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 	},
 }
 
 func init() {
-	yockCmd.AddCommand(tidyCmd)
+	yockCmd.AddCommand(uninstallCmd)
 }

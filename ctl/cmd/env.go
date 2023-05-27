@@ -1,10 +1,12 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
 )
 
@@ -21,12 +23,11 @@ var (
 	envParameter envCmdParameter
 	envCmd       = &cobra.Command{
 		Use:   "env [key] [value]",
-		Short: ``,
-		Long:  ``,
+		Short: `Env is used to CRUD environment variables`,
+		Long:  `Env is used to CRUD environment variables`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
-				fmt.Println("yock env [key] [value]")
-				os.Exit(1)
+				util.Ycho.Fatal("use yock env [key] [value]")
 			} else {
 				envParameter.key = args[0]
 				envParameter.value = args[1]
@@ -41,7 +42,7 @@ var (
 					case "user":
 						env.SetPath(envParameter.path)
 					default:
-						panic("invalid path")
+						util.Ycho.Fatal(util.ErrInvalidPath.Error())
 					}
 				default:
 					env.SetPath(envParameter.path)

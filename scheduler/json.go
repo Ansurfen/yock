@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
@@ -46,6 +50,9 @@ var jsonLib = luaFuncs{
 //  L := lua.NewState()
 //  luajson.Preload(L)
 
+// @param str string
+//
+// @return table
 func apiDecode(L *lua.LState) int {
 	str := L.CheckString(1)
 
@@ -59,6 +66,9 @@ func apiDecode(L *lua.LState) int {
 	return 1
 }
 
+// @param value any
+//
+// @return string
 func apiEncode(L *lua.LState) int {
 	value := L.CheckAny(1)
 

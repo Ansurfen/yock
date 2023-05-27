@@ -58,7 +58,7 @@ func httpExceptionHandle(err error, opt *HttpOpt, exception error) bool {
 		if opt.Strict {
 			return true
 		} else {
-			opt.err = ErrGeneral
+			opt.err = util.ErrGeneral
 		}
 	}
 	return false
@@ -67,8 +67,8 @@ func httpExceptionHandle(err error, opt *HttpOpt, exception error) bool {
 // Http is similar with curl, which is used to send HTTP request according to opt and urls.
 func HTTP(opt HttpOpt, urls []string) error {
 	for _, url := range urls {
-		if !utils.IsURL(url) && httpExceptionHandle(ErrGeneral, &opt, ErrInvalidURL) {
-			return ErrInvalidURL
+		if !utils.IsURL(url) && httpExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidURL) {
+			return util.ErrInvalidURL
 		}
 		req, err := http.NewRequest("GET", url, nil)
 
@@ -77,13 +77,13 @@ func HTTP(opt HttpOpt, urls []string) error {
 		case "GET", "HEAD", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH":
 			req.Method = opt.Method
 		default:
-			if httpExceptionHandle(ErrGeneral, &opt, ErrInvalidMethod) {
-				return ErrInvalidMethod
+			if httpExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidMethod) {
+				return util.ErrInvalidMethod
 			}
 		}
 
-		if httpExceptionHandle(err, &opt, ErrBadCreateFile) {
-			return ErrBadCreateRequest
+		if httpExceptionHandle(err, &opt, util.ErrBadCreateFile) {
+			return util.ErrBadCreateRequest
 		}
 
 		for k, v := range opt.Header {
@@ -116,7 +116,7 @@ func HTTP(opt HttpOpt, urls []string) error {
 
 				res, err := http.DefaultClient.Do(req)
 
-				if httpExceptionHandle(err, &opt, ErrBadSendRequest) {
+				if httpExceptionHandle(err, &opt, util.ErrBadSendRequest) {
 					return
 				}
 
@@ -126,7 +126,7 @@ func HTTP(opt HttpOpt, urls []string) error {
 					dst := path.Join(opt.Dir, opt.Filename(u))
 					dir := filepath.Dir(dst)
 
-					if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, ErrBadCreateDir) {
+					if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
 						return
 					}
 
@@ -142,8 +142,8 @@ func HTTP(opt HttpOpt, urls []string) error {
 		} else {
 			res, err := http.DefaultClient.Do(req)
 
-			if httpExceptionHandle(err, &opt, ErrBadSendRequest) {
-				return ErrBadSendRequest
+			if httpExceptionHandle(err, &opt, util.ErrBadSendRequest) {
+				return util.ErrBadSendRequest
 			}
 
 			defer res.Body.Close()
@@ -152,13 +152,13 @@ func HTTP(opt HttpOpt, urls []string) error {
 				dst := path.Join(opt.Dir, opt.Filename(url))
 				dir := filepath.Dir(dst)
 
-				if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, ErrBadCreateDir) {
-					return ErrBadCreateDir
+				if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
+					return util.ErrBadCreateDir
 				}
 
 				file, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0666)
-				if httpExceptionHandle(err, &opt, ErrBadCreateFile) {
-					return ErrBadCreateFile
+				if httpExceptionHandle(err, &opt, util.ErrBadCreateFile) {
+					return util.ErrBadCreateFile
 				}
 				defer file.Close()
 				io.Copy(file, res.Body)

@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
@@ -12,12 +16,13 @@ import (
 )
 
 var osFuncs = luaFuncs{
-	"shell":       osShell,
+	"sh":          osSh,
 	"exec":        osExec,
 	"cmdf":        osCmdf,
 	"new_command": osNewCommand,
 }
 
+// @param opt table
 func osExec(l *lua.LState) int {
 	mode := l.CheckAny(1)
 	opt := cmd.ExecOpt{Quiet: true}
@@ -36,7 +41,8 @@ func osExec(l *lua.LState) int {
 	return 0
 }
 
-func osShell(l *lua.LState) int {
+// @param cmds string
+func osSh(l *lua.LState) int {
 	cmds := l.CheckString(1)
 	utils.ReadLineFromString(cmds, func(s string) string {
 		if len(s) > 0 {
@@ -47,6 +53,9 @@ func osShell(l *lua.LState) int {
 	return 0
 }
 
+// @param cmd ...string
+//
+// @return string
 func osCmdf(l *lua.LState) int {
 	tmp := []string{}
 	for i := 0; i <= l.GetTop(); i++ {
@@ -61,6 +70,7 @@ func osCmdf(l *lua.LState) int {
 	return 1
 }
 
+// @return userdata
 func osNewCommand(l *lua.LState) int {
 	l.Push(luar.New(l, &cobra.Command{}))
 	return 1

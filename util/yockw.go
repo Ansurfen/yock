@@ -1,6 +1,8 @@
-/*
- * yockw is short for yock watcher, which is used to monitor system performance.
- */
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+// yockw is short for yock watcher, which is used to monitor system performance.
 
 package util
 

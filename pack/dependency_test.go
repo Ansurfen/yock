@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package yockpack
 
 import (
@@ -12,7 +16,8 @@ import (
 )
 
 func TestParseAST(t *testing.T) {
-	ast := ParserASTFromString(`
+	yockp := New()
+	ast := yockp.ParseStr(`
 	A():B().C:D().E.F(a,b)
 	A:B().C:D().E.F()
 	A().B().C:D().E.F()
@@ -30,7 +35,7 @@ func TestDependencyAnalyer(t *testing.T) {
 	anlyzer.Load("../sdk/yock.lua")
 	anlyzer.Preload("print()", LuaMethod{Pkg: "g"})
 	anlyzer.Export(utils.RandString(8) + ".json")
-	fmt.Println(anlyzer.Tidy("../ctl/test/check_env_test.lua"))
+	fmt.Println(anlyzer.Completion("../ctl/test/check_env_test.lua"))
 }
 
 func TestExportStdlib(t *testing.T) {

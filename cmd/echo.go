@@ -5,8 +5,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/ansurfen/yock/util"
 )
 
+// Echo prints str to the screen and returns str.
+// Similar to GNU's echo, you can also print environment variables by $GOPATH
 func Echo(str string) (string, error) {
 	out := ""
 	argv := strings.Split(str, " ")
@@ -26,7 +30,7 @@ func Echo(str string) (string, error) {
 			if err == nil {
 				parsedArgs = append(parsedArgs, strings.ReplaceAll(unquoted, "<&>", " "))
 			} else {
-				return "", ErrGeneral
+				return "", util.ErrGeneral
 			}
 		} else {
 			parsedArgs = append(parsedArgs, arg)

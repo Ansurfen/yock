@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
@@ -15,6 +19,9 @@ func goroutineFuncs(yocks *YockScheduler) luaFuncs {
 	}
 }
 
+// goroutineGo wraps the callback function of the Lua language into a go callback
+// and passes it into the goroutines for unified scheduling.
+// @param fn function
 func goroutineGo(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		fn := l.CheckFunction(1)
@@ -31,6 +38,7 @@ func goroutineGo(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
+// @param sig string
 func goroutineWait(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		sig := l.CheckString(1)
@@ -53,6 +61,7 @@ func goroutineWait(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
+// @param sig ...string
 func goroutineWaits(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		sigs := []string{}
@@ -82,6 +91,7 @@ func goroutineWaits(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
+// @param sig string
 func goroutineNotify(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		sig := l.CheckString(1)

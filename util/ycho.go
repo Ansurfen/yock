@@ -1,3 +1,9 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+// Ycho is yock's logging component, which is packaged from zap.
+
 package util
 
 import (
@@ -11,21 +17,24 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type LoggerOpt struct {
-	Level          string
-	Format         string
-	Path           string
-	FileName       string
-	FileMaxSize    int
-	FileMaxBackups int
-	MaxAge         int
-	Compress       bool
-	Stdout         bool
+// YchoOpt indicates the configuration of ycho.
+// It is stored in the yockConf, loaded via init.
+// You can set it using yock conf command.
+type YchoOpt struct {
+	Level          string `yaml:"level"`
+	Format         string `yaml:"format"`
+	Path           string `yaml:"path"`
+	FileName       string `yaml:"filename"`
+	FileMaxSize    int    `yaml:"fileMaxSize"`
+	FileMaxBackups int    `yaml:"fileMaxBackups"`
+	MaxAge         int    `yaml:"maxAge"`
+	Compress       bool   `yaml:"compress"`
+	Stdout         bool   `yaml:"stdout"`
 }
 
 var Ycho *zap.Logger
 
-func initLogger(conf LoggerOpt) error {
+func initYcho(conf YchoOpt) error {
 	logLevel := map[string]zapcore.Level{
 		"debug": zapcore.DebugLevel,
 		"info":  zapcore.InfoLevel,
@@ -47,7 +56,7 @@ func initLogger(conf LoggerOpt) error {
 	return nil
 }
 
-func getEncoder(conf LoggerOpt) zapcore.Encoder {
+func getEncoder(conf YchoOpt) zapcore.Encoder {
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:       "time",
 		LevelKey:      "level",
@@ -69,21 +78,12 @@ func getEncoder(conf LoggerOpt) zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-func getLogWriter(conf LoggerOpt) (zapcore.WriteSyncer, error) {
-	DefaultLogPath := ""
-	if len(DefaultLogPath) == 0 {
-		DefaultLogPath = Pathf("@/log")
+func getLogWriter(conf YchoOpt) (zapcore.WriteSyncer, error) {
+	if len(conf.Path) == 0 {
+		conf.Path = Pathf("@/log")
 	}
-	if exist := utils.IsExist(conf.Path); !exist {
-		if conf.Path == "" {
-			conf.Path = DefaultLogPath
-		}
-		if err := os.MkdirAll(conf.Path, os.ModePerm); err != nil {
-			conf.Path = DefaultLogPath
-			if err := os.MkdirAll(conf.Path, os.ModePerm); err != nil {
-				return nil, err
-			}
-		}
+	if err := utils.SafeMkdirs(conf.Path); err != nil {
+		return nil, err
 	}
 
 	lumberJackLogger := &lumberjack.Logger{

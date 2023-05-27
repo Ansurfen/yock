@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package ypm
 
 import (
@@ -15,8 +19,7 @@ type Module struct {
 
 const BlankModule = `{"version": "v1", "module": "%s", "dependency": {}}`
 
-type yockDependency struct {
-}
+type yockDependency struct{}
 
 func OpenModule(file string) (*Module, error) {
 	mod := &Module{}

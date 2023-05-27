@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package yockpack
 
 import (
@@ -13,6 +17,7 @@ import (
 	"github.com/yuin/gopher-lua/ast"
 )
 
+// BuildScript restores a given lua statement to source code
 func (*YockPack[T]) BuildScript(stmts []ast.Stmt, filter map[int]bool) string {
 	var buf *bytes.Buffer = new(bytes.Buffer)
 	buildStmt(buf, stmts, filter)

@@ -40,7 +40,7 @@ func Exec(opt ExecOpt, cmds []string) error {
 			if opt.Strict {
 				return err
 			} else {
-				opt.err = ErrGeneral
+				opt.err = util.ErrGeneral
 			}
 		}
 	}

@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
@@ -8,10 +12,10 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func loadPsutil(yocks *YockScheduler) lua.LValue {
+func loadWatch(yocks *YockScheduler) lua.LValue {
 	cpu := yocks.registerLib(luaFuncs{
-		"percent": psutilCpuPercent,
-		"times":   psutilCpuTimes,
+		"percent": watchCpuPercent,
+		"times":   watchCpuTimes,
 	})
 	cpu.RawSetString("physics_core", lua.LNumber(util.CPU().PhysicalCore))
 	cpu.RawSetString("logical_core", lua.LNumber(util.CPU().LogicalCore))
@@ -30,8 +34,8 @@ func loadPsutil(yocks *YockScheduler) lua.LValue {
 	cpu.RawSetString("info", cpuInfo)
 
 	mem := yocks.registerLib(luaFuncs{
-		"info": psutilMemVirtualMemory,
-		"swap": psutilMemSwapMemory,
+		"info": watchMemVirtualMemory,
+		"swap": watchMemSwapMemory,
 	})
 
 	disk := yocks.registerLib(luaFuncs{
@@ -61,7 +65,12 @@ func loadPsutil(yocks *YockScheduler) lua.LValue {
 	return nil
 }
 
-func psutilCpuPercent(l *lua.LState) int {
+/*
+* @param interval number
+* @param percpu bool
+* @retrun table, error
+ */
+func watchCpuPercent(l *lua.LState) int {
 	per, err := util.CPU().Percent(time.Duration(l.CheckInt64(1)), l.CheckBool(2))
 	ptbl := &lua.LTable{}
 	for i := 0; i < len(per); i++ {
@@ -72,7 +81,11 @@ func psutilCpuPercent(l *lua.LState) int {
 	return 2
 }
 
-func psutilCpuTimes(l *lua.LState) int {
+/*
+* @param percpu bool
+* @retrun table, error
+ */
+func watchCpuTimes(l *lua.LState) int {
 	stats, err := util.CPU().Times(l.CheckBool(1))
 	pstat := &lua.LTable{}
 	for idx, stat := range stats {
@@ -87,7 +100,8 @@ func psutilCpuTimes(l *lua.LState) int {
 	return 2
 }
 
-func psutilMemSwapMemory(l *lua.LState) int {
+// @retrun table, error
+func watchMemSwapMemory(l *lua.LState) int {
 	stats, err := util.Mem().SwapMemory()
 	if err != nil {
 		l.Push(&lua.LTable{})
@@ -104,7 +118,8 @@ func psutilMemSwapMemory(l *lua.LState) int {
 	return 2
 }
 
-func psutilMemVirtualMemory(l *lua.LState) int {
+// @retrun table, error
+func watchMemVirtualMemory(l *lua.LState) int {
 	stats, err := util.Mem().VirtualMemory()
 	if err != nil {
 		l.Push(&lua.LTable{})
@@ -121,6 +136,10 @@ func psutilMemVirtualMemory(l *lua.LState) int {
 	return 2
 }
 
+/*
+* @param names ...string
+* @retrun table, error
+ */
 func watchDiskInfo(l *lua.LState) int {
 	names := []string{}
 	for i := 1; i <= l.GetTop(); i++ {
@@ -143,6 +162,10 @@ func watchDiskInfo(l *lua.LState) int {
 	return 2
 }
 
+/*
+* @param all bool
+* @retrun table, error
+*/
 func watchDiskPartitions(l *lua.LState) int {
 	info := &lua.LTable{}
 	stats, err := util.Disk().Partitions(l.CheckBool(1))
@@ -161,6 +184,10 @@ func watchDiskPartitions(l *lua.LState) int {
 	return 2
 }
 
+/*
+* @param path string
+* @retrun table, error
+*/
 func watchDiskUsage(l *lua.LState) int {
 	stats, err := util.Disk().Usage(l.CheckString(1))
 	if err != nil {
@@ -178,6 +205,7 @@ func watchDiskUsage(l *lua.LState) int {
 	return 2
 }
 
+// @retrun string
 func watchHostBootTime(l *lua.LState) int {
 	timestamp, _ := util.Host().BootTime()
 	t := time.Unix(int64(timestamp), 0)
@@ -185,6 +213,7 @@ func watchHostBootTime(l *lua.LState) int {
 	return 1
 }
 
+// @return string, string, string, err
 func watchHostInfo(l *lua.LState) int {
 	platform, family, version, err := util.Host().PlatformInformation()
 	l.Push(lua.LString(platform))
@@ -194,6 +223,7 @@ func watchHostInfo(l *lua.LState) int {
 	return 4
 }
 
+// @return table, err
 func watchNetInterfaces(l *lua.LState) int {
 	stats, err := util.Net().Interfaces()
 	if err != nil {
@@ -211,6 +241,10 @@ func watchNetInterfaces(l *lua.LState) int {
 	return 2
 }
 
+/*
+* @param pernic bool
+* @return table, err
+*/
 func watchNetIO(l *lua.LState) int {
 	info := &lua.LTable{}
 	stats, err := util.Net().IOCounters(l.CheckBool(1))
@@ -229,6 +263,10 @@ func watchNetIO(l *lua.LState) int {
 	return 2
 }
 
+/*
+* @param kind string
+* @return table, err
+*/
 func watchNetConnections(l *lua.LState) int {
 	info := &lua.LTable{}
 	stats, err := util.Net().Connections(l.CheckString(1))

@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package yockpack
 
 import (
@@ -17,6 +21,8 @@ func (yockpack *YockPack[T]) VisitFile(file string, frame T, handle VisitStmtHan
 	yockpack.VisitStmt(yockpack.ParseFile(file), frame, handle)
 }
 
+// VisitStmt recursively traverses the lua statement,
+// and you can pass a callback function to handle the incoming statement.
 func (yockpack *YockPack[T]) VisitStmt(stmts []ast.Stmt, frame T, handle VisitStmtHandle[T]) {
 	for idx, stmt := range stmts {
 		switch v := stmt.(type) {
@@ -84,6 +90,8 @@ func (yockpack *YockPack[T]) VisitStmt(stmts []ast.Stmt, frame T, handle VisitSt
 	}
 }
 
+// VisitExpr recursively traverses the lua expression,
+// and you can pass a callback function to handle the incoming expression.
 func (yockpack *YockPack[T]) VisitExpr(exprs []ast.Expr, frame T, handle VisitExprHandle[T]) {
 	for idx, expr := range exprs {
 		switch v := expr.(type) {

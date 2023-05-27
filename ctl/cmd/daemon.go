@@ -6,15 +6,15 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-var tidyCmd = &cobra.Command{
-	Use:   "tidy",
-	Short: `Tidy completes the script definition in the workspace`,
-	Long:  `Tidy completes the script definition in the workspace`,
+var daemonCmd = &cobra.Command{
+	Use:   "daemon",
+	Short: `Daemon is used to manage and view the status of yock's daemon`,
+	Long:  `Daemon is used to manage and view the status of yock's daemon`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 	},
 }
 
 func init() {
-	yockCmd.AddCommand(tidyCmd)
+	yockCmd.AddCommand(daemonCmd)
 }

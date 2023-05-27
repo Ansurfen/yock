@@ -1,3 +1,9 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+// the type.go provides Lua with binding of Go's basic type values and pointers.
+// any type's instance can be received by Var() or Ptr(), which corresponds to value passing and reference passing.
 package scheduler
 
 import (
@@ -13,18 +19,27 @@ func loadType(yocks *YockScheduler) luaFuncs {
 	}
 }
 
+// @param b bool
+//
+// @return userdata (Boolean)
 func typeBoolean(l *lua.LState) int {
 	b := l.CheckBool(1)
 	l.Push(luar.New(l, &Boolean{v: &b}))
 	return 1
 }
 
+// @param s string
+//
+// @return userdata (String)
 func typeString(l *lua.LState) int {
 	s := l.CheckString(1)
 	l.Push(luar.New(l, &String{v: &s}))
 	return 1
 }
 
+// @param s ...string
+//
+// @return userdata (StringArray)
 func typeStringArray(l *lua.LState) int {
 	s := []string{}
 	for i := 1; i <= l.GetTop(); i++ {
@@ -32,6 +47,11 @@ func typeStringArray(l *lua.LState) int {
 	}
 	l.Push(luar.New(l, &StringArray{v: &s}))
 	return 1
+}
+
+type GoBindingType interface {
+	Var() any
+	Ptr() *any
 }
 
 type Boolean struct {

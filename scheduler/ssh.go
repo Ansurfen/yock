@@ -1,8 +1,13 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -20,8 +25,19 @@ func init() {
 	center = &SSHCenter{}
 }
 
-func loadSSH(yocks *YockScheduler) lua.LValue {
-	return yocks.Interp().NewClosure(func(l *lua.LState) int {
+func sshFuncs(yocks *YockScheduler) luaFuncs {
+	return luaFuncs{
+		"ssh": sshSSHfunc(yocks),
+	}
+}
+
+/*
+* @param opt table
+* @param cb function(*SSHClient)
+* @return userdata (*SSHClient), err
+ */
+func sshSSHfunc(yocks *YockScheduler) lua.LGFunction {
+	return func(l *lua.LState) int {
 		opt := SSHOpt{}
 		mode := l.CheckAny(1)
 		if mode.Type() == lua.LTTable {
@@ -40,23 +56,17 @@ func loadSSH(yocks *YockScheduler) lua.LValue {
 		}
 		l.Push(lua.LNil)
 		return 2
-	})
+	}
 }
 
+// SSHReader implements io.Reader,
+// which reads string stream by channel.
 type SSHReader struct {
 	channel chan string
 }
 
 func NewSSHReader() *SSHReader {
 	return &SSHReader{channel: make(chan string, 2)}
-}
-
-type SSHWriter struct {
-	channel chan string
-}
-
-func NewSSHWriter() *SSHWriter {
-	return &SSHWriter{channel: make(chan string, 2)}
 }
 
 func (r *SSHReader) Read(p []byte) (n int, err error) {
@@ -66,19 +76,33 @@ func (r *SSHReader) Read(p []byte) (n int, err error) {
 	return len(tmpl), err
 }
 
+// SSHWriter implements io.Writer,
+// which writes to a string stream by channel.
+type SSHWriter struct {
+	channel chan string
+}
+
+func NewSSHWriter() *SSHWriter {
+	return &SSHWriter{channel: make(chan string, 2)}
+}
+
 func (w *SSHWriter) Write(p []byte) (n int, err error) {
 	w.channel <- string(p)
 	return len(p), err
 }
 
+// SSHOpt indicates configuration of newSSHClient
 type SSHOpt struct {
-	User     string
-	Pwd      string
-	IP       string
+	User string
+	// password
+	Pwd string
+	IP  string
+	// tcp, udp, etc.
 	Network  string
 	Redirect bool
 }
 
+// SSHClient packs the SSH connection
 type SSHClient struct {
 	*ssh.Client
 }
@@ -100,6 +124,7 @@ func newSSHClient(opt SSHOpt) (*SSHClient, error) {
 	}, nil
 }
 
+// Put uploads local files to a remote server
 func (cli *SSHClient) Put(src, dst string) {
 	sftpClient, err := sftp.NewClient(cli.Client)
 	if err != nil {
@@ -121,6 +146,7 @@ func (cli *SSHClient) Put(src, dst string) {
 	}
 }
 
+// Get download remote file to localhost from remote server
 func (cli *SSHClient) Get(src, dst string) {
 	sftpClient, err := sftp.NewClient(cli.Client)
 	if err != nil {
@@ -143,23 +169,26 @@ func (cli *SSHClient) Get(src, dst string) {
 	}
 }
 
+// Exec creates a temporary session to execute commands
 func (cli *SSHClient) Exec(cmds []string) {
 	for _, cmd := range cmds {
 		session, err := cli.NewSession()
 		if err != nil {
-			fmt.Printf("fail to create session: %s\n", err.Error())
+			util.Ycho.Warn(fmt.Sprintf("%s: %s", util.ErrCreateSession.Error(), err.Error()))
 			continue
 		}
 		defer session.Close()
 		output, err := session.CombinedOutput(cmd)
 		if err != nil {
-			fmt.Printf("fail to execute command: %s\n", err.Error())
+			util.Ycho.Warn(fmt.Sprintf("%s: %s", util.ErrExecuteCommand.Error(), err.Error()))
 			continue
 		}
 		fmt.Println(string(output))
 	}
 }
 
+// Shell assigns a terminal to the user while redrecting stdout, stderr, stdin.
+// Input exit to release the terminal to close the session.
 func (cli *SSHClient) Shell() {
 	session, _ := cli.NewSession()
 	defer session.Close()
@@ -174,11 +203,11 @@ func (cli *SSHClient) Shell() {
 		ssh.TTY_OP_OSPEED: 14400,
 	}
 	if err := session.RequestPty("xterm", 25, 80, modes); err != nil {
-		fmt.Println("fail to allocate term")
+		util.Ycho.Warn(util.ErrAllocTerm.Error())
 		return
 	}
 	if err := session.Shell(); err != nil {
-		fmt.Println("fail to start shell")
+		util.Ycho.Warn(util.ErrAllocShell.Error())
 		return
 	}
 	go func() {
@@ -203,6 +232,7 @@ func (cli *SSHClient) Shell() {
 	}
 }
 
+// SSHCenter manages the SSHClient
 type SSHCenter struct {
 	clients []*SSHClient
 }
@@ -216,4 +246,8 @@ func NewSSHClient(opt SSHOpt) (*SSHClient, error) {
 	return cli, nil
 }
 
-var center *SSHCenter
+var (
+	_      io.Writer = &SSHWriter{}
+	_      io.Reader = &SSHReader{}
+	center *SSHCenter
+)

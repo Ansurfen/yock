@@ -1,9 +1,12 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package cmd
 
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/ansurfen/cushion/utils"
@@ -23,12 +26,11 @@ var (
 	compileParameter compileCmdParameter
 	compileCmd       = &cobra.Command{
 		Use:   "compile [file]",
-		Short: `Compile preprocess yock script to meet different r.`,
-		Long:  ``,
+		Short: `Compile preprocess yock script to meet different demand`,
+		Long:  `Compile preprocess yock script to meet different demand`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
-				fmt.Println("file not found")
-				os.Exit(1)
+				util.Ycho.Fatal(util.ErrFileNotExist.Error())
 			}
 			for i := 0; i < len(args); i++ {
 				if i == 0 {
@@ -47,7 +49,7 @@ var (
 			} else {
 				include := utils.OpenConfFromPath(util.Pathf("@/include.yaml"))
 				if err := include.ReadInConfig(); err != nil {
-					panic(err)
+					util.Ycho.Fatal(err.Error())
 				}
 				files := include.GetStringSlice("file")
 				methods := include.GetStringSlice("method")
@@ -55,10 +57,10 @@ var (
 				// import stdlib
 				out, err := utils.ReadStraemFromFile(util.Pathf("@/sdk/yock/deps/stdlib.json"))
 				if err != nil {
-					panic(err)
+					util.Ycho.Fatal(err.Error())
 				}
 				if err = json.Unmarshal(out, anlyzer); err != nil {
-					panic(err)
+					util.Ycho.Fatal(err.Error())
 				}
 				for _, method := range methods {
 					if !strings.HasSuffix(method, "()") {
@@ -69,7 +71,7 @@ var (
 				for _, file := range files {
 					anlyzer.Load(util.Pathf(file))
 				}
-				fmt.Println(anlyzer.Tidy(compileParameter.file))
+				fmt.Println(anlyzer.Completion(compileParameter.file))
 			}
 		},
 	}
@@ -77,7 +79,7 @@ var (
 
 func init() {
 	yockCmd.AddCommand(compileCmd)
-	compileCmd.PersistentFlags().StringSliceVarP(&compileParameter.modes, "modes", "m", nil, "")
+	compileCmd.PersistentFlags().StringSliceVarP(&compileParameter.modes, "modes", "m", nil, "modes are used to divide source files")
 	compileCmd.PersistentFlags().BoolVarP(&compileParameter.decompose, "decomposition", "d", false, "")
 	compileCmd.PersistentFlags().StringVarP(&compileParameter.output, "output", "o", "", "")
 }

@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package cmd
 
 import (
@@ -25,8 +29,8 @@ var (
 	runParameter runCmdParameter
 	runCmd       = &cobra.Command{
 		Use:   "run [file] [modes...]",
-		Short: `Run runs the yock script or module.`,
-		Long:  ``,
+		Short: `Run runs the yock script or module`,
+		Long:  `Run runs the yock script or module`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 || filepath.Ext(args[0]) != ".lua" {
 				util.Ycho.Fatal(util.ErrFileNotExist.Error())
@@ -79,7 +83,7 @@ var (
 func init() {
 	yockCmd.AddCommand(runCmd)
 	runCmd.PersistentFlags().BoolVarP(&runParameter.protect, "protect", "p", false, "")
-	runCmd.PersistentFlags().BoolVarP(&runParameter.enableAnalyse, "analyze", "a", false, "")
-	runCmd.PersistentFlags().BoolVarP(&runParameter.debug, "debug", "d", false, "")
-	runCmd.PersistentFlags().BoolVarP(&runParameter.cooperate, "cooperate", "c", false, "")
+	runCmd.PersistentFlags().BoolVarP(&runParameter.enableAnalyse, "analyze", "a", false, "enable dependency analyse mode")
+	runCmd.PersistentFlags().BoolVarP(&runParameter.debug, "debug", "d", false, "print the information of launch")
+	runCmd.PersistentFlags().BoolVarP(&runParameter.cooperate, "cooperate", "c", false, "enable daemon to meet distributed system")
 }

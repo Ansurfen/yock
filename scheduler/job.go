@@ -1,12 +1,16 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package scheduler
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
+// yockJob (Job) is the smallest component of a task,
+// and each task is freely combined through a job.
 type yockJob struct {
 	fn *lua.LFunction
 }
@@ -19,13 +23,19 @@ func taskFuncs(yocks *YockScheduler) luaFuncs {
 	}
 }
 
+// taskJob packages the job as a task and registers it with the scheduler
+//
+// NOTE: the name of the job and jobs cannot be duplicated
+/*
+* @param jobName string
+* @param jobFn function
+ */
 func taskJob(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		jobName := l.CheckString(1)
 		jobFn := l.CheckFunction(2)
 		if _, ok := yocks.task[jobName]; ok {
-			fmt.Println("dumplicate job name")
-			os.Exit(1)
+			util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
 		} else {
 			yocks.task[jobName] = append(yocks.task[jobName], &yockJob{
 				fn: jobFn,
@@ -35,6 +45,13 @@ func taskJob(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
+// taskJob packages multiple jobs as a task and registers it with the scheduler
+//
+// NOTE: the name of the job and jobs cannot be duplicated
+/*
+* @param name string
+* @param jobs ...string
+ */
 func taskJobs(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		groups := []string{}
@@ -46,8 +63,7 @@ func taskJobs(yocks *YockScheduler) lua.LGFunction {
 		}
 		name := groups[0]
 		if _, ok := yocks.task[name]; ok {
-			fmt.Println("dumplicate job name")
-			os.Exit(1)
+			util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
 		}
 		for _, n := range groups[1:] {
 			if job, ok := yocks.task[n]; ok {
@@ -58,6 +74,10 @@ func taskJobs(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
+// taskJobOption gets local environment declared in the script
+// and stores them in the scheduler's opt field.
+//
+// @param opt table
 func taskJobOption(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		yocks.opt = l.CheckTable(1)

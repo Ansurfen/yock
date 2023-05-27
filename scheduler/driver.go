@@ -1,3 +1,9 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+// dns, plugin, and driver are all derivatives of the dependency analysis pattern.
+// They are now abandoned, see pack/dependency.go for details.
 package scheduler
 
 import (
@@ -37,7 +43,24 @@ func loadDriver(yocks *YockScheduler) luaFuncs {
 	}
 }
 
+// driverSetDriver overloads the implementation of the specified function
+//
+// @param name string
+//
+// @param fn function
 func driverSetDriver(yocks *YockScheduler) lua.LGFunction {
+	return func(l *lua.LState) int {
+		yocks.getDrivers().RawSetString(l.CheckString(1), l.CheckFunction(2))
+		return 0
+	}
+}
+
+/*
+* @param driver string
+* @param name string
+* @return string
+ */
+func driverDriver(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		driver := l.CheckString(1)
 		name := l.CheckString(2)
@@ -54,13 +77,9 @@ func driverSetDriver(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
-func driverDriver(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		yocks.getDrivers().RawSetString(l.CheckString(1), l.CheckFunction(2))
-		return 0
-	}
-}
-
+// @param name string
+//
+// @param args ...string
 func driverExecDriver(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		if lv := yocks.getDrivers().RawGetString(l.CheckString(1)); lv.Type() == lua.LTFunction {

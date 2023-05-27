@@ -1,3 +1,9 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+// dns, plugin, and driver are all derivatives of the dependency analysis pattern.
+// They are now abandoned, see pack/dependency.go for details.
 package scheduler
 
 import (
@@ -17,6 +23,9 @@ func loadPlugin(yocks *YockScheduler) luaFuncs {
 	}
 }
 
+// @param plugin string
+//
+// @return string, table
 func pluginParsePlugin(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		plugin := l.CheckString(1)
@@ -43,6 +52,9 @@ func pluginParsePlugin(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
+// @param file string
+//
+// @return string
 func pluginLoadPlugin(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		file := l.CheckString(1)
@@ -58,6 +70,9 @@ func pluginLoadPlugin(yocks *YockScheduler) lua.LGFunction {
 	}
 }
 
+// @param uid string
+//
+// @param tbl table
 func pluginPlugin(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		uid := l.CheckString(1)

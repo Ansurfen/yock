@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package cmd
 
 import (
@@ -9,10 +13,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var unwarpCmd = &cobra.Command{
-	Use:   "unwrap [name]",
-	Short: ``,
-	Long:  ``,
+var unmountCmd = &cobra.Command{
+	Use:   "unmount [name]",
+	Short: `Unmount unmounts specifies the file from mount`,
+	Long: `Unmount unmounts specifies the file from mount,
+which enables file fail to access in global.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
@@ -36,5 +41,5 @@ var unwarpCmd = &cobra.Command{
 }
 
 func init() {
-	yockCmd.AddCommand(unwarpCmd)
+	yockCmd.AddCommand(unmountCmd)
 }

@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package yockpack
 
 import (
@@ -16,9 +20,9 @@ import (
 	"github.com/yuin/gopher-lua/parse"
 )
 
+// YockPack serves as yock's preprocessing tool for decomposing Lua source code
+// and for dependency analysis when YPM is not introduced.
 type YockPack[T any] struct{}
-
-type VisitOption[T any] func(*YockPack[T])
 
 func New() YockPack[NilFrame] {
 	return YockPack[NilFrame]{}
@@ -106,6 +110,7 @@ type (
 	FunctionExpr       = *ast.FunctionExpr
 )
 
+// ParseStr parses the given string into a lua statement structure
 func (*YockPack[T]) ParseStr(str string) []ast.Stmt {
 	reader := bufio.NewReader(strings.NewReader(str))
 	chunk, err := parse.Parse(reader, "<string>")
@@ -115,6 +120,7 @@ func (*YockPack[T]) ParseStr(str string) []ast.Stmt {
 	return chunk
 }
 
+// ParseFile parses the given file content into a lua statement structure
 func (*YockPack[T]) ParseFile(file string) []ast.Stmt {
 	fp, err := os.Open(file)
 	if err != nil {
@@ -129,11 +135,13 @@ func (*YockPack[T]) ParseFile(file string) []ast.Stmt {
 	return chunk
 }
 
+// DumpStr prints out a syntax tree based on the given source code string
 func (yockpack *YockPack[T]) DumpStr(str string) string {
 	stmts := yockpack.ParseStr(str)
 	return parse.Dump(stmts)
 }
 
+// DumpFile prints out a syntax tree based on the given file
 func (yockpack *YockPack[T]) DumpFile(file string) string {
 	stmts := yockpack.ParseFile(file)
 	return parse.Dump(stmts)
@@ -144,6 +152,7 @@ type CompileOpt struct {
 	VM             runtime.VirtualMachine
 }
 
+// Compile compiles the contents of the given file into functions that can be executed by the virtual machine.
 func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction {
 	fp, err := os.Open(file)
 	if err != nil {
@@ -171,7 +180,7 @@ func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction
 				anlyzer.Load(util.Pathf("~/lib/") + fn)
 			}
 		}
-		undefines, _ := anlyzer.Tidy(file)
+		undefines, _ := anlyzer.Completion(file)
 		for _, undefine := range undefines {
 			undefine = strings.TrimSuffix(undefine, "()")
 			opt.VM.Eval(fmt.Sprintf(`%s = uninit_driver("%s")`, undefine, undefine))
