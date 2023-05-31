@@ -6,6 +6,8 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
@@ -24,7 +26,12 @@ At present yock only supports cpu, mem, disk, net and host as hardware parameter
 		hardware := args[0]
 		switch hardware {
 		case "cpu":
-			fmt.Printf("LogicalCore: %d\nPhysicalCore: %d\n", util.CPU().LogicalCore, util.CPU().PhysicalCore)
+			info, err := util.CPU().Info()
+			if err != nil {
+				util.Ycho.Fatal(err.Error())
+			}
+			fmt.Printf("LogicalCore: %d\nPhysicalCore: %d\nModelName: %s\nMHZ: %f",
+				util.CPU().LogicalCore, util.CPU().PhysicalCore, info[0].ModelName, info[0].Mhz)
 		case "mem":
 			stat, err := util.Mem().VirtualMemory()
 			if err != nil {
@@ -32,8 +39,33 @@ At present yock only supports cpu, mem, disk, net and host as hardware parameter
 			}
 			fmt.Printf("Total: %d\nAvailable: %d\nUsed: %d (%.1f%%)\nFree: %d", stat.Total, stat.Available, stat.Used, stat.UsedPercent, stat.Free)
 		case "disk":
+			parts, err := util.Disk().Partitions(true)
+			if err != nil {
+				util.Ycho.Fatal(err.Error())
+			}
+			for _, part := range parts {
+				stat, err := util.Disk().Usage(part.Device)
+				if err != nil {
+					util.Ycho.Fatal(err.Error())
+				}
+				fmt.Printf("%s\n  Type: %s\n  Opts: %s\n  Total: %d\n  Free: %d\n  Used: %d (%.2f%%)\n",
+					part.Device, part.Fstype, strings.Join(part.Opts, " "), stat.Total, stat.Free, stat.Used, stat.UsedPercent)
+			}
 		case "net":
+			interfaces, err := util.Net().Interfaces()
+			if err != nil {
+				util.Ycho.Fatal(err.Error())
+			}
+			for _, inter := range interfaces {
+				fmt.Printf("%s\n  MTU: %s\n  Type: %s\n  MAC: %s\n  IPv6: %s\n  IPv4: %s\n",
+					inter.Name, strconv.Itoa(inter.MTU), strings.Join(inter.Flags, " "), inter.HardwareAddr, inter.Addrs[0].Addr, inter.Addrs[1].Addr)
+			}
 		case "host":
+			os, fam, ver, err := util.Host().PlatformInformation()
+			if err != nil {
+				util.Ycho.Fatal(err.Error())
+			}
+			fmt.Printf("OS: %s\nFamily: %s\nVersion: %s", os, fam, ver)
 		default:
 			util.Ycho.Fatal(util.ErrNoSupportHardward.Error())
 		}

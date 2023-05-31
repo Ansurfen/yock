@@ -172,7 +172,7 @@ func gnuCat(l *lua.LState) int {
 //
 // @return string, err
 func gnuCmd(l *lua.LState) int {
-	out, err := cmd.Cmd(cmd.ExecOpt{Redirect: false, Quiet: true}, l.CheckString(1))
+	out, err := cmd.Exec(cmd.ExecOpt{Redirect: false, Quiet: true}, l.CheckString(1))
 	l.Push(lua.LString(out))
 	handleErr(l, err)
 	return 2

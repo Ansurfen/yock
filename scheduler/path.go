@@ -12,7 +12,9 @@ import (
 )
 
 func loadPath(yocks *YockScheduler) lua.LValue {
-	return yocks.registerLib(pathLib)
+	pathlib := &lua.LTable{}
+	pathlib.RawSetString("Separator", lua.LString(filepath.Separator))
+	return yocks.mountLib(pathlib, pathLib)
 }
 
 var pathLib = luaFuncs{

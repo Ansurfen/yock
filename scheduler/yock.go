@@ -52,6 +52,9 @@ type YockScheduler struct {
 	// Using the wait and notify methods provided by yock,
 	// you can easily implement the synchronization relationship of asynchronous tasks.
 	signals SignalStream
+
+	// TODO: yock interface, is implemented for yock cloud.
+	// yockis yockInterfaces
 }
 
 func New(opts ...YockSchedulerOption) *YockScheduler {
@@ -69,8 +72,10 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 		}
 	}
 
-	if err := utils.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
-		util.Ycho.Fatal(err.Error())
+	if yocks.driverManager != nil {
+		if err := utils.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
+			util.Ycho.Fatal(err.Error())
+		}
 	}
 
 	yocks.parseFlags()
@@ -123,6 +128,7 @@ const (
 	yockLibSync    = "sync"
 	yockLibWatch   = "watch"
 	yockLibStrings = "strings"
+	yockLibYcho    = "ycho"
 )
 
 type yockLib struct {
@@ -141,6 +147,9 @@ var yockLibs = []yockLib{
 	{yockLibSync, loadSync},
 	{yockLibWatch, loadWatch},
 	{yockLibStrings, loadStrings},
+	{yockLibYcho, func(yocks *YockScheduler) lua.LValue {
+		return luar.New(yocks.Interp(), util.Ycho)
+	}},
 }
 
 type yockFunc func(*YockScheduler) luaFuncs
@@ -161,6 +170,7 @@ var yockFuncs = []yockFunc{
 	loadType,
 	loadXML,
 	sshFuncs,
+	wrapLuaFuns(tmplFuncs),
 	wrapLuaFuns(osFuncs),
 	wrapLuaFuns(gnuFuncs),
 	wrapLuaFuns(ioFuncs),
@@ -183,6 +193,12 @@ func (yocks *YockScheduler) loadLibs() {
 	}
 	yocks.setGlobalVars(yockGlobalVars)
 
+	for _, lib := range yockLibs {
+		yocks.SetGlobalVar(lib.name, lib.handle(yocks))
+	}
+
+	yocks.Interp().PreloadModule("check", runtime.LoadCheck)
+
 	lib_path := util.Pathf("~/lib")
 	files, err := os.ReadDir(lib_path)
 	if err != nil {
@@ -197,24 +213,20 @@ func (yocks *YockScheduler) loadLibs() {
 	}
 
 	// self-boot
-	boot_path := util.Pathf("~/lib/boot")
-	files, err = os.ReadDir(boot_path)
-	if err != nil {
-		util.Ycho.Fatal(err.Error())
-	}
-	for _, file := range files {
-		if fn := file.Name(); filepath.Ext(fn) == ".lua" {
-			if err := yocks.EvalFile(path.Join(boot_path, fn)); err != nil {
-				util.Ycho.Fatal(err.Error())
+	if util.YockBuild != "dev" {
+		boot_path := util.Pathf("~/lib/boot")
+		files, err = os.ReadDir(boot_path)
+		if err != nil {
+			util.Ycho.Fatal(err.Error())
+		}
+		for _, file := range files {
+			if fn := file.Name(); filepath.Ext(fn) == ".lua" {
+				if err := yocks.EvalFile(path.Join(boot_path, fn)); err != nil {
+					util.Ycho.Fatal(err.Error())
+				}
 			}
 		}
 	}
-
-	for _, lib := range yockLibs {
-		yocks.SetGlobalVar(lib.name, lib.handle(yocks))
-	}
-
-	yocks.Interp().PreloadModule("check", runtime.LoadCheck)
 }
 
 func (yocks *YockScheduler) setGlobalVars(vars map[string]lua.LValue) {

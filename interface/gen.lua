@@ -86,7 +86,7 @@ job("c", function(cenv)
         proto = target
     })
     cd("./c/libyock")
-    exec({
+    sh({
             debug = true,
             redirect = true
         }, [[./sd.exe 'package \w+' 'package main' .\yock_grpc.pb.go]],

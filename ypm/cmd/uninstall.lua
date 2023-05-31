@@ -1,7 +1,11 @@
-parse_flags(env, {
-    m = flag_type.string_type,
-    g = flag_type.bool_type,
-    wd = flag_type.string_type
+--  Copyright 2023 The Yock Authors. All rights reserved.
+--  Use of this source code is governed by a MIT-style
+--  license that can be found in the LICENSE file.
+
+argsparse(env, {
+    m = flag_type.str,
+    g = flag_type.bool,
+    wd = flag_type.str
 })
 
 ypm:open()

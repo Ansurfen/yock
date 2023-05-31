@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
 	"unicode"
 
+	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/auto/generator/archive"
 	"github.com/ansurfen/yock/auto/generator/walk"
 	lua "github.com/yuin/gopher-lua"
@@ -32,9 +34,13 @@ func main() {
 				}
 				methods = append(methods, method)
 				if fn.Doc != nil {
-					for _, comment := range fn.Doc.List {
+					for idx, comment := range fn.Doc.List {
+						text := strings.Replace(comment.Text, "//", "---", 1)
+						if idx == 0 {
+							text = text[3:]
+						}
 						method.Comment = append(method.Comment,
-							strings.Replace(comment.Text, "//", "--", 1))
+							text)
 					}
 					if fn.Type.Params != nil {
 						for idx, field := range fn.Type.Params.List {
@@ -98,8 +104,11 @@ func main() {
 		},
 	})
 	archives := archive.GetArchive()
+	pkg := "test"
+	doc := make(map[string]string)
 	for _, method := range methods {
-		fmt.Println(method)
+		pkg = method.Package
+		doc[method.Name] = strings.Join(method.Comment, "\n")
 		varName := 'a'
 		buf := bytes.Buffer{}
 		for i := range method.Results {
@@ -132,5 +141,13 @@ func main() {
 		buf.WriteString(fmt.Sprintf("return %d", len(method.Results)))
 		// fmt.Println(buf.String())
 		// fmt.Println()
+	}
+	out, err := json.Marshal(doc)
+	if err != nil {
+		panic(err)
+	}
+	err = utils.WriteFile(pkg+".json", out)
+	if err != nil {
+		panic(err)
 	}
 }

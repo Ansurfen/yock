@@ -1,4 +1,9 @@
+--  Copyright 2023 The Yock Authors. All rights reserved.
+--  Use of this source code is governed by a MIT-style
+--  license that can be found in the LICENSE file.
+
 ---@diagnostic disable: lowercase-global
+
 function check(...)
     local args = { ... }
     local flag = true
@@ -44,4 +49,14 @@ end
 
 function Linux()
     return OS("linux", "-")
+end
+
+function CheckEnv(c, pattern)
+    local out, _ = sh(c)
+    local reg = regexp.MustCompile(pattern)
+    local res = reg:FindStringSubmatch(out[1])
+    if res ~= nil and #res > 0 then
+        return true
+    end
+    return false
 end

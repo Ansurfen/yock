@@ -33,7 +33,7 @@ func TestExec(t *testing.T) {
 		Redirect: true,
 		Caller:   "TestExec",
 		Quiet:    false,
-	}, []string{"echo a"})
+	}, "echo a")
 }
 
 func TestHTTP(t *testing.T) {

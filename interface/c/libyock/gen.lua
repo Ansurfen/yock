@@ -1,5 +1,5 @@
 job("build", function(cenv)
-    exec({
+    sh({
             redirect = true,
             debug = true
         }, "gcc -c ./yock.c -o libyock.o",

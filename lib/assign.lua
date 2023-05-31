@@ -1,3 +1,7 @@
+--  Copyright 2023 The Yock Authors. All rights reserved.
+--  Use of this source code is governed by a MIT-style
+--  license that can be found in the LICENSE file.
+
 ---@diagnostic disable: lowercase-global
 ---@class assign
 assign = {}
@@ -55,17 +59,4 @@ function assign.func(a, b)
         return b
     end
     return a
-end
-
----@param e err
----@param msg? any
-function yassert(e, msg)
-    if e ~= nil then
-        if msg ~= nil then
-            print(msg)
-        else
-            print(e)
-        end
-        os.exit(1)
-    end
 end

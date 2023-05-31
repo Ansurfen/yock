@@ -1,5 +1,5 @@
 local protoc = function(...)
-    return exec({
+    return sh({
         redirect = true
     }, cmdf("protoc", ...))
 end

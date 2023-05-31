@@ -18,6 +18,7 @@ var ioFuncs = luaFuncs{
 	"is_exist":   is_exist,
 	"printf":     printf,
 	"pathf":      ioPathf,
+	"read_file":  ioReadFile,
 }
 
 /*
@@ -110,4 +111,15 @@ func printf(l *lua.LState) int {
 func ioPathf(l *lua.LState) int {
 	l.Push(lua.LString(util.Pathf(l.CheckString(1))))
 	return 1
+}
+
+/*
+* @param file string
+* @return string, err
+ */
+func ioReadFile(l *lua.LState) int {
+	out, err := utils.ReadStraemFromFile(l.CheckString(1))
+	l.Push(lua.LString(out))
+	handleErr(l, err)
+	return 2
 }

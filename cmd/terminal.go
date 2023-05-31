@@ -81,7 +81,7 @@ func WindowsTerm(cmds ...string) *Terminal {
 }
 
 func PosixTerm(cmds ...string) *Terminal {
-	return &Terminal{boot: []string{"/bin/bash", "/C"}, cmd: cmds, this: TermBash}
+	return &Terminal{boot: []string{"bash", "-c"}, cmd: cmds, this: TermBash}
 }
 
 func UpgradeBackend(term *Terminal) {

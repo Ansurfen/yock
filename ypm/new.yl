@@ -1,0 +1,46 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+export {
+    desc = {use = "new [module-name]"},
+    run = (cmd, args) => {
+        if len(args) == 0 {
+            throws "arguments too little";
+        }
+        newParameter = env.params["/ypm/new [module-name]"];
+        lang = *newParameter["l"];
+        try {
+            out = read_file(pathf("~/ypm/boot.tpl"))
+            t = tmpl()
+            out, err = t:OnceParse(out, {
+                version = ver,
+                name = module,
+            })
+            if create {
+                mkdir(module)
+                cd(module)
+            }
+            write_file("index.lua", out)
+            for (file : files) {
+                filename = file[4]
+                if path.ext(filename) == ".lua" {
+                    print(filename)
+                }
+            }
+        } catch e {
+            throws e;
+        }
+    },
+    flags = [
+        {
+
+        },
+        {
+
+        },
+        {
+
+        }
+    ]
+}

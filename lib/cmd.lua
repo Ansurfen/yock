@@ -1,7 +1,19 @@
----@see ctl
-function ctl(tbl)
+--  Copyright 2023 The Yock Authors. All rights reserved.
+--  Use of this source code is governed by a MIT-style
+--  license that can be found in the LICENSE file.
+
+---@see prompt
+function prompt(tbl)
     if env.params == nil then
         env.params = {}
+    end
+    local get_first_word = function(str)
+        local _, index = string.find(str, " ")
+        if index == nil then
+            return str
+        else
+            return string.sub(str, 1, index - 1)
+        end
     end
 
     local builder_command = function(cmd, root, path)
@@ -17,11 +29,12 @@ function ctl(tbl)
                 c.Use = assign.string(c.Use, v["use"])
                 c.Short = assign.string(c.Short, v["short"])
                 c.Long = assign.string(c.Long, v["long"])
-                path = path .. c.Use
+                path = path .. get_first_word(c.Use)
             elseif name == "sub" then
                 for _, vv in ipairs(v) do
                     local cc = new_command()
                     c:AddCommand(cc)
+                    ---@diagnostic disable-next-line: undefined-global
                     builder_command(vv, cc, path)
                 end
             elseif name == "flags" then
@@ -30,17 +43,17 @@ function ctl(tbl)
                         if env.params[path] == nil then
                             env.params[path] = {}
                         end
-                        if flag.type == flag_type.string_type then
+                        if flag.type == flag_type.str then
                             env.params[path][flag.shorthand] = String("")
                             c:PersistentFlags():StringVarP(env.params[path][flag.shorthand]:Ptr(), flag.name,
                                 flag.shorthand,
                                 flag.default, flag.usage)
-                        elseif flag.type == flag_type.bool_type then
+                        elseif flag.type == flag_type.bool then
                             env.params[path][flag.shorthand] = Boolean(false)
                             c:PersistentFlags():BoolVarP(env.params[path][flag.shorthand]:Ptr(), flag.name,
                                 flag.shorthand,
                                 flag.default, flag.usage)
-                        elseif flag.type == flag_type.array_type then
+                        elseif flag.type == flag_type.arr then
                             env.params[path][flag.shorthand] = StringArray()
                             c:PersistentFlags():StringArrayVarP(env.params[path][flag.shorthand]:Ptr(), flag.name, flag
                                 .shorthand,

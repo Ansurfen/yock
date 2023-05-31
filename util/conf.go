@@ -13,8 +13,19 @@ import (
 var conf *yockConf
 
 type yockConf struct {
-	Ycho YchoOpt `yaml:"ycho"`
-	Lang string  `yaml:"lang"`
+	Ycho  YchoOpt       `yaml:"ycho"`
+	Lang  string        `yaml:"lang"`
+	Yocks yockScheduler `yaml:"yocks"`
+}
+
+type yockScheduler struct {
+	Goroutine yockGoroutine `yaml:"goroutine"`
+}
+
+type yockGoroutine struct {
+	MaxGoroutine int64 `yaml:"maxGoroutine"`
+	MaxWaitRound int64 `yaml:"maxWaitRound"`
+	RoundStep    int   `yaml:"roundStep"`
 }
 
 // Restore configuration file to initial state

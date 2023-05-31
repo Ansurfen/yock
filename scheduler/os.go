@@ -5,10 +5,12 @@
 package scheduler
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/cmd"
+	yockc "github.com/ansurfen/yock/cmd"
+	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
 	"github.com/yuin/gluamapper"
 	lua "github.com/yuin/gopher-lua"
@@ -17,40 +19,59 @@ import (
 
 var osFuncs = luaFuncs{
 	"sh":          osSh,
-	"exec":        osExec,
 	"cmdf":        osCmdf,
 	"new_command": osNewCommand,
 }
 
-// @param opt table
-func osExec(l *lua.LState) int {
-	mode := l.CheckAny(1)
-	opt := cmd.ExecOpt{Quiet: true}
+/*
+* @param opt? table
+* @param cmds string
+* @return table, err
+ */
+func osSh(l *lua.LState) int {
+	first := l.CheckAny(1)
 	cmds := []string{}
-	if mode.Type() == lua.LTTable {
-		gluamapper.Map(l.CheckTable(1), &opt)
+	opt := yockc.ExecOpt{Quiet: true}
+	if first.Type() == lua.LTTable {
+		if err := gluamapper.Map(l.CheckTable(1), &opt); err != nil {
+			l.Push(lua.LNil)
+			l.Push(lua.LString(err.Error()))
+			return 2
+		}
 		for i := 2; i <= l.GetTop(); i++ {
 			cmds = append(cmds, l.CheckString(i))
 		}
 	} else {
-		for i := 1; i < l.GetTop(); i++ {
+		opt.Redirect = true
+		for i := 1; i <= l.GetTop(); i++ {
 			cmds = append(cmds, l.CheckString(i))
 		}
 	}
-	cmd.Exec(opt, cmds)
-	return 0
-}
-
-// @param cmds string
-func osSh(l *lua.LState) int {
-	cmds := l.CheckString(1)
-	utils.ReadLineFromString(cmds, func(s string) string {
-		if len(s) > 0 {
-			cmd.Exec(cmd.ExecOpt{}, []string{s})
-		}
-		return ""
-	})
-	return 0
+	outs := &lua.LTable{}
+	var g_err error
+	for _, cmd := range cmds {
+		fmt.Println(cmd)
+		utils.ReadLineFromString(cmd, func(s string) string {
+			if len(s) > 0 {
+				out, err := yockc.Exec(opt, s)
+				outs.Append(lua.LString(out))
+				if err != nil {
+					if opt.Debug {
+						util.Ycho.Warn(err.Error())
+					}
+					if opt.Strict {
+						return ""
+					} else {
+						g_err = util.ErrGeneral
+					}
+				}
+			}
+			return ""
+		})
+	}
+	l.Push(outs)
+	handleErr(l, g_err)
+	return 2
 }
 
 // @param cmd ...string

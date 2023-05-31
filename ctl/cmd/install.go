@@ -4,13 +4,19 @@
 
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	yockc "github.com/ansurfen/yock/cmd"
+	"github.com/spf13/cobra"
+)
 
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: `Install updates yock`,
 	Long:  `Install updates yock`,
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Run: func(cmd *cobra.Command, args []string) {
+		
+		yockc.HTTP(yockc.HttpOpt{}, []string{})
+	},
 }
 
 func init() {

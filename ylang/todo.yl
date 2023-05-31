@@ -54,3 +54,24 @@ user_ansurfen, "Hello World" >> lua.json.encode | str >> echo
 import { a, b } from "xx";
 
 // local a, b = import("xx")
+
+a: *string
+
+a: *string = new String();
+
+co({
+    task1 = function(this)
+        for 1, 5, 1 do
+            print(i)
+            coroutine:yeild();
+        end
+    end
+})
+
+-> async fn() {
+    fn task1() {
+        for i = 1; i < 5; i++ {
+            await print(i);
+        }
+    } ()
+}()

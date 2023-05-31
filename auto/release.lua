@@ -8,6 +8,6 @@ else
     script = cmdf("export", "path", "=", "$path", ";", wd)
 end
 
-exec({
+sh({
     debug = true
 }, script)

@@ -1,4 +1,10 @@
+-- Copyright 2023 The Yock Authors. All rights reserved.
+-- Use of this source code is governed by a MIT-style
+-- license that can be found in the LICENSE file.
+
 ---@meta _
+
+---@alias err string | nil
 
 ---@class BooleanType
 local BooleanType = {}
@@ -11,7 +17,6 @@ end
 
 ---@return userdata
 function BooleanType:Ptr()
-
 end
 
 ---@return boolean
@@ -30,7 +35,6 @@ end
 
 ---@return userdata
 function StringType:Ptr()
-
 end
 
 ---@return string
@@ -49,7 +53,6 @@ end
 
 ---@return userdata
 function StringArrayType:Ptr()
-
 end
 
 ---@return table

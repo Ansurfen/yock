@@ -13,7 +13,7 @@ local protoc = function(tbl)
     optional({
         case(is_plugin("dart"), function()
             mkdir(tbl["out"])
-            exec({
+            sh({
                 redirect = true,
                 debug = true
             }, build_protoc("--dart_out=grpc:" .. tbl["out"], "-I" .. tbl["proto_path"], tbl["proto"]))
@@ -30,7 +30,7 @@ dependencies:
 
         end),
         case(is_plugin("java"), function()
-            exec({
+            sh({
                 redirect = true,
                 debug = true
             }, build_protoc("--plugin=protoc-gen-grpc-java=" .. tbl["plugin_path"],
@@ -39,7 +39,7 @@ dependencies:
         end),
         case(is_plugin("python"), function()
             mkdir(tbl["out"])
-            exec({
+            sh({
                 redirect = true,
                 debug = true,
 
@@ -53,7 +53,7 @@ dependencies:
             for _, value in ipairs(tbl["spec"]) do
                 spec = spec .. value .. " "
             end
-            exec({
+            sh({
                 redirect = true,
                 debug = true,
             }, build_protoc("--go_out=" .. tbl["out"], "--go-grpc_out=" .. tbl["grpc_out"], spec , tbl["proto"]))

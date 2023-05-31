@@ -14,8 +14,8 @@ job_option({
 
 job("host1", function(cenv)
     print("host1\n")
-    parse_flags(cenv, {
-        ip = flag_type.string_type,
+    argsparse(cenv, {
+        ip = flag_type.str,
     })
     table.dump(cenv)
     optional({
@@ -41,8 +41,8 @@ end)
 
 job("host2", function(cenv)
     print("host2\n")
-    parse_flags(cenv, {
-        ip = flag_type.array_type,
+    argsparse(cenv, {
+        ip = flag_type.arr,
     })
     -- table.dump(cenv)
     return true
