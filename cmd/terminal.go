@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -42,10 +44,15 @@ func (term *Terminal) Exec(opt *ExecOpt) ([]byte, error) {
 	}
 
 	if opt.Redirect {
+		var out bytes.Buffer
 		cmd.Stdin = os.Stdin
 		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		return nil, cmd.Run()
+		cmd.Stdout = io.MultiWriter(os.Stdout, &out)
+		err := cmd.Run()
+		if err != nil {
+			return nil, err
+		}
+		return out.Bytes(), err
 	}
 
 	out, err := cmd.CombinedOutput()

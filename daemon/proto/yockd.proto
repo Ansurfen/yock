@@ -1,11 +1,11 @@
 syntax = "proto3";
-option go_package="./;yocki";
-option java_package = "yocki";
-option csharp_namespace = "yocki";
+option go_package="./;proto";
+option java_package = "proto";
+option csharp_namespace = "proto";
 
-package Yock;
+package Yockd;
 
-service YockInterface {
+service YockDaemon {
     // Ping is used to detect whether the connection is available
     rpc Ping (PingRequest) returns (PingResponse);
     // Wait is used to request signal from the daemon

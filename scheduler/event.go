@@ -5,7 +5,7 @@
 package scheduler
 
 import (
-	"github.com/ansurfen/yock/daemon/interface/client"
+	yockd "github.com/ansurfen/yock/daemon/client"
 	"github.com/ansurfen/yock/util"
 )
 
@@ -50,13 +50,13 @@ func (stream *SingleSignalStream) Store(sig string, v bool) {
 // using grpc + protobuf to transmit signals.
 type CooperationSingalStream struct {
 	*SingleSignalStream
-	cli *client.YockDaemonClient
+	cli *yockd.YockDaemonClient
 }
 
 func NewCooperationSingalStream() *CooperationSingalStream {
 	return &CooperationSingalStream{
 		SingleSignalStream: NewSingleSignalStream(),
-		cli:                client.New(client.Gopt),
+		cli:                yockd.New(yockd.Gopt),
 	}
 }
 
@@ -64,7 +64,7 @@ func NewCooperationSingalStream() *CooperationSingalStream {
 func upgradeSingalStream(stream *SingleSignalStream) *CooperationSingalStream {
 	return &CooperationSingalStream{
 		SingleSignalStream: stream,
-		cli:                client.New(client.Gopt),
+		cli:                yockd.New(yockd.Gopt),
 	}
 }
 

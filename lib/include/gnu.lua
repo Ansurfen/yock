@@ -53,8 +53,9 @@ end
 function chown(name, uid, gid)
 end
 
----@param dir string
-function mkdir(dir)
+---@vararg string
+---@return err
+function mkdir(...)
 end
 
 ---@param src string

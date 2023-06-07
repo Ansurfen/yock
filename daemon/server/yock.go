@@ -10,13 +10,13 @@ import (
 	"net"
 
 	"github.com/ansurfen/cushion/utils"
-	yocki "github.com/ansurfen/yock/daemon/interface"
+	yockd "github.com/ansurfen/yock/daemon/proto"
 	"github.com/ansurfen/yock/util"
 	"google.golang.org/grpc"
 )
 
 type YockDaemon struct {
-	yocki.UnimplementedYockInterfaceServer
+	yockd.UnimplementedYockDaemonServer
 	signals     *util.SafeMap[bool]
 	fs          map[string]FileInfo
 	nodeManager *NodeManager
@@ -39,40 +39,40 @@ func (daemon *YockDaemon) Close() {
 }
 
 // Ping is used to detect whether the connection is available
-func (daemon *YockDaemon) Ping(ctx context.Context, req *yocki.PingRequest) (*yocki.PingResponse, error) {
-	return &yocki.PingResponse{}, nil
+func (daemon *YockDaemon) Ping(ctx context.Context, req *yockd.PingRequest) (*yockd.PingResponse, error) {
+	return &yockd.PingResponse{}, nil
 }
 
 // Wait is used to request signal from the daemon
-func (daemon *YockDaemon) Wait(ctx context.Context, req *yocki.WaitRequest) (*yocki.WaitResponse, error) {
+func (daemon *YockDaemon) Wait(ctx context.Context, req *yockd.WaitRequest) (*yockd.WaitResponse, error) {
 	if v, ok := daemon.signals.Get(req.Sig); !ok {
 		daemon.signals.SafeSet(req.Sig, false)
-		return &yocki.WaitResponse{Ok: false}, nil
+		return &yockd.WaitResponse{Ok: false}, nil
 	} else if ok && v {
-		return &yocki.WaitResponse{Ok: true}, nil
+		return &yockd.WaitResponse{Ok: true}, nil
 	}
-	return &yocki.WaitResponse{Ok: false}, nil
+	return &yockd.WaitResponse{Ok: false}, nil
 }
 
 // Notify pushes signal to Daemon
-func (daemon *YockDaemon) Notify(ctx context.Context, req *yocki.NotifyRequest) (*yocki.NotifyResponse, error) {
+func (daemon *YockDaemon) Notify(ctx context.Context, req *yockd.NotifyRequest) (*yockd.NotifyResponse, error) {
 	daemon.signals.SafeSet(req.Sig, true)
-	return &yocki.NotifyResponse{}, nil
+	return &yockd.NotifyResponse{}, nil
 }
 
 // Upload pushes file information to peers so that peers can download files
-func (daemon *YockDaemon) Upload(ctx context.Context, req *yocki.UploadRequest) (*yocki.UploadResponse, error) {
+func (daemon *YockDaemon) Upload(ctx context.Context, req *yockd.UploadRequest) (*yockd.UploadResponse, error) {
 	daemon.fs[req.Filename] = FileInfo{
 		owner:    req.Owner,
 		size:     req.Size,
 		hash:     req.Hash,
 		createAt: req.CreateAt,
 	}
-	return &yocki.UploadResponse{}, nil
+	return &yockd.UploadResponse{}, nil
 }
 
 // Download file in other peer
-func (daemon *YockDaemon) Download(stream yocki.YockInterface_DownloadServer) error {
+func (daemon *YockDaemon) Download(stream yockd.YockDaemon_DownloadServer) error {
 	req, err := stream.Recv()
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (daemon *YockDaemon) Download(stream yocki.YockInterface_DownloadServer) er
 			}
 			for i := 0; i < len(raw); i++ {
 				chunk := raw[i : i+*daemon.opt.MTL]
-				if err = stream.Send(&yocki.DownloadResponse{Data: chunk}); err != nil {
+				if err = stream.Send(&yockd.DownloadResponse{Data: chunk}); err != nil {
 					return err
 				}
 			}
@@ -110,27 +110,27 @@ func (daemon *YockDaemon) Download(stream yocki.YockInterface_DownloadServer) er
 }
 
 // Register tells the daemon the address of the peer.
-func (daemon *YockDaemon) Register(ctx context.Context, req *yocki.RegisterRequest) (*yocki.RegisterResponse, error) {
+func (daemon *YockDaemon) Register(ctx context.Context, req *yockd.RegisterRequest) (*yockd.RegisterResponse, error) {
 	for _, addr := range req.Addrs {
 		daemon.nodeManager.AddNode(addr)
 	}
-	return &yocki.RegisterResponse{}, nil
+	return &yockd.RegisterResponse{}, nil
 }
 
 // Unregister tells the daemon to remove the peer according to addrs.
-func (daemon *YockDaemon) Unregister(ctx context.Context, req *yocki.UnregisterRequest) (*yocki.UnregisterResponse, error) {
+func (daemon *YockDaemon) Unregister(ctx context.Context, req *yockd.UnregisterRequest) (*yockd.UnregisterResponse, error) {
 	for _, addr := range req.Addrs {
 		daemon.nodeManager.DelNode(addr)
 	}
-	return &yocki.UnregisterResponse{}, nil
+	return &yockd.UnregisterResponse{}, nil
 }
 
 // Info can obtain the meta information of the target node,
 // including CPU, DISK, MEM and so on.
 // You can specify it by InfoRequest, and by default only basic parameters
 // (the name of the node, the file uploaded, and the connection information) are returned.
-func (daemon *YockDaemon) Info(ctx context.Context, req *yocki.InfoRequest) (*yocki.InfoResponse, error) {
-	return &yocki.InfoResponse{Name: *daemon.opt.Name}, nil
+func (daemon *YockDaemon) Info(ctx context.Context, req *yockd.InfoRequest) (*yockd.InfoResponse, error) {
+	return &yockd.InfoResponse{Name: *daemon.opt.Name}, nil
 }
 
 func (daemon *YockDaemon) Run() {
@@ -139,7 +139,7 @@ func (daemon *YockDaemon) Run() {
 		panic(err)
 	}
 	gsrv := grpc.NewServer()
-	yocki.RegisterYockInterfaceServer(gsrv, daemon)
+	yockd.RegisterYockDaemonServer(gsrv, daemon)
 	if err := gsrv.Serve(listen); err != nil {
 		panic(err)
 	}

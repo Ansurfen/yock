@@ -80,7 +80,7 @@ function env.print()
 end
 
 ---@return table
-function env.get_all()
+function env.environ()
     return {}
 end
 

@@ -99,7 +99,7 @@ yock run %s -- %s %%*`
 	wrapYockBash = `#/bin/bash
 yock run %s -- %s %%*`
 	wrapPlainBatch = `@echo off
-%s`
+%s %%*`
 	wrapPlainBash = `#/bin/bash
-%s`
+%s %%*`
 )

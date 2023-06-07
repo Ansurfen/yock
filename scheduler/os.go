@@ -5,14 +5,13 @@
 package scheduler
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
+	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
-	"github.com/yuin/gluamapper"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
@@ -20,7 +19,19 @@ import (
 var osFuncs = luaFuncs{
 	"sh":          osSh,
 	"cmdf":        osCmdf,
+	"strf":        osStrf,
 	"new_command": osNewCommand,
+}
+
+/*
+* @param str string
+* @param charset string
+* @return string
+ */
+func osStrf(l *lua.LState) int {
+	out := utils.ConvertByte2String([]byte(l.CheckString(1)), utils.Charset(l.CheckString(2)))
+	l.Push(lua.LString(out))
+	return 1
 }
 
 /*
@@ -29,14 +40,13 @@ var osFuncs = luaFuncs{
 * @return table, err
  */
 func osSh(l *lua.LState) int {
-	first := l.CheckAny(1)
+	s := yockr.UpgradeLState(l)
 	cmds := []string{}
 	opt := yockc.ExecOpt{Quiet: true}
-	if first.Type() == lua.LTTable {
-		if err := gluamapper.Map(l.CheckTable(1), &opt); err != nil {
-			l.Push(lua.LNil)
-			l.Push(lua.LString(err.Error()))
-			return 2
+	if s.IsTable(1) {
+		tbl := s.CheckTable(1)
+		if err := tbl.Bind(&opt); err != nil {
+			return s.PushNil().Throw(err).Exit()
 		}
 		for i := 2; i <= l.GetTop(); i++ {
 			cmds = append(cmds, l.CheckString(i))
@@ -50,7 +60,6 @@ func osSh(l *lua.LState) int {
 	outs := &lua.LTable{}
 	var g_err error
 	for _, cmd := range cmds {
-		fmt.Println(cmd)
 		utils.ReadLineFromString(cmd, func(s string) string {
 			if len(s) > 0 {
 				out, err := yockc.Exec(opt, s)
@@ -69,9 +78,8 @@ func osSh(l *lua.LState) int {
 			return ""
 		})
 	}
-	l.Push(outs)
-	handleErr(l, g_err)
-	return 2
+
+	return s.Push(outs).PushError(g_err).Exit()
 }
 
 // @param cmd ...string

@@ -1,0 +1,70 @@
+class person {
+    friends: person[]
+
+    construct() {
+
+    }
+
+    ~construct() {
+
+    }
+
+    fn addFriend(p: person) -> void {
+        this.friends.append(p);
+    }
+
+    operator +(p: person) {
+        this.addFriend(p);
+    }
+
+    fn setName() {
+
+    }
+}
+
+class student extends person {
+    construct() {
+        super();
+    }
+
+    fn addFriend(p: person) -> bool {
+        super.addFriend(p);
+        return true;
+    }
+}
+
+interface jpm {
+    add_deps(deps: string[])
+    rm_deps(deps: string[])
+
+    @override
+    operator new {
+        return import(construct.name.append(`:${construct.opt}`));
+    }
+}
+
+class maven {
+    fn add_deps(deps: string[]) {
+
+    }
+
+    fn rm_deps(deps: string[]) {
+        
+    }
+}
+
+class gradle {
+    fn add_deps(deps: string[]) {
+
+    }
+
+    fn rm_deps(deps: string[]) {
+        
+    }
+}
+
+jpm j = new maven("1.0")
+
+// pointer type
+new String()
+new Int()

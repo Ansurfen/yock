@@ -29,3 +29,10 @@ end
 function OS(want_os, want_ver)
     return false
 end
+
+---@param want string
+---@param got string
+---@return boolean
+function CheckVersion(want, got)
+    return false
+end

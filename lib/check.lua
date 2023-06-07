@@ -35,8 +35,7 @@ function OS(want_os, want_ver)
     if want_os ~= env.platform.OS then
         return false
     end
-    local cc = require("check")
-    return cc.CheckVersion(want_ver, env.platform.Ver)
+    return CheckVersion(want_ver, env.platform.Ver)
 end
 
 function Windows()

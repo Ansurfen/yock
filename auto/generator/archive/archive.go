@@ -38,7 +38,7 @@ func (record *TypeRecord) Type(ident string) string {
 	case lua.LTNil:
 		return "lua.LNil"
 	case lua.LTBool:
-		return fmt.Sprintf("if %s {\n  l.Push(lua.LTrue)\n} else {\n  l.Push(lua.LFalse)\n}}", ident)
+		return fmt.Sprintf("if %s {\n  l.Push(lua.LTrue)\n} else {\n  l.Push(lua.LFalse)\n}", ident)
 	case lua.LTNumber:
 		return fmt.Sprintf("lua.LNumber(%s)", ident)
 	case lua.LTString:

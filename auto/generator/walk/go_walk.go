@@ -1,10 +1,50 @@
 package walk
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 )
+
+type UnimplementedGoWalk struct{}
+
+func (UnimplementedGoWalk) VisitDir() {}
+
+func (UnimplementedGoWalk) VisitExpr() {}
+
+func (UnimplementedGoWalk) Visit(dir string) {
+	pkgs, err := parser.ParseDir(token.NewFileSet(), dir, nil, parser.ParseComments)
+	if err != nil {
+		panic(err)
+	}
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Files {
+			for _, decl := range file.Decls {
+				switch v := decl.(type) {
+				case *ast.FuncDecl:
+				case *ast.BadDecl:
+				case *ast.GenDecl:
+					for _, spec := range v.Specs {
+						switch sv := spec.(type) {
+						case *ast.ImportSpec:
+							fmt.Println(sv.Path.Value)
+						case *ast.TypeSpec:
+							// ast.Print(&token.FileSet{}, sv)
+							fmt.Println(sv)
+						case *ast.ValueSpec:
+							ast.Print(&token.FileSet{}, sv)
+						default:
+							fmt.Println(sv)
+						}
+					}
+				default:
+					// fmt.Println(reflect.TypeOf(v))
+				}
+			}
+		}
+	}
+}
 
 type GoWalk struct{}
 

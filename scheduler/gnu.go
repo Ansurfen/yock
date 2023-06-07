@@ -9,9 +9,11 @@ import (
 	"os"
 	"os/user"
 	"strconv"
+	"strings"
 
 	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/cmd"
+	yockc "github.com/ansurfen/yock/cmd"
+	"github.com/ansurfen/yock/util"
 	"github.com/yuin/gluamapper"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -30,7 +32,6 @@ var gnuFuncs = luaFuncs{
 	"cd":     gnuCd,
 	"touch":  gnuTouch,
 	"cat":    gnuCat,
-	"cmd":    gnuCmd,
 	"mv":     gnuMv,
 	"cp":     gnuCp,
 	"mkdir":  gnuMkdir,
@@ -62,7 +63,7 @@ func gnuWhoami(l *lua.LState) int {
 // @return string
 func gnuEcho(l *lua.LState) int {
 	str := l.CheckString(1)
-	out, err := cmd.Echo(str)
+	out, err := yockc.Echo(str)
 	if err != nil {
 		l.Push(lua.LString(""))
 		return 1
@@ -82,9 +83,9 @@ func gnuEcho(l *lua.LState) int {
 //
 // @return table|string, err
 func gnuLs(l *lua.LState) int {
-	var opt cmd.LsOpt
+	var opt yockc.LsOpt
 	gluamapper.Map(l.CheckTable(1), &opt)
-	st, str, err := cmd.Ls(opt)
+	st, str, err := yockc.Ls(opt)
 	if opt.Str {
 		l.Push(lua.LString(str))
 	} else {
@@ -105,7 +106,7 @@ func gnuLs(l *lua.LState) int {
 
 // gnuClear clears the output on the screen
 func gnuClear(l *lua.LState) int {
-	cmd.Clear()
+	yockc.Clear()
 	return 0
 }
 
@@ -120,7 +121,7 @@ func gnuChmod(l *lua.LState) int {
 		l.Push(lua.LString(err.Error()))
 		return 1
 	}
-	err = cmd.Chmod(l.CheckString(1), mode)
+	err = yockc.Chmod(l.CheckString(1), mode)
 	handleErr(l, err)
 	return 1
 }
@@ -132,7 +133,7 @@ func gnuChmod(l *lua.LState) int {
 * @return err
  */
 func gnuChown(l *lua.LState) int {
-	err := cmd.Chown(l.CheckString(1), int(l.CheckNumber(2)), int(l.CheckNumber(3)))
+	err := yockc.Chown(l.CheckString(1), int(l.CheckNumber(2)), int(l.CheckNumber(3)))
 	handleErr(l, err)
 	return 1
 }
@@ -142,7 +143,7 @@ func gnuChown(l *lua.LState) int {
 * @return err
  */
 func gnuCd(l *lua.LState) int {
-	err := cmd.Cd(l.CheckString(1))
+	err := yockc.Cd(l.CheckString(1))
 	handleErr(l, err)
 	return 1
 }
@@ -166,18 +167,6 @@ func gnuCat(l *lua.LState) int {
 	return 2
 }
 
-// @param opt string
-//
-// @param cmd string
-//
-// @return string, err
-func gnuCmd(l *lua.LState) int {
-	out, err := cmd.Exec(cmd.ExecOpt{Redirect: false, Quiet: true}, l.CheckString(1))
-	l.Push(lua.LString(out))
-	handleErr(l, err)
-	return 2
-}
-
 /*
 * @param opt table
 * @param src string
@@ -185,7 +174,7 @@ func gnuCmd(l *lua.LState) int {
 * @return err
  */
 func gnuMv(l *lua.LState) int {
-	err := cmd.Mv(cmd.MvOpt{}, l.CheckString(1), l.CheckString(2))
+	err := yockc.Mv(yockc.MvOpt{}, l.CheckString(1), l.CheckString(2))
 	handleErr(l, err)
 	return 1
 }
@@ -197,10 +186,79 @@ func gnuMv(l *lua.LState) int {
 * @return err
  */
 func gnuCp(l *lua.LState) int {
-	err := cmd.Cp(cmd.CpOpt{
-		Recurse: true,
-	}, l.CheckString(1), l.CheckString(2))
-	handleErr(l, err)
+	opt := yockc.CpOpt{Recurse: true}
+	paths := []string{}
+	var g_err error
+	if l.CheckAny(1).Type() == lua.LTTable {
+		if err := gluamapper.Map(l.CheckTable(1), &opt); err != nil {
+			l.Push(lua.LString(err.Error()))
+			return 1
+		}
+		if l.CheckAny(2).Type() == lua.LTTable {
+			l.CheckTable(2).ForEach(func(src, dst lua.LValue) {
+				err := yockc.Cp(opt, src.String(), dst.String())
+				if err != nil {
+					if opt.Strict {
+						// TODO
+					} else {
+						g_err = util.ErrGeneral
+					}
+					if opt.Debug {
+						util.Ycho.Warn(stacktrace(l) + err.Error())
+					}
+				}
+			})
+			handleErr(l, g_err)
+			return 1
+		} else {
+			for i := 2; i <= l.GetTop(); i++ {
+				paths = append(paths, l.CheckString(i))
+			}
+		}
+	} else {
+		for i := 1; i <= l.GetTop(); i++ {
+			paths = append(paths, l.CheckString(i))
+		}
+	}
+	if len(paths) >= 2 {
+		err := yockc.Cp(opt, paths[0], paths[1])
+		if err != nil {
+			g_err = err
+			if opt.Debug {
+				util.Ycho.Warn(stacktrace(l) + err.Error())
+			}
+			if opt.Strict {
+				// TODO
+			} else {
+				g_err = util.ErrGeneral
+			}
+		}
+		handleErr(l, err)
+	} else {
+		utils.ReadLineFromString(paths[0], func(s string) string {
+			if len(s) == 0 {
+				return ""
+			}
+			kv := strings.Split(s, " ")
+			if len(kv) == 2 {
+				err := yockc.Cp(opt, kv[0], kv[1])
+				if err != nil {
+					g_err = err
+					if opt.Debug {
+						util.Ycho.Warn(err.Error())
+					}
+					if opt.Strict {
+						// TODO
+					} else {
+						g_err = util.ErrGeneral
+					}
+				}
+			}
+			return ""
+		})
+
+	}
+	handleErr(l, g_err)
 	return 1
 }
 
@@ -208,8 +266,15 @@ func gnuCp(l *lua.LState) int {
 //
 // @return err
 func gnuMkdir(l *lua.LState) int {
-	err := utils.SafeMkdirs(l.CheckString(1))
-	handleErr(l, err)
+	var g_err error
+	for i := 1; i <= l.GetTop(); i++ {
+		err := utils.SafeMkdirs(l.CheckString(i))
+		if err != nil {
+			util.Ycho.Warn(err.Error())
+			g_err = err
+		}
+	}
+	handleErr(l, g_err)
 	return 1
 }
 
@@ -220,7 +285,7 @@ func gnuMkdir(l *lua.LState) int {
 // @return err
 func gnuRm(l *lua.LState) int {
 	mode := l.CheckAny(1)
-	opt := cmd.RmOpt{Safe: true}
+	opt := yockc.RmOpt{Safe: true}
 	targets := []string{}
 	if mode.Type() == lua.LTTable {
 		gluamapper.Map(l.CheckTable(1), &opt)
@@ -232,6 +297,6 @@ func gnuRm(l *lua.LState) int {
 			targets = append(targets, l.CheckString(i))
 		}
 	}
-	handleErr(l, cmd.Rm(opt, targets))
+	handleErr(l, yockc.Rm(opt, targets))
 	return 1
 }

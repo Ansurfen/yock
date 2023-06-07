@@ -5,6 +5,7 @@
 package scheduler
 
 import (
+	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -80,7 +81,7 @@ func taskJobs(yocks *YockScheduler) lua.LGFunction {
 // @param opt table
 func taskJobOption(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
-		yocks.opt = l.CheckTable(1)
+		yocks.opt = yockr.UpgradeTable(l.CheckTable(1))
 		return 0
 	}
 }

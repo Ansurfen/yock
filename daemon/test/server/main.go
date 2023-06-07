@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ansurfen/yock/daemon/interface/server"
+import "github.com/ansurfen/yock/daemon/server"
 
 func main() {
 	server.Gopt.Parse()

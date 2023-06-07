@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ansurfen/yock/daemon/interface/client"
+	"github.com/ansurfen/yock/daemon/client"
 	"github.com/ansurfen/yock/util"
 )
 

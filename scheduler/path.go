@@ -5,10 +5,13 @@
 package scheduler
 
 import (
+	"io/fs"
 	"path/filepath"
 
 	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
+	luar "layeh.com/gopher-luar"
 )
 
 func loadPath(yocks *YockScheduler) lua.LValue {
@@ -26,6 +29,7 @@ var pathLib = luaFuncs{
 	"clean":    pathClean,
 	"ext":      pathExt,
 	"abs":      pathAbs,
+	"walk":     pathWalk,
 }
 
 // @param path string
@@ -97,4 +101,33 @@ func pathAbs(l *lua.LState) int {
 	l.Push(lua.LString(abs))
 	handleErr(l, err)
 	return 2
+}
+
+/*
+* @param root string
+* @param fn fun(path: string, info: fileinfo, err:err): bool
+* @return err
+ */
+func pathWalk(l *lua.LState) int {
+	fn := l.CheckFunction(2)
+	err := filepath.Walk(l.CheckString(1), func(path string, info fs.FileInfo, err error) error {
+		e := lua.LNil
+		if err != nil {
+			e = lua.LString(err.Error())
+		}
+		if err := l.CallByParam(lua.P{
+			Fn:   fn,
+			NRet: 1,
+		}, lua.LString(path), luar.New(l, info), e); err != nil {
+			util.Ycho.Fatal(err.Error())
+		}
+		ok := l.CheckBool(-1)
+		l.Pop(l.GetTop())
+		if ok {
+			return nil
+		}
+		return err
+	})
+	handleErr(l, err)
+	return 1
 }

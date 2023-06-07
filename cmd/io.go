@@ -80,6 +80,8 @@ type CpOpt struct {
 	//
 	// It'll printed on console when debug is true
 	Caller string
+
+	Strict bool
 }
 
 func Cp(opt CpOpt, src, dst string) error {

@@ -5,13 +5,16 @@
 package scheduler
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"time"
 
-	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
+	yockd "github.com/ansurfen/yock/daemon/client"
+	yockf "github.com/ansurfen/yock/ffi"
+	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
@@ -24,46 +27,58 @@ type YockScheduler struct {
 	// Note that concurrency is not safe,
 	// so each different task or asynchronous function will call the thread method
 	// to derive a new interpreter and isolate execution.
-	// In a future release, interpreter pools may be added.
-	runtime.VirtualMachine
+	yockr.YockRuntime
+
 	// env carries local environment variables for the program to run.
 	// For example, working directory, executable path, passed flags, etc.
-	env *lua.LTable
+	env *yockr.Table
+
 	// like env, opt also stores local environmental information.
 	// However, opt is provided by the job_option functions declared in the script.
 	// When the attributes of env and opt coincide, env prevails.
 	// Their relationship is like global and local variables.
-	opt *lua.LTable
+	opt *yockr.Table
+
 	// envVar is initialized only when OptionEnableEnvVar is called.
 	// Once initialized, the user can manipulate environment variables in the script.
 	envVar utils.EnvVar
 
 	// it's deprecated in lateset version
 	driverManager *yockDriverManager
+
 	// task is the smallest scheduling unit for asynchronous tasks,
 	// which is consists of single or multiple jobs.
 	// By default, the scheduler assigns coroutines to each task.
 	task map[string][]*yockJob
+
 	// goroutines organizes and manages asynchronous functions in scripts.
 	// Due to the single-threaded setting of Lua coroutines, the advantages of multi-core CPUs cannot be exploited.
 	// Yock exported the Golang's coroutines to provide Lua with true asynchronous capabilities.
 	goroutines chan func()
+
 	// signals manage the signals generated when the script runs.
 	// Using the wait and notify methods provided by yock,
 	// you can easily implement the synchronization relationship of asynchronous tasks.
 	signals SignalStream
 
-	// TODO: yock interface, is implemented for yock cloud.
-	// yockis yockInterfaces
+	// yocki is a third-party module extension interface provided by Yock.
+	// It is used to enhance yock's scripts, just like yockf.
+	yocki yockInterfaces
+
+	// daemon manages and schedules Yock's background tasks. 
+	// yockd on each computer can be regarded as a node, and 
+	// different nodes can form clusters to complete parallel build, deployment and etc.
+	daemon yockd.YockDaemonClient
 }
 
 func New(opts ...YockSchedulerOption) *YockScheduler {
 	yocks := &YockScheduler{
-		VirtualMachine: runtime.NewVirtualMachine(),
-		env:            &lua.LTable{},
-		goroutines:     make(chan func(), 10),
-		signals:        NewSingleSignalStream(),
-		task:           make(map[string][]*yockJob),
+		YockRuntime: yockr.New(),
+		env:         yockr.NewTable(),
+		goroutines:  make(chan func(), 10),
+		signals:     NewSingleSignalStream(),
+		task:        make(map[string][]*yockJob),
+		// daemon:      *yockd.New(&yockd.DaemonOption{}),
 	}
 
 	for _, opt := range opts {
@@ -129,6 +144,7 @@ const (
 	yockLibWatch   = "watch"
 	yockLibStrings = "strings"
 	yockLibYcho    = "ycho"
+	yockLibFFI     = "ffi"
 )
 
 type yockLib struct {
@@ -148,7 +164,10 @@ var yockLibs = []yockLib{
 	{yockLibWatch, loadWatch},
 	{yockLibStrings, loadStrings},
 	{yockLibYcho, func(yocks *YockScheduler) lua.LValue {
-		return luar.New(yocks.Interp(), util.Ycho)
+		return luar.New(yocks.State(), util.Ycho)
+	}},
+	{yockLibFFI, func(ys *YockScheduler) lua.LValue {
+		return yockf.LoadFFI(ys.State())
 	}},
 }
 
@@ -170,6 +189,7 @@ var yockFuncs = []yockFunc{
 	loadType,
 	loadXML,
 	sshFuncs,
+	loadCheck,
 	wrapLuaFuns(tmplFuncs),
 	wrapLuaFuns(osFuncs),
 	wrapLuaFuns(gnuFuncs),
@@ -179,25 +199,23 @@ var yockFuncs = []yockFunc{
 // loadLibs loads the libraries that go provides to Lua
 func (yocks *YockScheduler) loadLibs() {
 	for _, fn := range yockFuncs {
-		yocks.SetGlobalFn(runtime.LuaFuncs(fn(yocks)))
+		yocks.SetGlobalFn(fn(yocks))
 	}
 
 	var yockGlobalVars = map[string]lua.LValue{
-		"env": yocks.env,
+		"env": yocks.env.LTable,
 	}
 
 	if yocks.driverManager != nil {
 		yockGlobalVars["plugins"] = yocks.driverManager.plugins
-		yockGlobalVars["ldns"] = luar.New(yocks.Interp(), yocks.driverManager.localDNS)
-		yockGlobalVars["gdns"] = luar.New(yocks.Interp(), yocks.driverManager.globalDNS)
+		yockGlobalVars["ldns"] = luar.New(yocks.State(), yocks.driverManager.localDNS)
+		yockGlobalVars["gdns"] = luar.New(yocks.State(), yocks.driverManager.globalDNS)
 	}
 	yocks.setGlobalVars(yockGlobalVars)
 
 	for _, lib := range yockLibs {
 		yocks.SetGlobalVar(lib.name, lib.handle(yocks))
 	}
-
-	yocks.Interp().PreloadModule("check", runtime.LoadCheck)
 
 	lib_path := util.Pathf("~/lib")
 	files, err := os.ReadDir(lib_path)
@@ -239,13 +257,13 @@ func (yocks *YockScheduler) setGlobalVars(vars map[string]lua.LValue) {
 func (yocks *YockScheduler) LaunchTask(name string) {
 	var flags *lua.LTable
 	if yocks.opt != nil {
-		if tmp, ok := yocks.opt.RawGetString("flags").(*lua.LTable); ok {
+		if tmp, ok := yocks.opt.GetTable("flags"); ok {
 			flags = tmp
 		}
 	}
 	for _, job := range yocks.task[name] {
-		tmp, cancel := yocks.Interp().NewThread()
-		tbl := tableDeepCopy(tmp, yocks.env)
+		tmp, cancel := yocks.State().NewThread()
+		tbl := yocks.env.Clone(tmp)
 		tbl.RawSetString("job", lua.LString(name))
 		if flags != nil {
 			if tmp, ok := flags.RawGetString(name).(*lua.LTable); ok {
@@ -300,7 +318,7 @@ func handleBool(l *lua.LState, b bool) {
 // registerLib creates an empty table, injects functions into the table, and return the pointer to the table.
 func (yocks *YockScheduler) registerLib(funcs luaFuncs) *lua.LTable {
 	lib := &lua.LTable{}
-	ls := yocks.Interp()
+	ls := yocks.State()
 	for name, fn := range funcs {
 		lib.RawSetString(name, ls.NewClosure(fn))
 	}
@@ -309,9 +327,20 @@ func (yocks *YockScheduler) registerLib(funcs luaFuncs) *lua.LTable {
 
 // mountLib mounts functions to the specified table.
 func (yocks *YockScheduler) mountLib(lib *lua.LTable, funcs luaFuncs) *lua.LTable {
-	ls := yocks.Interp()
+	ls := yocks.State()
 	for name, fn := range funcs {
 		lib.RawSetString(name, ls.NewClosure(fn))
 	}
 	return lib
+}
+
+// stacktrace returns the stack info of function, in form of file:line
+func stacktrace(l *lua.LState) string {
+	dgb, ok := l.GetStack(1)
+	if ok {
+		l.GetInfo("S", dgb, &lua.LFunction{})
+		l.GetInfo("l", dgb, &lua.LFunction{})
+		return fmt.Sprintf("%s:%d\t", dgb.Source, dgb.CurrentLine)
+	}
+	return ""
 }

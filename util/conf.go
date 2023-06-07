@@ -13,13 +13,17 @@ import (
 var conf *yockConf
 
 type yockConf struct {
-	Ycho  YchoOpt       `yaml:"ycho"`
 	Lang  string        `yaml:"lang"`
+	Ycho  YchoOpt       `yaml:"ycho"`
 	Yocks yockScheduler `yaml:"yocks"`
+	Yockd yockDaemon    `yaml:"yockd"`
+	Yocki yockInterface `yaml:"yocki"`
 }
 
 type yockScheduler struct {
-	Goroutine yockGoroutine `yaml:"goroutine"`
+	Goroutine  yockGoroutine `yaml:"goroutine"`
+	InterpPool bool          `yaml:"interPool"`
+	MaxInterp  int           `yaml:"maxInterp"`
 }
 
 type yockGoroutine struct {
@@ -27,6 +31,16 @@ type yockGoroutine struct {
 	MaxWaitRound int64 `yaml:"maxWaitRound"`
 	RoundStep    int   `yaml:"roundStep"`
 }
+
+type yockDaemon struct {
+	IP   string `yaml:"ip"`
+	Port int    `yaml:"port"`
+	// MTL is abbreviation to max transfer length for file
+	MTL  int    `yaml:"MTL"`
+	Name string `yaml:"name"`
+}
+
+type yockInterface struct{}
 
 // Restore configuration file to initial state
 func (c *yockConf) Restore() error {

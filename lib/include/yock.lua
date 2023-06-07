@@ -23,3 +23,10 @@ end
 
 function ycache:free()
 end
+
+---@param str string
+---@param charset "UTF-8" | "GB18030"
+---@return string
+function strf(str, charset)
+    return ""
+end

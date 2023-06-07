@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ansurfen/cushion/runtime"
 	"github.com/ansurfen/cushion/utils"
+	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/ast"
@@ -149,7 +149,7 @@ func (yockpack *YockPack[T]) DumpFile(file string) string {
 
 type CompileOpt struct {
 	DisableAnalyse bool
-	VM             runtime.VirtualMachine
+	VM             yockr.YockRuntime
 }
 
 // Compile compiles the contents of the given file into functions that can be executed by the virtual machine.
@@ -194,5 +194,5 @@ func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction
 	if err != nil {
 		util.Ycho.Fatal(err.Error())
 	}
-	return opt.VM.Interp().NewFunctionFromProto(proto)
+	return opt.VM.State().NewFunctionFromProto(proto)
 }

@@ -23,7 +23,7 @@ func loadWatch(yocks *YockScheduler) lua.LValue {
 	var cpuInfo lua.LValue
 	if infos, err := util.CPU().Info(); err == nil {
 		if len(infos) > 0 {
-			if info, err := Decode(yocks.Interp(), []byte(infos[0].String())); err == nil {
+			if info, err := Decode(yocks.State(), []byte(infos[0].String())); err == nil {
 				cpuInfo = info
 			}
 		}

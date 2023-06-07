@@ -14,11 +14,11 @@ import (
 )
 
 func loadEnv(yocks *YockScheduler) luaFuncs {
-	yocks.env.RawSetString("platform", luar.New(yocks.Interp(), utils.CurPlatform))
+	yocks.env.RawSetString("platform", luar.New(yocks.State(), utils.CurPlatform))
 	yocks.env.RawSetString("workdir", lua.LString(util.WorkSpace))
 	yocks.env.RawSetString("yock_path", lua.LString(util.YockPath))
-	yocks.env.RawSetString("conf", luar.New(yocks.Interp(), util.Conf()))
-	yocks.mountLib(yocks.env, luaFuncs{
+	yocks.env.RawSetString("conf", luar.New(yocks.State(), util.Conf()))
+	yocks.mountLib(yocks.env.LTable, luaFuncs{
 		"set_path":  envSetPath(yocks),
 		"safe_set":  envSafeSet(yocks),
 		"set":       envSet(yocks),

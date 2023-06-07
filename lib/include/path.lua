@@ -77,3 +77,18 @@ end
 function path.abs(path)
     return "", ""
 end
+
+---@param root string
+---@param fn fun(path: string, info: fileinfo, err:err): boolean
+---@return err
+function path.walk(root, fn)
+end
+
+---@class fileinfo
+---@field Name fun(): string
+---@field Size fun(): number
+---@field Mode fun(): userdata
+---@field ModTime fun(): userdata
+---@field IsDir fun(): boolean
+---@field Sys fun(): userdata
+local fileinfo = {}

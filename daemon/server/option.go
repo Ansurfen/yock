@@ -4,7 +4,7 @@
 
 package server
 
-import "github.com/ansurfen/yock/daemon/interface/client"
+import "github.com/ansurfen/yock/daemon/client"
 
 type DaemonOption struct {
 	*client.DaemonOption

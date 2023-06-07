@@ -30,6 +30,18 @@ var stringsLib = luaFuncs{
 	"Replace":      stringsReplace,
 	"ReplaceAll":   stringsReplaceAll,
 	"Split":        stringsSplit,
+	"Index":        stringsIndex,
+}
+
+/*
+* @param s string
+* @param sub string
+* @return number
+ */
+func stringsIndex(l *lua.LState) int {
+	idx := strings.Index(l.CheckString(1), l.CheckString(2))
+	l.Push(lua.LNumber(idx))
+	return 1
 }
 
 /*

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ansurfen/yock/daemon/interface/client"
+	"github.com/ansurfen/yock/daemon/client"
 )
 
 func main() {

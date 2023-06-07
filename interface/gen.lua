@@ -2,7 +2,7 @@ local proto = import("./proto")
 local protoc = proto.protoc
 
 local root = "."
-local target = "yock.proto"
+local target = "yocki.proto"
 
 job("dart", function(cenv)
     local workspace = "/dart"

@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/ansurfen/cushion/utils"
-	yocki "github.com/ansurfen/yock/daemon/interface"
+	yocki "github.com/ansurfen/yock/daemon/proto"
 	"github.com/ansurfen/yock/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,7 +21,7 @@ import (
 
 type YockDaemonClient struct {
 	conn *grpc.ClientConn
-	cli  yocki.YockInterfaceClient
+	cli  yocki.YockDaemonClient
 	opt  *DaemonOption
 }
 
@@ -33,7 +33,7 @@ func New(opt *DaemonOption) *YockDaemonClient {
 	}
 	return &YockDaemonClient{
 		conn: conn,
-		cli:  yocki.NewYockInterfaceClient(conn),
+		cli:  yocki.NewYockDaemonClient(conn),
 		opt:  opt,
 	}
 }

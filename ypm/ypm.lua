@@ -212,8 +212,7 @@ end
 ---@param target string
 ---@return any
 function load_module(target)
-    mkdir(env.yock_tmp)
-    mkdir(env.yock_modules)
+    mkdir(env.yock_tmp, env.yock_modules)
 
     local module = ""
     local version = ""

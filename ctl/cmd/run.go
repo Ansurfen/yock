@@ -57,10 +57,10 @@ var (
 			yockp := yockpack.New()
 			fn := yockp.Compile(yockpack.CompileOpt{
 				DisableAnalyse: runParameter.enableAnalyse,
-				VM:             yocks.VirtualMachine,
+				VM:             yocks.YockRuntime,
 			}, runParameter.file)
 
-			if err := runtime.LuaDoFunc(yocks.Interp(), fn); err != nil {
+			if err := runtime.LuaDoFunc(yocks.State(), fn); err != nil {
 				util.Ycho.Fatal(err.Error())
 			}
 

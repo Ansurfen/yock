@@ -2,22 +2,22 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
 	"unicode"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/auto/generator/archive"
 	"github.com/ansurfen/yock/auto/generator/walk"
 	lua "github.com/yuin/gopher-lua"
 )
 
 func main() {
+	// ugw := walk.UnimplementedGoWalk{}
+	// ugw.Visit(`D:\D\langs\go\src\os`)
 	methods := make([]*archive.Method, 0)
 	gowalk := walk.GoWalk{}
-	gowalk.VisitDir("D:/D/langs/go/src/strings", walk.VisitDirHandle{
+	gowalk.VisitDir(`D:\D\langs\go\src\os`, walk.VisitDirHandle{
 		walk.DeclFunc: func(pkg string, decl walk.GoDecl) bool {
 			fn := decl.(walk.FuncDecl)
 			funcName := fn.Name.Name
@@ -111,6 +111,7 @@ func main() {
 		doc[method.Name] = strings.Join(method.Comment, "\n")
 		varName := 'a'
 		buf := bytes.Buffer{}
+		buf.WriteString(fmt.Sprintf("func %s%s(l *lua.LState) int {\n", pkg, method.Name))
 		for i := range method.Results {
 			method.Results[i].Name = string(varName)
 			buf.WriteString(string(varName))
@@ -138,16 +139,16 @@ func main() {
 				buf.WriteString(fmt.Sprintf("l.Push(%s)\n", record.Type(arg.Name)))
 			}
 		}
-		buf.WriteString(fmt.Sprintf("return %d", len(method.Results)))
+		buf.WriteString(fmt.Sprintf("return %d\n}", len(method.Results)))
 		// fmt.Println(buf.String())
 		// fmt.Println()
 	}
-	out, err := json.Marshal(doc)
-	if err != nil {
-		panic(err)
-	}
-	err = utils.WriteFile(pkg+".json", out)
-	if err != nil {
-		panic(err)
-	}
+	// out, err := json.Marshal(doc)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// err = utils.WriteFile(pkg+".json", out)
+	// if err != nil {
+	// 	panic(err)
+	// }
 }
