@@ -25,6 +25,8 @@ service YockDaemon {
     // You can specify it by InfoRequest, and by default only basic parameters 
     // (the name of the node, the file uploaded, and the connection information) are returned.
     rpc Info (InfoRequest) returns (InfoResponse);
+
+    rpc Cron (CronRequest) returns (CronResponse);
 }
 
 message PingRequest {}
@@ -91,3 +93,7 @@ message InfoResponse {
     string name = 1;
     string payload = 2;
 }
+
+message CronRequest {}
+
+message CronResponse {}

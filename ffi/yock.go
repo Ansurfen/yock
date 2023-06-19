@@ -96,7 +96,7 @@ func ffiLibrary(l *lua.LState) int {
 	lib := yockf.Open(name)
 
 	l.CheckTable(2).ForEach(func(fn, declare lua.LValue) {
-		def := runtime.UpgradeTable(declare.(*lua.LTable))
+		def := yockr.UpgradeTable(declare.(*lua.LTable))
 		fname := fn.String()
 		var (
 			go_args       []reflect.Type

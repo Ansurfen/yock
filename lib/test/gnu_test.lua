@@ -21,3 +21,6 @@ print("tmp.txt: ", cat("tmp.txt"))
 rm({
     safe = false
 }, "tmp.txt")
+-- test("pwd", function()
+
+-- end)

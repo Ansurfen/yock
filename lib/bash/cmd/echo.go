@@ -3,7 +3,7 @@ package cmd
 import (
 	"flag"
 
-	"github.com/ansurfen/yock/cmd"
+	yockc "github.com/ansurfen/yock/cmd"
 )
 
 type EchoCmd struct {
@@ -20,6 +20,6 @@ func (echo *EchoCmd) Exec(args string) ([]byte, error) {
 			cc.str += s
 			return nil
 		})
-	out, err := cmd.Echo(echo.str)
+	out, err := yockc.Echo(echo.str)
 	return []byte(out), err
 }

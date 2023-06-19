@@ -1,4 +1,8 @@
-package cmd
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+package yockc
 
 import (
 	"bytes"
@@ -88,7 +92,7 @@ func WindowsTerm(cmds ...string) *Terminal {
 }
 
 func PosixTerm(cmds ...string) *Terminal {
-	return &Terminal{boot: []string{"bash", "-c"}, cmd: cmds, this: TermBash}
+	return &Terminal{boot: []string{"/bin/sh", "-c"}, cmd: cmds, this: TermBash}
 }
 
 func UpgradeBackend(term *Terminal) {

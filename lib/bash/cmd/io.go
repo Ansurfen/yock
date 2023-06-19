@@ -4,7 +4,7 @@ import (
 	"flag"
 
 	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/cmd"
+	yockc "github.com/ansurfen/yock/cmd"
 )
 
 type MoveCmd struct {
@@ -26,7 +26,7 @@ func (mv *MoveCmd) Exec(args string) ([]byte, error) {
 		}
 		return nil
 	})
-	return NilByte, cmd.Mv(cmd.MvOpt{}, mv.Src, mv.Dst)
+	return NilByte, yockc.Mv(yockc.MvOpt{}, mv.Src, mv.Dst)
 }
 
 type CpCmd struct {
@@ -50,7 +50,7 @@ func (cp *CpCmd) Exec(args string) ([]byte, error) {
 		}
 		return nil
 	})
-	return NilByte, cmd.Cp(cmd.CpOpt{
+	return NilByte, yockc.Cp(yockc.CpOpt{
 		Recurse: cp.r,
 	}, cp.Src, cp.Dst)
 }
@@ -73,7 +73,7 @@ func (rm *RmCmd) Exec(args string) ([]byte, error) {
 		rm.Path = s
 		return nil
 	})
-	return NilByte, cmd.Rm(cmd.RmOpt{
+	return NilByte, yockc.Rm(yockc.RmOpt{
 		Safe: !rm.r,
 	}, []string{rm.Path})
 }
@@ -92,12 +92,12 @@ func (rm *RmdirCmd) Exec(args string) ([]byte, error) {
 		rm.Path = s
 		return nil
 	})
-	var term *cmd.Terminal
+	var term *yockc.Terminal
 	switch utils.CurPlatform.OS {
 	case "windows":
-		term = cmd.WindowsTerm("rmdir")
+		term = yockc.WindowsTerm("rmdir")
 	default:
-		term = cmd.PosixTerm("rmdir")
+		term = yockc.PosixTerm("rmdir")
 	}
-	return term.Exec(&cmd.ExecOpt{})
+	return term.Exec(&yockc.ExecOpt{})
 }

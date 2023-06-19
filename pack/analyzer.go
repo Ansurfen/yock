@@ -14,7 +14,7 @@
 // For added flexibility, each driver can mount multiple plugins,
 // which you can think of as a callback function during driver execution.
 
-package yockpack
+package yockp
 
 import (
 	"encoding/json"

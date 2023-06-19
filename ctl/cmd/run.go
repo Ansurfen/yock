@@ -60,7 +60,7 @@ var (
 				VM:             yocks.YockRuntime,
 			}, runParameter.file)
 
-			if err := runtime.LuaDoFunc(yocks.State(), fn); err != nil {
+			if err := runtime.LuaDoFunc(yocks.State().LState, fn); err != nil {
 				util.Ycho.Fatal(err.Error())
 			}
 

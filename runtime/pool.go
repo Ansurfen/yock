@@ -2,12 +2,14 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package runtime
+package yockr
 
 import (
+	"context"
 	"sync"
 
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/util/container"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -15,13 +17,14 @@ var _ YockRuntime = (*YockInterpPool)(nil)
 
 type YockInterpPool struct {
 	m       sync.Mutex
-	interps util.Stack[YockRuntime]
+	interps container.Stack[YockRuntime]
 	idle    YockRuntime
 }
 
 func UpgradeInterpPool(yockr YockRuntime) YockRuntime {
 	return &YockInterpPool{
-		idle: yockr,
+		idle:    yockr,
+		interps: container.NewStack[YockRuntime](10),
 	}
 }
 
@@ -71,11 +74,11 @@ func (yockr *YockInterpPool) SafeSetGlobalVar(string, lua.LValue) {}
 // LoadModule to immediately load module to be specified
 // LoadModule(string, lua.LGFunction)
 // State returns LState
-func (yockr *YockInterpPool) State() *lua.LState { return nil }
+func (yockr *YockInterpPool) State() *YockState { return nil }
 
-func (yockr *YockInterpPool) SetState(l *lua.LState) {}
+func (yockr *YockInterpPool) SetState(l *YockState) {}
 
-func (yockr *YockInterpPool) NewState() *lua.LState {
+func (yockr *YockInterpPool) NewState() (*YockState, context.CancelFunc) {
 	return yockr.idle.NewState()
 }
 

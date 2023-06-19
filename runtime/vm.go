@@ -2,9 +2,10 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package runtime
+package yockr
 
 import (
+	"context"
 	"path/filepath"
 
 	lua "github.com/yuin/gopher-lua"
@@ -12,7 +13,7 @@ import (
 
 // New initialize yock runtime and returns the its pointer
 func New(opts ...YockrOption) YockRuntime {
-	var yockr YockRuntime = &YockInterp{}
+	var yockr YockRuntime = &YockInterp{state: NewYState()}
 
 	for _, opt := range opts {
 		if err := opt(yockr); err != nil {
@@ -21,7 +22,11 @@ func New(opts ...YockrOption) YockRuntime {
 	}
 
 	if yockr.State() == nil {
-		yockr.SetState(lua.NewState())
+		s, cancel := yockr.NewState()
+		if cancel != nil {
+			defer cancel()
+		}
+		yockr.SetState(s)
 	}
 
 	return yockr
@@ -64,32 +69,32 @@ type YockRuntime interface {
 	// LoadModule to immediately load module to be specified
 	// LoadModule(string, lua.LGFunction)
 	// State returns LState
-	State() *lua.LState
+	State() *YockState
 	// SetState sets interp
-	SetState(l *lua.LState)
+	SetState(l *YockState)
 	// NewState returns new interp
-	NewState() *lua.LState
+	NewState() (*YockState, context.CancelFunc)
 }
 
 type YockrOption func(yockr YockRuntime) error
 
 // YockInterp abstracts lua interpreter
 type YockInterp struct {
-	state *lua.LState
+	state *YockState
 }
 
 // State returns LState
-func (yockr *YockInterp) State() *lua.LState {
+func (yockr *YockInterp) State() *YockState {
 	return yockr.state
 }
 
-func (yockr *YockInterp) SetState(l *lua.LState) {
+func (yockr *YockInterp) SetState(l *YockState) {
 	yockr.state = l
 }
 
-func (yockr *YockInterp) NewState() *lua.LState {
-	ls, _ := yockr.state.NewThread()
-	return ls
+func (yockr *YockInterp) NewState() (*YockState, context.CancelFunc) {
+	ls, cancel := yockr.state.NewThread()
+	return UpgradeLState(ls), cancel
 }
 
 // FastCall to call specify function without arguments and not return value
@@ -120,7 +125,7 @@ func (yockr *YockInterp) Call(fun string) ([]lua.LValue, error) {
 // SetGlobalFn to set global function
 func (yockr *YockInterp) SetGlobalFn(loaders map[string]lua.LGFunction) {
 	for name, loader := range loaders {
-		yockr.state.SetGlobal(name, yockr.state.NewFunction(loader))
+		yockr.state.SetGlobal(name, yockr.state.LState.NewFunction(loader))
 	}
 }
 
@@ -128,7 +133,7 @@ func (yockr *YockInterp) SetGlobalFn(loaders map[string]lua.LGFunction) {
 func (yockr *YockInterp) SafeSetGlobalFn(loaders map[string]lua.LGFunction) {
 	for name, loader := range loaders {
 		if value := yockr.state.GetGlobal(name); value.String() == "nil" {
-			yockr.state.SetGlobal(name, yockr.state.NewFunction(loader))
+			yockr.state.SetGlobal(name, yockr.state.LState.NewFunction(loader))
 		}
 	}
 }

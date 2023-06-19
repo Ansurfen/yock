@@ -4,7 +4,7 @@ import (
 	"flag"
 
 	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/cmd"
+	yockc "github.com/ansurfen/yock/cmd"
 )
 
 type CurlCmd struct {
@@ -40,7 +40,7 @@ func (curl *CurlCmd) Exec(arg string) ([]byte, error) {
 	if len(curl.O) > 0 {
 		save = true
 	}
-	return NilByte, cmd.HTTP(cmd.HttpOpt{
+	return NilByte, yockc.HTTP(yockc.HttpOpt{
 		Method: curl.method,
 		Data:   curl.body,
 		Save:   save,

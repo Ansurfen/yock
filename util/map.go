@@ -25,8 +25,8 @@ func NewSafeMap[T any]() *SafeMap[T] {
 // SafeGet locks to get the value of the specified k.
 // If the value doesn't exist, the second parameter returns false, and vice versa.
 func (m *SafeMap[T]) SafeGet(k string) (T, bool) {
-	defer m.mutex.Unlock()
 	m.mutex.Lock()
+	defer m.mutex.Unlock()
 	return m.Get(k)
 }
 
@@ -42,8 +42,8 @@ func (m *SafeMap[T]) Get(k string) (T, bool) {
 
 // SafeSet locks to set value of key to be specified
 func (m *SafeMap[T]) SafeSet(k string, v T) {
-	defer m.mutex.Unlock()
 	m.mutex.Lock()
+	defer m.mutex.Unlock()
 	m.data[k] = v
 }
 
@@ -54,8 +54,8 @@ func (m *SafeMap[T]) Set(k string, v T) {
 
 // SafeRange locks to range map. You can set callback to implement demand.
 func (m *SafeMap[T]) SafeRange(handle func(k string, v T) bool) {
-	defer m.mutex.Unlock()
 	m.mutex.Lock()
+	defer m.mutex.Unlock()
 	for k, v := range m.data {
 		if !handle(k, v) {
 			return

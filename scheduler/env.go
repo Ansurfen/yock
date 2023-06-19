@@ -8,40 +8,43 @@ import (
 	"os"
 
 	"github.com/ansurfen/cushion/utils"
+	yocki "github.com/ansurfen/yock/interface"
+	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
-	luar "layeh.com/gopher-luar"
 )
 
-func loadEnv(yocks *YockScheduler) luaFuncs {
-	yocks.env.RawSetString("platform", luar.New(yocks.State(), utils.CurPlatform))
-	yocks.env.RawSetString("workdir", lua.LString(util.WorkSpace))
-	yocks.env.RawSetString("yock_path", lua.LString(util.YockPath))
-	yocks.env.RawSetString("conf", luar.New(yocks.State(), util.Conf()))
-	yocks.mountLib(yocks.env.LTable, luaFuncs{
-		"set_path":  envSetPath(yocks),
-		"safe_set":  envSafeSet(yocks),
-		"set":       envSet(yocks),
-		"unset":     envUnset(yocks),
-		"setl":      envSetL(yocks),
-		"safe_setl": envSafeSetL(yocks),
-		"export":    envExport(yocks),
-		"print":     envPrint(yocks),
-		"environ":   envEnviron,
-		"set_args":  envSetArgs,
+func loadEnv(yocks yocki.YockScheduler) {
+	lib := yocks.OpenLib("env")
+	lib.SetField(map[string]any{
+		"platform":  utils.CurPlatform,
+		"workdir":   util.WorkSpace,
+		"yock_path": util.YockPath,
+		"conf":      util.Conf(),
 	})
-	return nil
+	lib.SetFunctions(map[string]lua.LGFunction{
+		"environ":  envEnviron,
+		"set_args": envSetArgs,
+	})
+	yocks.MntYocksFn(lib, yocki.YocksFuncs{
+		"set_path":  envSetPath,
+		"safe_set":  envSafeSet,
+		"set":       envSet,
+		"unset":     envUnset,
+		"setl":      envSetL,
+		"safe_setl": envSafeSetL,
+		"export":    envExport,
+		"print":     envPrint,
+	})
 }
 
 // @param path string
 //
 // @return err
-func envSetPath(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		err := yocks.envVar.SetPath(l.CheckString(1))
-		handleErr(l, err)
-		return 1
-	}
+func envSetPath(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	err := yocks.EnvVar().SetPath(s.CheckString(1))
+	s.PushError(err)
+	return 1
 }
 
 /*
@@ -49,12 +52,10 @@ func envSetPath(yocks *YockScheduler) lua.LGFunction {
 * @param value string
 * @return err
  */
-func envSafeSet(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		err := yocks.envVar.SafeSet(l.CheckString(1), envVarTypeCvt(l.CheckAny(2)))
-		handleErr(l, err)
-		return 1
-	}
+func envSafeSet(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	err := yocks.EnvVar().SafeSet(s.CheckString(1), envVarTypeCvt(s.CheckAny(2)))
+	s.PushError(err)
+	return 1
 }
 
 /*
@@ -62,23 +63,19 @@ func envSafeSet(yocks *YockScheduler) lua.LGFunction {
 * @param value string
 * @return err
  */
-func envSet(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		err := yocks.envVar.Set(l.CheckString(1), envVarTypeCvt(l.CheckAny(2)))
-		handleErr(l, err)
-		return 1
-	}
+func envSet(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	err := yocks.EnvVar().Set(s.CheckString(1), envVarTypeCvt(s.CheckAny(2)))
+	s.PushError(err)
+	return 1
 }
 
 // @param key string
 //
 // @return err
-func envUnset(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		err := yocks.envVar.Unset(l.CheckString(1))
-		handleErr(l, err)
-		return 1
-	}
+func envUnset(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	err := yocks.EnvVar().Unset(s.CheckString(1))
+	s.PushError(err)
+	return 1
 }
 
 /*
@@ -86,12 +83,10 @@ func envUnset(yocks *YockScheduler) lua.LGFunction {
 * @param value string
 * @return err
  */
-func envSetL(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		err := yocks.envVar.SetL(l.CheckString(1), l.CheckString(2))
-		handleErr(l, err)
-		return 1
-	}
+func envSetL(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	err := yocks.EnvVar().SetL(s.CheckString(1), s.CheckString(2))
+	s.PushError(err)
+	return 1
 }
 
 /*
@@ -99,12 +94,10 @@ func envSetL(yocks *YockScheduler) lua.LGFunction {
 * @param value string
 * @return err
  */
-func envSafeSetL(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		err := yocks.envVar.SafeSetL(l.CheckString(1), l.CheckString(2))
-		handleErr(l, err)
-		return 1
-	}
+func envSafeSetL(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	err := yocks.EnvVar().SafeSetL(s.CheckString(1), s.CheckString(2))
+	s.PushError(err)
+	return 1
 }
 
 // envExport exports current enviroment string into specify file
@@ -112,20 +105,16 @@ func envSafeSetL(yocks *YockScheduler) lua.LGFunction {
 // @param path string
 //
 // @return err
-func envExport(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		err := yocks.envVar.Export(l.CheckString(1))
-		handleErr(l, err)
-		return 1
-	}
+func envExport(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	err := yocks.EnvVar().Export(s.CheckString(1))
+	s.PushError(err)
+	return 1
 }
 
 // envPrint prints current enviroment variable
-func envPrint(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		yocks.envVar.Print()
-		return 0
-	}
+func envPrint(yocks yocki.YockScheduler, s *yockr.YockState) int {
+	yocks.EnvVar().Print()
+	return 0
 }
 
 // envEnviron returns table of enviroment variable

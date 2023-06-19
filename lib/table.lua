@@ -8,7 +8,7 @@ function table.dump(tbl, level, filteDefault)
     filteDefault = filteDefault or true --default filter keywords（DeleteMe, _class_type）
     level = level or 1
     local indent_str = ""
-    for i = 1, level do
+    for _ = 1, level do
         indent_str = indent_str .. "  "
     end
 

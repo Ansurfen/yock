@@ -4,7 +4,7 @@ import (
 	"flag"
 
 	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/cmd"
+	yockc "github.com/ansurfen/yock/cmd"
 )
 
 type MkdirCmd struct {
@@ -25,12 +25,12 @@ func (mkdir *MkdirCmd) Exec(args string) ([]byte, error) {
 		cc.path = s
 		return nil
 	})
-	var term *cmd.Terminal
+	var term *yockc.Terminal
 	switch utils.CurPlatform.OS {
 	case "windows":
-		term = cmd.WindowsTerm("mkdir")
+		term = yockc.WindowsTerm("mkdir")
 		if mkdir.p {
-			if term.Type() == cmd.TermPowershell {
+			if term.Type() == yockc.TermPowershell {
 				term.AppendCmds("-p", mkdir.path)
 			} else {
 				term.AppendCmds(mkdir.path, "/p")
@@ -39,12 +39,12 @@ func (mkdir *MkdirCmd) Exec(args string) ([]byte, error) {
 			term.AppendCmds(mkdir.path)
 		}
 	default:
-		term = cmd.PosixTerm()
+		term = yockc.PosixTerm()
 		if mkdir.p {
 			term.AppendCmds("-p", mkdir.path)
 		} else {
 			term.AppendCmds(mkdir.path)
 		}
 	}
-	return term.Exec(&cmd.ExecOpt{})
+	return term.Exec(&yockc.ExecOpt{})
 }

@@ -6,7 +6,7 @@ package util
 
 var (
 	// WorkSpace is the .yock path in the UserHome
-	// 
+	//
 	// You can think of it as yock's global workspace
 	// for storing user's information.
 	WorkSpace  string

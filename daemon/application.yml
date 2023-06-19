@@ -1,0 +1,33 @@
+tls:
+  cert: server.pem
+  key: server.key
+  ca:
+    - client.pem
+grpc:
+  addr:
+    ip: localhost
+    port: 9090
+gateway:
+  policy: user # user or router
+  path:
+  rule:
+    jwt:
+      enable: true
+      path:
+        -
+    pwd:
+      enable:
+      path:
+    crt:
+      enable:
+      path:
+net:
+  proxy:
+    default:
+      ip:
+      port:
+  stun:
+    retryCnt: 3
+fs:
+  mtl: 1024
+name:

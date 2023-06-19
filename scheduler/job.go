@@ -5,6 +5,7 @@
 package scheduler
 
 import (
+	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
@@ -16,12 +17,16 @@ type yockJob struct {
 	fn *lua.LFunction
 }
 
-func taskFuncs(yocks *YockScheduler) luaFuncs {
-	return luaFuncs{
-		"job":        taskJob(yocks),
-		"jobs":       taskJobs(yocks),
-		"job_option": taskJobOption(yocks),
-	}
+func (job *yockJob) Func() *lua.LFunction {
+	return job.fn
+}
+
+func loadTask(yocks yocki.YockScheduler) {
+	yocks.RegYocksFn(yocki.YocksFuncs{
+		"job":        taskJob,
+		"jobs":       taskJobs,
+		"job_option": taskJobOption,
+	})
 }
 
 // taskJob packages the job as a task and registers it with the scheduler
@@ -31,19 +36,17 @@ func taskFuncs(yocks *YockScheduler) luaFuncs {
 * @param jobName string
 * @param jobFn function
  */
-func taskJob(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		jobName := l.CheckString(1)
-		jobFn := l.CheckFunction(2)
-		if _, ok := yocks.task[jobName]; ok {
-			util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
-		} else {
-			yocks.task[jobName] = append(yocks.task[jobName], &yockJob{
-				fn: jobFn,
-			})
-		}
-		return 0
+func taskJob(yocks yocki.YockScheduler, l *yockr.YockState) int {
+	jobName := l.CheckString(1)
+	jobFn := l.CheckFunction(2)
+	if yocks.GetTask(jobName) {
+		util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
+	} else {
+		yocks.AppendTask(jobName, &yockJob{
+			fn: jobFn,
+		})
 	}
+	return 0
 }
 
 // taskJob packages multiple jobs as a task and registers it with the scheduler
@@ -53,35 +56,32 @@ func taskJob(yocks *YockScheduler) lua.LGFunction {
 * @param name string
 * @param jobs ...string
  */
-func taskJobs(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		groups := []string{}
-		for i := 1; i <= l.GetTop(); i++ {
-			groups = append(groups, l.CheckString(i))
-		}
-		if len(groups) <= 1 {
-			return 0
-		}
-		name := groups[0]
-		if _, ok := yocks.task[name]; ok {
-			util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
-		}
-		for _, n := range groups[1:] {
-			if job, ok := yocks.task[n]; ok {
-				yocks.task[name] = append(yocks.task[name], job...)
-			}
-		}
+func taskJobs(ys yocki.YockScheduler, l *yockr.YockState) int {
+	yocks := ys.(*YockScheduler)
+	groups := []string{}
+	for i := 1; i <= l.GetTop(); i++ {
+		groups = append(groups, l.CheckString(i))
+	}
+	if len(groups) <= 1 {
 		return 0
 	}
+	name := groups[0]
+	if yocks.GetTask(name) {
+		util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
+	}
+	for _, n := range groups[1:] {
+		if job, ok := yocks.task[n]; ok {
+			yocks.task[name] = append(yocks.task[name], job...)
+		}
+	}
+	return 0
 }
 
 // taskJobOption gets local environment declared in the script
 // and stores them in the scheduler's opt field.
 //
 // @param opt table
-func taskJobOption(yocks *YockScheduler) lua.LGFunction {
-	return func(l *lua.LState) int {
-		yocks.opt = yockr.UpgradeTable(l.CheckTable(1))
-		return 0
-	}
+func taskJobOption(yocks yocki.YockScheduler, l *yockr.YockState) int {
+	yocks.SetOpt(l.CheckTable(1))
+	return 0
 }

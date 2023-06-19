@@ -46,5 +46,9 @@ var (
 	ErrDomainExist = errors.New("domain exist already")
 	ErrAliasExist  = errors.New("alias exist already")
 
+	ErrUserNotFound = errors.New("user not found")
+
+	ErrPermDenied = errors.New("permission denied")
+
 	ErrGeneral = errors.New("err happen")
 )

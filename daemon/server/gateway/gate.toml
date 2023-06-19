@@ -1,0 +1,18 @@
+[/|_G]
+policy = []
+
+[/process/kill]
+
+[/process/spawn]
+
+[/process/list]
+policy= [
+    jwt.ini:default,
+]
+
+[policy]
+jwt = [jwt.ini, @/myjwt.ini]
+
+
+[/net/register]
+policy = [jwt:a]

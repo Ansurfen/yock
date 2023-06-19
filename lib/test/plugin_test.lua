@@ -1,5 +1,0 @@
-local m = open("libmysql.dll")
-call(m, "echo", "abbc")
-local conn = call(m,"newMysqlClient", "root:123@tcp(192.168.127.128:3306)/sys")
--- is_uintptr(conn)
-print(call(m, "exec", conn, "select * from sys"))

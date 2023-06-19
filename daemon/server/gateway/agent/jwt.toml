@@ -1,0 +1,17 @@
+[default]
+key = "yockd_key"
+exp = 10
+sub = "yock"
+iss = "yockd"
+aud = []
+nbf = 0
+method = "hs256"
+
+[default2]
+key = "yockd_key"
+exp = 10
+sub = "yock"
+iss = "yockd"
+aud = []
+nbf = 0
+method = "rs256"

@@ -1,3 +1,7 @@
+// Copyright 2023 The Yock Authors. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package ffi
 
 import (
@@ -5,56 +9,50 @@ import (
 	"reflect"
 )
 
-// 构造器
 type Builder struct {
-	// 用于存储属性字段
-	fileId []reflect.StructField
+	fields []reflect.StructField
 }
 
 func NewBuilder() *Builder {
 	return &Builder{}
 }
 
-// 添加字段
-func (b *Builder) AddField(field string, typ reflect.Type) *Builder {
-	b.fileId = append(b.fileId, reflect.StructField{Name: field, Type: typ})
+func (b *Builder) addField(field string, typ reflect.Type) *Builder {
+	b.fields = append(b.fields, reflect.StructField{Name: field, Type: typ})
 	return b
 }
 
-// 根据预先添加的字段构建出结构体
 func (b *Builder) Build() *Struct {
-	stu := reflect.StructOf(b.fileId)
+	stu := reflect.StructOf(b.fields)
 	index := make(map[string]int)
 	for i := 0; i < stu.NumField(); i++ {
 		index[stu.Field(i).Name] = i
 	}
 	return &Struct{stu, index}
 }
+
 func (b *Builder) AddString(name string) *Builder {
-	return b.AddField(name, reflect.TypeOf(""))
+	return b.addField(name, reflect.TypeOf(""))
 }
 
 func (b *Builder) AddBool(name string) *Builder {
-	return b.AddField(name, reflect.TypeOf(true))
+	return b.addField(name, reflect.TypeOf(true))
 }
 
 func (b *Builder) AddInt64(name string) *Builder {
-	return b.AddField(name, reflect.TypeOf(int64(0)))
+	return b.addField(name, reflect.TypeOf(int64(0)))
 }
 
 func (b *Builder) AddInt(name string) *Builder {
-	return b.AddField(name, reflect.TypeOf(int(0)))
+	return b.addField(name, reflect.TypeOf(int(0)))
 }
 
 func (b *Builder) AddFloat64(name string) *Builder {
-	return b.AddField(name, reflect.TypeOf(float64(1.2)))
+	return b.addField(name, reflect.TypeOf(float64(1.2)))
 }
 
-// 实际生成的结构体，基类
-// 结构体的类型
 type Struct struct {
-	typ reflect.Type
-	// <fieldName : 索引> // 用于通过字段名称，从Builder的[]reflect.StructField中获取reflect.StructField
+	typ   reflect.Type
 	index map[string]int
 }
 
@@ -62,11 +60,9 @@ func (s Struct) New() *Instance {
 	return &Instance{reflect.New(s.typ).Elem(), s.index}
 }
 
-// 结构体的值
 type Instance struct {
 	instance reflect.Value
-	// <fieldName : 索引>
-	index map[string]int
+	index    map[string]int
 }
 
 var (

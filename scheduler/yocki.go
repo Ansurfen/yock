@@ -14,5 +14,5 @@ type yockInterfaces struct {
 }
 
 func NewYockInterface() {
-	
+
 }

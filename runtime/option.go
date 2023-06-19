@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package runtime
+package yockr
 
 import (
 	lua "github.com/yuin/gopher-lua"
@@ -11,7 +11,7 @@ import (
 func OptionLState(opt lua.Options) YockrOption {
 	return func(yockr YockRuntime) error {
 		state := lua.NewState(opt)
-		yockr.SetState(state)
+		yockr.SetState(UpgradeLState(state))
 		return nil
 	}
 }
