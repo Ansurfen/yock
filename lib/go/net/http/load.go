@@ -16,5 +16,10 @@ func LoadNetHttp(yocks yocki.YockScheduler) {
 		"HandleFunc":        http.HandleFunc,
 		"ListenAndServe":    http.ListenAndServe,
 		"ListenAndServeTLS": http.ListenAndServeTLS,
+		"Client":            netHttpClient,
 	})
+}
+
+func netHttpClient() *http.Client {
+	return &http.Client{}
 }

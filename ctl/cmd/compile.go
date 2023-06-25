@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ansurfen/cushion/utils"
 	parser "github.com/ansurfen/yock/pack"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
@@ -47,15 +46,15 @@ var (
 					Tpl:   util.Pathf("@/sdk/yock/decompose.tpl"),
 				}, yockpack.ParseFile(compileParameter.file))
 			} else {
-				include := utils.OpenConfFromPath(util.Pathf("@/include.yaml"))
-				if err := include.ReadInConfig(); err != nil {
+				include, err := util.OpenConf(util.Pathf("@/include.yaml"))
+				if err != nil {
 					util.Ycho.Fatal(err.Error())
 				}
 				files := include.GetStringSlice("file")
 				methods := include.GetStringSlice("method")
 				anlyzer := parser.NewLuaDependencyAnalyzer()
 				// import stdlib
-				out, err := utils.ReadStraemFromFile(util.Pathf("@/sdk/yock/deps/stdlib.json"))
+				out, err := util.ReadStraemFromFile(util.Pathf("@/sdk/yock/deps/stdlib.json"))
 				if err != nil {
 					util.Ycho.Fatal(err.Error())
 				}

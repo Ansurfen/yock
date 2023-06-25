@@ -3,8 +3,8 @@ package cmd
 import (
 	"flag"
 
-	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
+	"github.com/ansurfen/yock/util"
 )
 
 type MoveCmd struct {
@@ -93,7 +93,7 @@ func (rm *RmdirCmd) Exec(args string) ([]byte, error) {
 		return nil
 	})
 	var term *yockc.Terminal
-	switch utils.CurPlatform.OS {
+	switch util.CurPlatform.OS {
 	case "windows":
 		term = yockc.WindowsTerm("rmdir")
 	default:

@@ -1,0 +1,56 @@
+/*  
+function(cmd, args)
+        if #args == 0 then
+            yassert("arguments too little")
+        end
+        local res = strings.Split(args[1], ":")
+        if #res == 3 then
+            local groupId = res[1]
+            local artifactId = res[2]
+            local version = res[3]
+            print(groupId, artifactId, version)
+            local ark = import("ark-core@1.0")
+            local gum = import("gum@1.0")
+            local wg = sync.new()
+            local initParmas = env.params["/jpm/init"]
+            local binPath = path.join(debug.getinfo(1, "S").source, "..", "../bin")
+            local management = initParmas["m"]:Var()
+            local e = initParmas["e"]:Var()
+            local mod = import(path.join(binPath, management))
+            mod.load(e)
+            -- wg:Add(1)
+            -- gum.spin({
+            --     cmd = "yock run a.lua"
+            -- })
+            -- go(function()
+            --     local deps = ark.inspect()
+            --     wg:Done()
+            --     table.dump(deps)
+            -- end)
+            -- wg:Wait()
+        end
+end
+*/
+
+fn (cmd: any, args: any[]) {
+    if #args == 0 {
+        lua.yassert("arguments too little");
+    }
+    res = lua.strings.Split(args[1], ":)
+    if #res == 3 {
+        {groupId, artifactId, version} = res;
+        print(groupId, artifactId, version);
+
+        import ark from "ark-core@1.0";
+        import gum from "gum@1.0";
+
+        wg = lua.sync.new();
+        initParmas = env.params["/jpm/init"];
+        management: string = *initParmas["m"];
+        e: string = *initParmas["e"];
+
+        go fn () {
+            deps = ark.inspect();
+        }
+    }
+}

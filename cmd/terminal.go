@@ -12,7 +12,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 )
 
@@ -83,7 +82,7 @@ func (term *Terminal) Type() uint8 {
 }
 
 func WindowsTerm(cmds ...string) *Terminal {
-	switch utils.CurPlatform.Ver {
+	switch util.CurPlatform.Ver {
 	case "10", "11":
 		return &Terminal{boot: []string{"powershell"}, cmd: cmds, this: TermPowershell}
 	default:

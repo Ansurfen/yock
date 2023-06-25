@@ -7,7 +7,6 @@
 package scheduler
 
 import (
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/viper"
 )
@@ -35,7 +34,7 @@ const dnsBlank = `
 `
 
 func CreateDNS(path string) *DNS {
-	utils.SafeWriteFile(path, []byte(dnsBlank))
+	util.SafeWriteFile(path, []byte(dnsBlank))
 	return OpenDNS(path)
 }
 

@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +20,7 @@ type envCmdParameter struct {
 	expand bool
 	local  bool
 
-	env utils.EnvVar
+	env util.EnvVar
 }
 
 func getChar() {
@@ -46,9 +45,9 @@ Examples:
 			if len(args) == 0 {
 				util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
 			}
-			envParameter.env = utils.NewEnvVar()
+			envParameter.env = util.NewEnvVar()
 			if len(envParameter.path) > 0 {
-				switch utils.CurPlatform.OS {
+				switch util.CurPlatform.OS {
 				case "windows":
 					switch v := envParameter.path; v {
 					case "sys":

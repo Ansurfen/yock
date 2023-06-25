@@ -11,8 +11,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/cushion/utils/build"
 	"github.com/ansurfen/yock/util"
 	"github.com/yuin/gopher-lua/ast"
 )
@@ -161,11 +159,11 @@ type buildBootOpt struct {
 }
 
 func (yockpack *YockPack[T]) buildBoot(opt buildBootOpt) {
-	tmpl := build.NewTemplate()
+	tmpl := util.NewTemplate()
 	type mode struct {
 		Name string
 	}
-	text, err := utils.ReadStraemFromFile(opt.tpl)
+	text, err := util.ReadStraemFromFile(opt.tpl)
 	if err != nil {
 		util.Ycho.Fatal(err.Error())
 	}
@@ -185,5 +183,5 @@ func (yockpack *YockPack[T]) buildBoot(opt buildBootOpt) {
 	if !strings.HasSuffix(opt.file, ".lua") {
 		opt.file += ".lua"
 	}
-	utils.WriteFile(opt.file, []byte(out))
+	util.WriteFile(opt.file, []byte(out))
 }

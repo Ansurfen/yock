@@ -8,7 +8,6 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/ansurfen/cushion/utils"
 	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
@@ -37,7 +36,7 @@ func LoadPath(yocks yocki.YockScheduler) {
 //
 // @return bool
 func pathExist(l *yockr.YockState) int {
-	ok := utils.IsExist(l.CheckString(1))
+	ok := util.IsExist(l.CheckString(1))
 	l.PushBool(ok)
 	return 1
 }
@@ -46,7 +45,7 @@ func pathExist(l *yockr.YockState) int {
 //
 // @return string
 func pathFilename(l *yockr.YockState) int {
-	l.PushString(utils.Filename(l.CheckString(1)))
+	l.PushString(util.Filename(l.CheckString(1)))
 	return 1
 }
 

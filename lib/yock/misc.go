@@ -8,7 +8,6 @@ import (
 	"net"
 	"strings"
 
-	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
 	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
@@ -25,17 +24,17 @@ func LoadMisc(yocks yocki.YockScheduler) {
 		"new_command":  osNewCommand,
 		"is_url":       netIsURL,
 		"is_localhost": netIsLocalhost,
-		"safe_write": safe_write,
-		"zip":        zip,
-		"unzip":      unzip,
-		"write_file": write_file,
-		"is_exist":   is_exist,
-		"printf":     printf,
-		"pathf":      ioPathf,
-		"read_file":  ioReadFile,
+		"safe_write":   safe_write,
+		"zip":          zip,
+		"unzip":        unzip,
+		"write_file":   write_file,
+		"is_exist":     is_exist,
+		"printf":       printf,
+		"pathf":        ioPathf,
+		"read_file":    ioReadFile,
 	})
 	yocks.RegYocksFn(yocki.YocksFuncs{
-		"http": netHTTP,
+		"curl": netCurl,
 	})
 }
 
@@ -45,7 +44,7 @@ func LoadMisc(yocks yocki.YockScheduler) {
 * @return string
  */
 func osStrf(l *yockr.YockState) int {
-	out := utils.ConvertByte2String([]byte(l.CheckString(1)), utils.Charset(l.CheckString(2)))
+	out := util.ConvertByte2String([]byte(l.CheckString(1)), util.Charset(l.CheckString(2)))
 	l.PushString(out)
 	return 1
 }
@@ -75,7 +74,7 @@ func osSh(l *yockr.YockState) int {
 	outs := &lua.LTable{}
 	var g_err error
 	for _, cmd := range cmds {
-		utils.ReadLineFromString(cmd, func(s string) string {
+		util.ReadLineFromString(cmd, func(s string) string {
 			if len(s) > 0 {
 				out, err := yockc.Exec(opt, s)
 				outs.Append(lua.LString(out))
@@ -120,20 +119,20 @@ func osNewCommand(l *yockr.YockState) int {
 	return 1
 }
 
-// netHTTP is capable of sending HTTP requests, which defaults to the GET method
+// netCurl is capable of sending HTTP requests, which defaults to the GET method
 /*
 * @param opt table
 * @param urls ...string
 * @retrun err
  */
-func netHTTP(yocks yocki.YockScheduler, s *yockr.YockState) int {
+func netCurl(yocks yocki.YockScheduler, s *yockr.YockState) int {
 	opt := yockc.HttpOpt{Method: "GET"}
 	urls := []string{}
 	if s.IsTable(1) {
 		tbl := s.CheckTable(1)
 
 		if fn := tbl.RawGetString("filename"); fn.Type() == lua.LTFunction {
-			opt.Filename = func(s string) string {
+			opt.FilenameHandle = func(s string) string {
 				lvm, _ := yocks.State().NewThread()
 				if err := lvm.CallByParam(lua.P{
 					NRet: 1,
@@ -165,7 +164,7 @@ func netHTTP(yocks yocki.YockScheduler, s *yockr.YockState) int {
 //
 // @return bool
 func netIsURL(l *yockr.YockState) int {
-	l.PushBool(utils.IsURL(l.CheckString(1)))
+	l.PushBool(util.IsURL(l.CheckString(1)))
 	return 1
 }
 
@@ -190,7 +189,7 @@ func netIsLocalhost(s *yockr.YockState) int {
 * @return err
  */
 func safe_write(l *yockr.YockState) int {
-	err := utils.SafeWriteFile(l.CheckString(1), []byte(l.CheckString(2)))
+	err := util.SafeWriteFile(l.CheckString(1), []byte(l.CheckString(2)))
 	l.PushError(err)
 	return 1
 }
@@ -206,7 +205,7 @@ func zip(l *yockr.YockState) int {
 	for i := 2; i <= l.GetTop(); i++ {
 		paths = append(paths, l.CheckString(i))
 	}
-	err := utils.Zip(zipPath, paths...)
+	err := util.Zip(zipPath, paths...)
 	l.PushError(err)
 	return 1
 }
@@ -217,7 +216,7 @@ func zip(l *yockr.YockState) int {
 * @return err
  */
 func unzip(l *yockr.YockState) int {
-	err := utils.Unzip(l.CheckString(1), l.CheckString(2))
+	err := util.Unzip(l.CheckString(1), l.CheckString(2))
 	l.PushError(err)
 	return 1
 }
@@ -228,7 +227,7 @@ func unzip(l *yockr.YockState) int {
 * @return err
  */
 func write_file(l *yockr.YockState) int {
-	err := utils.WriteFile(l.CheckString(1), []byte(l.CheckString(2)))
+	err := util.WriteFile(l.CheckString(1), []byte(l.CheckString(2)))
 	l.PushError(err)
 	return 1
 }
@@ -237,7 +236,7 @@ func write_file(l *yockr.YockState) int {
 //
 // @return bool
 func is_exist(l *yockr.YockState) int {
-	ok := utils.IsExist(l.CheckString(1))
+	ok := util.IsExist(l.CheckString(1))
 	l.PushBool(ok)
 	return 1
 }
@@ -258,7 +257,7 @@ func printf(l *yockr.YockState) int {
 		})
 		rows = append(rows, tmp)
 	})
-	utils.Prinf(utils.PrintfOpt{MaxLen: 30}, title, rows)
+	util.Prinf(util.PrintfOpt{MaxLen: 30}, title, rows)
 	return 0
 }
 
@@ -281,7 +280,7 @@ func ioPathf(l *yockr.YockState) int {
 * @return string, err
  */
 func ioReadFile(l *yockr.YockState) int {
-	out, err := utils.ReadStraemFromFile(l.CheckString(1))
+	out, err := util.ReadStraemFromFile(l.CheckString(1))
 	l.PushString(string(out)).PushError(err)
 	return 2
 }

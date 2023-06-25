@@ -4,9 +4,7 @@
 
 package yockc
 
-import (
-	"github.com/ansurfen/cushion/utils"
-)
+import "github.com/ansurfen/yock/util"
 
 // ExecOpt indicates configuration of exec
 type ExecOpt struct {
@@ -25,7 +23,7 @@ type ExecOpt struct {
 
 func Exec(opt ExecOpt, cmd string) (string, error) {
 	var term *Terminal
-	switch utils.CurPlatform.OS {
+	switch util.CurPlatform.OS {
 	case "windows":
 		term = WindowsTerm(cmd)
 	default:

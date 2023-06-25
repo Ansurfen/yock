@@ -11,7 +11,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/daemon/server/conf"
 	. "github.com/ansurfen/yock/daemon/server/net"
 	"github.com/ansurfen/yock/util"
@@ -210,7 +209,7 @@ func OptionSetToken(token string) StunOption {
 
 func NewStun(opts ...StunOption) *Stun {
 	var stunService []any
-	raw, err := utils.ReadStraemFromFile("stun.json")
+	raw, err := util.ReadStraemFromFile("stun.json")
 	if err != nil {
 		panic(err)
 	}

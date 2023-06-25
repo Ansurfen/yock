@@ -78,6 +78,25 @@ func apiEncode(L *lua.LState) int {
 		L.Push(lua.LString(err.Error()))
 		return 2
 	}
+	if L.GetTop() == 3 {
+		jsonString := string(data)
+		var jsonData interface{}
+		err := json.Unmarshal([]byte(jsonString), &jsonData)
+		if err != nil {
+			L.Push(lua.LNil)
+			L.Push(lua.LString(err.Error()))
+			return 2
+		}
+
+		prettyJSON, err := json.MarshalIndent(jsonData, "", "    ")
+		if err != nil {
+			L.Push(lua.LNil)
+			L.Push(lua.LString(err.Error()))
+			return 2
+		}
+		L.Push(lua.LString(prettyJSON))
+		return 1
+	}
 	L.Push(lua.LString(string(data)))
 	return 1
 }

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 	"github.com/yuin/gopher-lua/ast"
 )
@@ -106,7 +105,7 @@ func (analyzer *luaDependencyAnalyzer) Export(file string) {
 	if err != nil {
 		util.Ycho.Fatal(err.Error())
 	}
-	utils.WriteFile(file, out)
+	util.WriteFile(file, out)
 }
 
 // LuaMethod stores the metadata of the driver

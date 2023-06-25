@@ -12,7 +12,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/ansurfen/cushion/utils"
 	yocki "github.com/ansurfen/yock/daemon/proto"
 	"github.com/ansurfen/yock/util"
 	"google.golang.org/grpc"
@@ -84,7 +83,7 @@ func (c *YockDaemonClient) Upload(file string) error {
 	}
 	_, err = c.cli.Upload(ctx, &yocki.UploadRequest{
 		Filename: file,
-		Hash:     utils.SHA256(string(out)),
+		Hash:     util.SHA256(string(out)),
 		Owner:    *c.opt.Name,
 		Size:     info.Size(),
 		CreateAt: info.ModTime().Format(time.RFC3339),
@@ -111,7 +110,7 @@ func (c *YockDaemonClient) Download(file string) error {
 		}
 		if err != nil {
 			// breakpoint
-			utils.WriteFile(util.Pathf("@/tmp/"+file), data)
+			util.WriteFile(util.Pathf("@/tmp/"+file), data)
 			return err
 		}
 		data = append(data, chunk.Data...)

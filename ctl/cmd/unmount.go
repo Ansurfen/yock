@@ -7,7 +7,6 @@ package cmd
 import (
 	"path/filepath"
 
-	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
@@ -22,12 +21,12 @@ which enables file fail to access in global.`,
 		if len(args) == 0 {
 			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
 		}
-		if err := utils.SafeMkdirs(util.Pathf("@/unmount")); err != nil {
+		if err := util.SafeMkdirs(util.Pathf("@/unmount")); err != nil {
 			util.Ycho.Fatal(err.Error())
 		}
 		file := args[0]
 		exf := ""
-		switch utils.CurPlatform.OS {
+		switch util.CurPlatform.OS {
 		case "windows":
 			exf = ".bat"
 		default:

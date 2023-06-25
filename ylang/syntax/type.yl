@@ -1,0 +1,45 @@
+type string; // ---@class string
+type boolean;
+type number;
+type integer number; // ---@class integer: number
+type byte integer; // ---@class byte: integer
+type rune byte;
+
+type (
+    nil,
+    string,
+    boolean,
+    number,
+    integer number,
+    byte integer,
+    rune byte,
+    err string|nil,
+)
+
+// type.d.yl
+
+bufio = {} // local bufio = {}
+
+class bufio {
+    static fn ScanLines(data: string, atEOF: boolean) (number, string, err) {
+
+    }
+    /*
+        ---@param data string
+        ---@param atEOF boolean
+        ---@return number,string,err
+        function bufio.ScanLines(data, atEOF)
+        end
+    */
+
+    fn Test() {}
+
+    // bufio:Test()
+
+} // type bufio;
+
+static bufio; // bufio = nil;
+
+static bufio: bufio; // bufio = {}
+
+print(typeof(""))

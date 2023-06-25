@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	"github.com/yuin/gopher-lua/parse"
 )
 
@@ -34,7 +34,7 @@ func TestDependencyAnalyer(t *testing.T) {
 	anlyzer := NewLuaDependencyAnalyzer()
 	anlyzer.Load("../sdk/yock.lua")
 	anlyzer.Preload("print()", LuaMethod{Pkg: "g"})
-	anlyzer.Export(utils.RandString(8) + ".json")
+	anlyzer.Export(util.RandString(8) + ".json")
 	fmt.Println(anlyzer.Completion("../ctl/test/check_env_test.lua"))
 }
 
@@ -57,7 +57,7 @@ func TestExportStdlib(t *testing.T) {
 }
 
 func TestReload(t *testing.T) {
-	out, err := utils.ReadStraemFromFile("stdlib.json")
+	out, err := util.ReadStraemFromFile("stdlib.json")
 	if err != nil {
 		panic(err)
 	}

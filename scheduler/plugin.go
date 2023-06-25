@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -58,11 +58,11 @@ func pluginParsePlugin(yocks *YockScheduler) lua.LGFunction {
 func pluginLoadPlugin(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		file := l.CheckString(1)
-		out, err := utils.ReadStraemFromFile(file)
+		out, err := util.ReadStraemFromFile(file)
 		if err != nil {
 			panic(err)
 		}
-		uid := utils.RandString(8)
+		uid := util.RandString(8)
 		reg := regexp.MustCompile(`plugin\s*\((.*)\s*\{`)
 		yocks.Eval(reg.ReplaceAllString(string(out), fmt.Sprintf(`plugin("%s",{`, uid)))
 		l.Push(lua.LString(uid))

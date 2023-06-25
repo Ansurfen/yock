@@ -1,17 +1,25 @@
 class person {
     friends: person[]
 
-    construct() {
-
+    construct(friends: any) {
+        this.friends = friends;
     }
+    // person:new1(friends) {}
+
+    construct() {
+        print("empty construct");
+    }
+    // person:new2() {}
 
     ~construct() {
 
     }
 
-    fn addFriend(p: person) -> void {
+    fn addFriend(p: person) void {
         this.friends.append(p);
-    }
+    } // person:addFriend1(p)
+
+    fn addFriend() {} // person:addFriend2()
 
     operator +(p: person) {
         this.addFriend(p);
@@ -66,5 +74,5 @@ class gradle {
 jpm j = new maven("1.0")
 
 // pointer type
-new String()
-new Int()
+new Str()
+new Number()

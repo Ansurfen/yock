@@ -4,12 +4,12 @@
 
 package yockc
 
-import "github.com/ansurfen/cushion/utils"
+import "github.com/ansurfen/yock/util"
 
 // Clear clears the output on the screen
 func Clear() error {
 	var term *Terminal
-	switch utils.CurPlatform.OS {
+	switch util.CurPlatform.OS {
 	case "windows":
 		term = WindowsTerm("cls")
 	default:

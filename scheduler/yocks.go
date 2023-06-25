@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/ansurfen/cushion/utils"
 	yockd "github.com/ansurfen/yock/daemon/client"
 	yockf "github.com/ansurfen/yock/ffi"
 	yocki "github.com/ansurfen/yock/interface"
@@ -48,7 +47,7 @@ type YockScheduler struct {
 
 	// envVar is initialized only when OptionEnableEnvVar is called.
 	// Once initialized, the user can manipulate environment variables in the script.
-	envVar utils.EnvVar
+	envVar util.EnvVar
 
 	// it's deprecated in lateset version
 	driverManager *yockDriverManager
@@ -94,7 +93,7 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 	}
 
 	if yocks.driverManager != nil {
-		if err := utils.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
+		if err := util.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
 			util.Ycho.Fatal(err.Error())
 		}
 	}
@@ -108,7 +107,7 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 	return yocks
 }
 
-func (yocks *YockScheduler) EnvVar() utils.EnvVar {
+func (yocks *YockScheduler) EnvVar() util.EnvVar {
 	return yocks.envVar
 }
 

@@ -5,8 +5,8 @@
 package liby
 
 import (
-	"github.com/ansurfen/cushion/utils/build"
 	yocki "github.com/ansurfen/yock/interface"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
@@ -14,7 +14,7 @@ import (
 func LoadTemplate(yocks yocki.YockScheduler) {
 	yocks.RegLuaFn(yocki.LuaFuncs{
 		"tmpl": func(l *lua.LState) int {
-			tmpl := build.NewTemplate()
+			tmpl := util.NewTemplate()
 			l.Push(luar.New(l, tmpl))
 			return 1
 		},

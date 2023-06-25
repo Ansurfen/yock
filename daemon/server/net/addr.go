@@ -7,7 +7,7 @@ package ynet
 import (
 	"net"
 
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 )
 
 type NetAddr struct {
@@ -18,11 +18,11 @@ type NetAddr struct {
 }
 
 func (info *NetAddr) String() string {
-	return utils.JsonStr(utils.NewJsonObject(map[string]utils.JsonValue{
-		"IP":     utils.NewJsonString(info.IP),
-		"Port":   utils.NewJsonNumber(int64(info.Port)),
-		"Zone":   utils.NewJsonString(info.Zone),
-		"Family": utils.NewJsonNumber(int64(info.Family)),
+	return util.JsonStr(util.NewJsonObject(map[string]util.JsonValue{
+		"IP":     util.NewJsonString(info.IP),
+		"Port":   util.NewJsonNumber(int64(info.Port)),
+		"Zone":   util.NewJsonString(info.Zone),
+		"Family": util.NewJsonNumber(int64(info.Family)),
 	}))
 }
 

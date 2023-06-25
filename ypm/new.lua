@@ -62,6 +62,19 @@ return {
                 write_file("include/" .. filename, out)
             end
         end
+
+        local go_include_path = path.join(include_path, "go")
+        path.walk(go_include_path, function(p, info, err)
+            if path.ext(p) == ".lua" then
+                out, err = read_file(p)
+                yassert(err)
+                local file = string.sub(p, #go_include_path + 2, #p)
+                mkdir(path.join("include/go", path.dir(file)))
+                write_file(path.join("include/go", file), out)
+            end
+            return true
+        end)
+
         safe_write(".gitignore", "/yock_modules\n/include")
     end,
     flags = {

@@ -7,7 +7,6 @@ package api
 import (
 	"context"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/daemon/proto"
 	"github.com/ansurfen/yock/daemon/server/fs"
 	"github.com/ansurfen/yock/util"
@@ -39,7 +38,7 @@ func (yockd *YockDaemon) Download(stream proto.YockDaemon_DownloadServer) error 
 		if req.Sender == file.Owner {
 			return nil
 		} else {
-			raw, err := utils.ReadStraemFromFile(util.Pathf("@/tmp/" + req.Filename))
+			raw, err := util.ReadStraemFromFile(util.Pathf("@/tmp/" + req.Filename))
 			if err != nil {
 				return err
 			}

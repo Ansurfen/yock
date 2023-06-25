@@ -2,6 +2,7 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
+---@diagnostic disable: duplicate-doc-field
 ---@diagnostic disable: duplicate-set-field
 
 ---@class jsonfile
@@ -30,16 +31,41 @@ function jsonfile:open(filename, no_strict)
     else
         yassert("invalid file")
     end
-    setmetatable(obj, self)
-    self.__index = self
+    setmetatable(obj, { __index = self })
     return obj
 end
 
-function jsonfile:read()
-    return self.fp:read("*a")
+---@param filename string
+---@return jsonfile
+function jsonfile:create(filename)
+    local obj = {
+        filename = filename,
+        buf = {}
+    }
+    setmetatable(obj, { __index = self })
+    return obj
 end
 
-function jsonfile:write()
+---@param k string
+---@return any
+function jsonfile:read(k)
+    local keys = strings.Split(k, ".")
+    local v = self.buf
+    for _, kk in ipairs(keys) do
+        if v == nil then
+            return nil
+        end
+        v = v[kk]
+    end
+    return v
+end
+
+---@param pretty? boolean
+function jsonfile:write(pretty)
+    if pretty then
+        yassert(write_file(self.filename, json.encode(self.buf, "", "    ")))
+        return
+    end
     yassert(write_file(self.filename, json.encode(self.buf)))
 end
 

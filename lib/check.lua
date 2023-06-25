@@ -51,7 +51,7 @@ function Linux()
 end
 
 function CheckEnv(c, pattern)
-    local out, _ = sh(c)
+    local out, _ = sh({ redirect = false, debug = false }, c)
     local reg = regexp.MustCompile(pattern)
     local res = reg:FindStringSubmatch(out[1])
     if res ~= nil and #res > 0 then

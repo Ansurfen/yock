@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -82,7 +81,7 @@ func getLogWriter(conf YchoOpt) (zapcore.WriteSyncer, error) {
 	if len(conf.Path) == 0 {
 		conf.Path = Pathf("@/log")
 	}
-	if err := utils.SafeMkdirs(conf.Path); err != nil {
+	if err := SafeMkdirs(conf.Path); err != nil {
 		return nil, err
 	}
 

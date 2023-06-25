@@ -1,0 +1,13 @@
+enum flag_type {
+    str,
+    num,
+    bool
+}
+
+/*
+local flag_type = {
+    str = 0,
+    num = 1,
+    bool = 2
+}
+*/

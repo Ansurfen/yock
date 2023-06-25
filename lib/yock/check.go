@@ -5,9 +5,9 @@
 package liby
 
 import (
-	"github.com/ansurfen/cushion/utils"
 	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -19,8 +19,8 @@ func LoadCheck(yocks yocki.YockScheduler) {
 }
 
 func checkVersion(l *yockr.YockState) int {
-	want := utils.NewCheckedVersion(l.CheckString(1))
-	got := utils.NewCheckedVersion(l.CheckString(2))
+	want := util.NewCheckedVersion(l.CheckString(1))
+	got := util.NewCheckedVersion(l.CheckString(2))
 	l.PushBool(want.Compare(got))
 	return 1
 }

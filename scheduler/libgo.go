@@ -5,7 +5,9 @@
 package scheduler
 
 import (
+	"github.com/ansurfen/yock/lib/go/bufio"
 	"github.com/ansurfen/yock/lib/go/fmt"
+	"github.com/ansurfen/yock/lib/go/io"
 	"github.com/ansurfen/yock/lib/go/net"
 	"github.com/ansurfen/yock/lib/go/os"
 	"github.com/ansurfen/yock/lib/go/path"
@@ -14,6 +16,7 @@ import (
 	"github.com/ansurfen/yock/lib/go/strings"
 	"github.com/ansurfen/yock/lib/go/sync"
 	"github.com/ansurfen/yock/lib/go/time"
+	"github.com/ansurfen/yock/lib/go/unicode"
 )
 
 var libgo = []loader{
@@ -25,5 +28,8 @@ var libgo = []loader{
 	libstrings.LoadStrings,
 	libtime.LoadTime,
 	libsync.LoadSync,
+	io.LoadIO,
+	bufio.LoadBufio,
+	unicode.LoadUnicode,
 	os.LoadOS,
 }

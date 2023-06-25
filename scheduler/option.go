@@ -4,7 +4,7 @@
 
 package scheduler
 
-import "github.com/ansurfen/cushion/utils"
+import "github.com/ansurfen/yock/util"
 
 type YockSchedulerOption func(*YockScheduler) error
 
@@ -30,7 +30,7 @@ func OptionEnableYockDriverMode() YockSchedulerOption {
 // In some systems, you need administrator privileges to start
 func OptionEnableEnvVar() YockSchedulerOption {
 	return func(ys *YockScheduler) error {
-		ys.envVar = utils.NewEnvVar()
+		ys.envVar = util.NewEnvVar()
 		return nil
 	}
 }

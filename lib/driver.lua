@@ -11,7 +11,7 @@ function pull(opt)
                     if type(url) == "table" and #url == 2 then
                         if is_url(url[1]) then
                             local filename = random.str(8)
-                            http({
+                            curl({
                                 save = true,
                                 dir = pathf("@/driver/local/"),
                                 fn = function(path)
@@ -22,7 +22,7 @@ function pull(opt)
                         end
                     else
                         if is_url(url) then
-                            http({
+                            curl({
                                 save = true,
                                 dir = pathf("@/driver/local/")
                             }, url)
@@ -40,7 +40,7 @@ function pull(opt)
                             print("module was be downloaded")
                         else
                             local filename = random.str(8)
-                            http({
+                            curl({
                                 save = true,
                                 dir = pathf("@/plugin/local/"),
                                 fn = function(path)
@@ -53,7 +53,7 @@ function pull(opt)
                         local _plugin = gdns:GetPlugin(domain)
                         if _plugin.URL ~= "" then
                             if _plugin.Path == "" then
-                                http({
+                                curl({
                                     save = true,
                                     dir = pathf("@/plugin/"),
                                     fn = function(path)

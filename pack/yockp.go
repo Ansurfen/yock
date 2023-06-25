@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ansurfen/cushion/utils"
 	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
@@ -164,7 +163,7 @@ func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction
 
 	if opt.DisableAnalyse {
 		anlyzer := NewLuaDependencyAnalyzer()
-		out, err := utils.ReadStraemFromFile(util.Pathf("~/lib/dep/stdlib.json"))
+		out, err := util.ReadStraemFromFile(util.Pathf("~/lib/dep/stdlib.json"))
 		if err != nil {
 			util.Ycho.Fatal(err.Error())
 		}

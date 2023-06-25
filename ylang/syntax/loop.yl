@@ -1,0 +1,20 @@
+nums = [1,2,3] // nums = {1,2,3}
+
+for (i, v in nums) {
+    println(i, v)
+}
+
+for (k, v of nums) {
+
+}
+
+dict = {
+    a = 10,
+    10,
+}
+
+print(#dict)
+
+if 1 in nums {
+    
+}

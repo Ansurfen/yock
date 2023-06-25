@@ -3,8 +3,8 @@ package cmd
 import (
 	"flag"
 
-	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
+	"github.com/ansurfen/yock/util"
 )
 
 type MkdirCmd struct {
@@ -26,7 +26,7 @@ func (mkdir *MkdirCmd) Exec(args string) ([]byte, error) {
 		return nil
 	})
 	var term *yockc.Terminal
-	switch utils.CurPlatform.OS {
+	switch util.CurPlatform.OS {
 	case "windows":
 		term = yockc.WindowsTerm("mkdir")
 		if mkdir.p {

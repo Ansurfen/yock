@@ -5,8 +5,8 @@
 package liby
 
 import (
-	"github.com/ansurfen/cushion/utils"
 	yocki "github.com/ansurfen/yock/interface"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -21,6 +21,6 @@ func LoadRandom(yocks yocki.YockScheduler) {
 //
 // @return string
 func randomStr(l *lua.LState) int {
-	l.Push(lua.LString(utils.RandString(int(l.CheckNumber(1)))))
+	l.Push(lua.LString(util.RandString(int(l.CheckNumber(1)))))
 	return 1
 }

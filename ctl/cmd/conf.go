@@ -5,7 +5,6 @@
 package cmd
 
 import (
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
 )
@@ -29,9 +28,9 @@ var (
 				return
 			}
 			if len(confParameter.lang) > 0 {
-				utils.GetEnv().Commit("lang", confParameter.lang)
+				util.GetEnv().Commit("lang", confParameter.lang)
 			}
-			utils.GetEnv().Write()
+			util.GetEnv().Write()
 		},
 	}
 )

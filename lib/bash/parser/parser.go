@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ansurfen/cushion/utils"
 	. "github.com/ansurfen/yock/lib/bash/cmd"
+	"github.com/ansurfen/yock/util"
 )
 
 func LoadBySh(file string) {
@@ -13,7 +13,7 @@ func LoadBySh(file string) {
 	cmds := [][]string{}
 	vars := make(map[string]string)
 	isRef := regexp.MustCompile(`\$\w*`)
-	_, err := utils.ReadLineFromFile(file, func(s string) string {
+	_, err := util.ReadLineFromFile(file, func(s string) string {
 		if isVar.Match([]byte(s)) {
 			if name, value, ok := strings.Cut(s, "="); ok {
 				vars["$"+strings.TrimSpace(name)] = value

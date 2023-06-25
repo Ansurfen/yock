@@ -17,7 +17,31 @@ func LoadOS(yocks yocki.YockScheduler) {
 		"Stdout": os.Stdout,
 		"Stderr": os.Stderr,
 
-		"ReadDir": os.ReadDir,
-		
+		"ReadDir":   os.ReadDir,
+		"Open":      os.Open,
+		"Create":    os.Create,
+		"OpenFile":  os.OpenFile,
+		"ReadFile":  os.ReadFile,
+		"WriteFile": os.WriteFile,
+
+		"O_RDONLY": os.O_RDONLY,
+		"O_WRONLY": os.O_WRONLY,
+		"O_RDWR":   os.O_RDWR,
+
+		"O_APPEND": os.O_APPEND,
+		"O_CREATE": os.O_CREATE,
+		"O_EXCL":   os.O_EXCL,
+		"O_SYNC":   os.O_SYNC,
+		"O_TRUNC":  os.O_TRUNC,
+
+		"Rename":        os.Rename,
+		"TempDir":       os.TempDir,
+		"UserCacheDir":  os.UserCacheDir,
+		"UserConfigDir": os.UserConfigDir,
+		"UserHomeDir":   os.UserHomeDir,
+		"Chmod":         os.Chmod,
+		"Chdir":         os.Chdir,
+		"DirFS":         os.DirFS,
+		"Mkdir":         os.Mkdir,
 	})
 }

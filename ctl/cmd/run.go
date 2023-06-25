@@ -8,8 +8,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sync"
-
-	"github.com/ansurfen/cushion/runtime"
+	yockr "github.com/ansurfen/yock/runtime"
 	yockpack "github.com/ansurfen/yock/pack"
 	"github.com/ansurfen/yock/scheduler"
 	"github.com/ansurfen/yock/util"
@@ -60,7 +59,7 @@ var (
 				VM:             yocks.YockRuntime,
 			}, runParameter.file)
 
-			if err := runtime.LuaDoFunc(yocks.State().LState, fn); err != nil {
+			if err := yockr.LuaDoFunc(yocks.State().LState, fn); err != nil {
 				util.Ycho.Fatal(err.Error())
 			}
 

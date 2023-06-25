@@ -11,7 +11,6 @@ import (
 	"path"
 	"regexp"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 
 	lua "github.com/yuin/gopher-lua"
@@ -64,7 +63,7 @@ func driverDriver(yocks *YockScheduler) lua.LGFunction {
 	return func(l *lua.LState) int {
 		driver := l.CheckString(1)
 		name := l.CheckString(2)
-		out, err := utils.ReadStraemFromFile(path.Join(util.DriverPath, name+".lua"))
+		out, err := util.ReadStraemFromFile(path.Join(util.DriverPath, name+".lua"))
 		if err != nil {
 			panic(err)
 		}

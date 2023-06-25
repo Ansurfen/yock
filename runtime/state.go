@@ -178,3 +178,9 @@ func (s *YockState) Stacktrace() string {
 	}
 	return ""
 }
+
+func LuaDoFunc(lvm *lua.LState, fun *lua.LFunction) error {
+	lfunc := lvm.NewFunctionFromProto(fun.Proto)
+	lvm.Push(lfunc)
+	return lvm.PCall(0, lua.MultRet, nil)
+}

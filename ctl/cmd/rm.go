@@ -5,7 +5,6 @@
 package cmd
 
 import (
-	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
@@ -22,7 +21,7 @@ var rmCmd = &cobra.Command{
 		area := args[0]
 		pattern := args[1]
 		ext := ""
-		switch utils.CurPlatform.OS {
+		switch util.CurPlatform.OS {
 		case "windows":
 			ext = ".bat"
 		default:

@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 )
 
@@ -90,7 +89,7 @@ type CpOpt struct {
 
 func Cp(opt CpOpt, src, dst string) error {
 	var term *Terminal
-	switch utils.CurPlatform.OS {
+	switch util.CurPlatform.OS {
 	case "windows":
 		term = WindowsTerm()
 		if term.this == TermPowershell {
@@ -130,7 +129,7 @@ type MvOpt struct {
 
 func Mv(opt MvOpt, src, dst string) error {
 	var term *Terminal
-	switch utils.CurPlatform.OS {
+	switch util.CurPlatform.OS {
 	case "windows":
 		term = WindowsTerm()
 		if term.this == TermPowershell {

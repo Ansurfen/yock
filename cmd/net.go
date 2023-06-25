@@ -15,7 +15,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 )
 
@@ -32,8 +31,8 @@ type HttpOpt struct {
 	Save bool
 	// Dir set root directionary of file to be saved
 	Dir string
-	// Filename returns filename that will be saved according to url
-	Filename func(string) string
+	// FilenameHandle returns filename that will be saved according to url
+	FilenameHandle func(string) string
 	// Debug prints output when it's true
 	Debug bool
 	// Caller is used to mark parent caller of HTTP function
@@ -71,7 +70,7 @@ func httpExceptionHandle(err error, opt *HttpOpt, exception error) bool {
 // Http is similar with curl, which is used to send HTTP request according to opt and urls.
 func HTTP(opt HttpOpt, urls []string) error {
 	for _, url := range urls {
-		if !utils.IsURL(url) && httpExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidURL) {
+		if !util.IsURL(url) && httpExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidURL) {
 			return util.ErrInvalidURL
 		}
 		req, err := http.NewRequest("GET", url, nil)
@@ -127,10 +126,10 @@ func HTTP(opt HttpOpt, urls []string) error {
 				defer res.Body.Close()
 
 				if opt.Save {
-					dst := path.Join(opt.Dir, opt.Filename(u))
+					dst := path.Join(opt.Dir, opt.FilenameHandle(u))
 					dir := filepath.Dir(dst)
 
-					if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
+					if httpExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
 						return
 					}
 
@@ -153,10 +152,10 @@ func HTTP(opt HttpOpt, urls []string) error {
 			defer res.Body.Close()
 
 			if opt.Save {
-				dst := path.Join(opt.Dir, opt.Filename(url))
+				dst := path.Join(opt.Dir, opt.FilenameHandle(url))
 				dir := filepath.Dir(dst)
 
-				if httpExceptionHandle(utils.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
+				if httpExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
 					return util.ErrBadCreateDir
 				}
 

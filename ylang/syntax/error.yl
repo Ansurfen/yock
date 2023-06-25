@@ -1,0 +1,19 @@
+// exception.d.yl
+fn pwd() (str, err) {}
+/*
+---@return string, err
+function pwd()
+end
+*/
+
+// test.yl
+try {
+    wd = pwd()
+} catch e {
+    lua.yassert(e)
+}
+
+/*
+local wd, err = pwd()
+yassert(err)
+*/

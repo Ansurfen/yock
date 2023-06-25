@@ -26,6 +26,11 @@ end
 function xmlDoc:ReadFromBytes(b)
 end
 
+---@param s string
+---@return userdata
+function xmlDoc:ReadFromString(s)
+end
+
 ---@param file string
 ---@return userdata
 function xmlDoc:ReadFromFile(file)
@@ -35,6 +40,11 @@ end
 ---@return xmlDoc
 function xmlDoc:SelectElement(e)
     return {}
+end
+
+---@param e string
+---@return userdata
+function xmlDoc:FindElements(e)
 end
 
 ---@return string
@@ -70,4 +80,39 @@ end
 ---@param e string
 ---@return userdata[]
 function xmlDoc:SelectElements(e)
+end
+
+---@param b userdata
+function xmlDoc:WriteTo(b)
+end
+
+---@class xmlFile
+xmlFile = {}
+
+---@param file string
+---@return xmlFile
+function xmlFile:open(file)
+end
+
+---@param str string
+---@return xmlFile
+function xmlFile:read(str)
+end
+
+---@param k string
+---@return xmlDoc
+function xmlFile:select(k)
+end
+
+---@param k string
+---@return xmlDoc[]
+function xmlFile:selects(k)
+end
+
+---@param k string
+---@return xmlDoc
+function xmlFile:create_element(k)
+end
+
+function xmlFile:dump()
 end

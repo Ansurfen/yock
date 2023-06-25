@@ -7,7 +7,6 @@ package cmd
 import (
 	"os"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +36,7 @@ such as 'ls mount/unmount' to display mount/unmount information`,
 					rows = append(rows, []string{info.Mode().Perm().String(), file.Name(), info.ModTime().Format("Jan _2 15:04")})
 				}
 			}
-			utils.Prinf(utils.PrintfOpt{MaxLen: 30}, []string{"Perm", "Filename", "ModTime"}, rows)
+			util.Prinf(util.PrintfOpt{MaxLen: 30}, []string{"Perm", "Filename", "ModTime"}, rows)
 		default:
 		}
 	},

@@ -1,0 +1,20 @@
+class repository {
+    public meta = {};
+    private m = {}; 
+    // obj.__private.b7dabfac484efe37a5380ee = {}
+
+    fn construct() {}
+
+    fn ~construct() {}
+
+    fn query(rule: string) {
+        rules = strings.Split(string, ":")
+
+    }
+}
+
+r = new repository();
+r.query("");
+table.dump(r.meta);
+
+delete r;

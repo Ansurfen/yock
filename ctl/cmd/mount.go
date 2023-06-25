@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/cobra"
@@ -39,7 +38,7 @@ var (
 			mount_tmpl := ""
 			unmount_file := args[1]
 
-			switch utils.CurPlatform.OS {
+			switch util.CurPlatform.OS {
 			case "windows":
 				mount_file += ".bat"
 				unmount_file += ".bat"
@@ -60,11 +59,11 @@ var (
 
 			mount_path := util.Pathf("@/mount")
 
-			if err := utils.SafeMkdirs(mount_path); err != nil {
+			if err := util.SafeMkdirs(mount_path); err != nil {
 				util.Ycho.Fatal(err.Error())
 			}
 			if mountParameter.recovery {
-				if utils.IsExist(filepath.Join(mount_path, mount_file)) {
+				if util.IsExist(filepath.Join(mount_path, mount_file)) {
 					util.Ycho.Fatal(util.ErrFileExist.Error())
 				}
 				err := yockc.Mv(yockc.MvOpt{}, util.Pathf("@/unmount/")+unmount_file, filepath.Join(mount_path, mount_file))
@@ -77,7 +76,7 @@ var (
 				} else {
 					mount_tmpl = fmt.Sprintf(mount_tmpl, file, file)
 				}
-				if err := utils.WriteFile(
+				if err := util.WriteFile(
 					filepath.Join(mount_path, mount_file),
 					[]byte(mount_tmpl)); err != nil {
 					util.Ycho.Fatal(err.Error())

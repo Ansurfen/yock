@@ -7,7 +7,6 @@ package scheduler
 import (
 	"os"
 
-	"github.com/ansurfen/cushion/utils"
 	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
@@ -17,7 +16,7 @@ import (
 func loadEnv(yocks yocki.YockScheduler) {
 	lib := yocks.OpenLib("env")
 	lib.SetField(map[string]any{
-		"platform":  utils.CurPlatform,
+		"platform":  util.CurPlatform,
 		"workdir":   util.WorkSpace,
 		"yock_path": util.YockPath,
 		"conf":      util.Conf(),

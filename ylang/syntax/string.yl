@@ -1,0 +1,1 @@
+`${url}/${ver}/xx-${ver}.zip`.format(ver=opt.ver)

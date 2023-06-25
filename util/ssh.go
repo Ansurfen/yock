@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ansurfen/cushion/utils"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
@@ -94,7 +93,7 @@ func (cli *SSHClient) Put(src, dst string) {
 		Ycho.Fatal(err.Error())
 	}
 	defer remoteFile.Close()
-	out, err := utils.ReadStraemFromFile(src)
+	out, err := ReadStraemFromFile(src)
 	if err != nil {
 		Ycho.Fatal(err.Error())
 	}

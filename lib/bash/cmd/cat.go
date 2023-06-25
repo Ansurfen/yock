@@ -3,7 +3,7 @@ package cmd
 import (
 	"flag"
 
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 )
 
 type CatCmd struct {
@@ -20,6 +20,6 @@ func (cat *CatCmd) Exec(args string) ([]byte, error) {
 			cc.file = s
 			return nil
 		})
-	out, err := utils.ReadStraemFromFile(cat.file)
+	out, err := util.ReadStraemFromFile(cat.file)
 	return out, err
 }

@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ansurfen/cushion/utils"
 	"go.uber.org/zap"
 )
 
@@ -42,9 +41,10 @@ func init() {
 		default:
 		}
 	}()
-
+	
+	env = NewBaseEnv()
 	// Initialize each path for the global workspace
-	WorkSpace = filepath.ToSlash(path.Join(utils.GetEnv().Workdir(), ".yock"))
+	WorkSpace = filepath.ToSlash(path.Join(GetEnv().Workdir(), ".yock"))
 	PluginPath = path.Join(WorkSpace, "plugin")
 	DriverPath = path.Join(WorkSpace, "driver")
 
@@ -64,7 +64,7 @@ func init() {
 	YockPath = filepath.Join(exfPath, "..")
 
 	// pull the configuration file from the global workspace
-	conf = utils.NewEnv(utils.EnvOpt[yockConf]{
+	conf = NewEnv(EnvOpt[yockConf]{
 		Workdir:   ".yock",
 		Subdirs:   []string{"log", "mount", "unmount", "tmp"},
 		BlankConf: fmt.Sprintf(yockConfTmpl, WorkSpace),

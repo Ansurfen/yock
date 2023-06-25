@@ -4,24 +4,21 @@
 
 ---@meta _
 
-regexp = {}
+reglib = {}
 
----@param str string
----@return reg
-function regexp.MustCompile(str)
-    return {}
+---@param patterns table
+---@return table
+function reglib:new(patterns)
 end
 
----@param str string
----@return reg, err
-function regexp.Compile(str)
-    return {}
-end
-
----@class reg
-local reg = {}
-
+---@param p string
 ---@param s string
----@return userdata
-function reg:FindStringSubmatch(s)
+---@return string|nil
+function reglib:find_str(p, s)
+end
+
+---@param p string
+---@param s string
+---@return boolean
+function reglib:match_str(p, s)
 end

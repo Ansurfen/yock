@@ -3,7 +3,7 @@ package cmd
 import (
 	"flag"
 
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 )
 
 type TouchCmd struct {
@@ -26,9 +26,9 @@ func (touch *TouchCmd) Exec(args string) ([]byte, error) {
 	})
 	var err error
 	if touch.c {
-		err = utils.SafeWriteFile(touch.file, NilByte)
+		err = util.SafeWriteFile(touch.file, NilByte)
 	} else {
-		err = utils.WriteFile(touch.file, NilByte)
+		err = util.WriteFile(touch.file, NilByte)
 	}
 	return NilByte, err
 }

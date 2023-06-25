@@ -6,8 +6,6 @@ package util
 
 import (
 	"fmt"
-
-	"github.com/ansurfen/cushion/utils"
 )
 
 var conf *yockConf
@@ -44,7 +42,7 @@ type yockInterface struct{}
 
 // Restore configuration file to initial state
 func (c *yockConf) Restore() error {
-	return utils.WriteFile(Pathf("@/conf.ymal"), []byte(fmt.Sprintf(yockConfTmpl, WorkSpace)))
+	return WriteFile(Pathf("@/conf.ymal"), []byte(fmt.Sprintf(yockConfTmpl, WorkSpace)))
 }
 
 func Conf() *yockConf {

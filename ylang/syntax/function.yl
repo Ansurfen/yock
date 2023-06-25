@@ -1,0 +1,13 @@
+job("clean", () => {
+    
+})
+
+fn Test1() {}
+
+fn Test2(a: string) {}
+
+fn Test3(a: string) int {
+
+}
+
+fn Test4(a: string, b: number, ...: any) (int, string) {}

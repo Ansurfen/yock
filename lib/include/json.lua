@@ -7,8 +7,9 @@
 json = {}
 
 ---@param v any
+---@vararg string
 ---@return string
-function json.encode(v)
+function json.encode(v, ...)
     return ""
 end
 

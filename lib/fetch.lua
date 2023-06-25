@@ -12,7 +12,7 @@ function fetch.file(url, file_type)
     local file = ycache:get(url)
     if not (type(file) == "string" and #file > 0) then
         file = random.str(8) .. file_type
-        yassert(http({
+        yassert(curl({
             debug = true,
             save = true,
             strict = true,

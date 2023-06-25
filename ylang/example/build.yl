@@ -1,0 +1,37 @@
+print("start to build")
+
+zip_name = "release"
+
+try {
+    wd = lua.pwd()
+    yock_path = path.join(wd, "../yock")
+    mkdir(yock_path)
+} catch (e) {
+    throw e;
+}
+
+job("build", (cenv) => {
+    argsparse(cenv, {
+        o = flag_type.str,
+        os = flag_type.str
+    })
+    os = env.platform.OS
+    os = assign.string(os, cenv.flags["os"])
+    switch os {
+        case "windows":
+            try {
+                sh({ debug = true, redirect = true }, [[
+go env -w GOOS=windows
+go build -o ../yock/yock.exe -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
+            } catch (e) {
+                throw e;
+            }
+        default:
+            sh({ debug = true, redirect = true }, [[
+go env -w GOOS=linux
+go build -o ../yock/yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
+    }
+    cp({
+        "../ypm" -> "",
+    })
+})

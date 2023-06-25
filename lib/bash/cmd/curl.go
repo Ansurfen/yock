@@ -2,8 +2,7 @@ package cmd
 
 import (
 	"flag"
-
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	yockc "github.com/ansurfen/yock/cmd"
 )
 
@@ -31,7 +30,7 @@ func (curl *CurlCmd) Exec(arg string) ([]byte, error) {
 		"-O": FlagString,
 		"-o": FlagString,
 	}, func(cc *CurlCmd, s string) error {
-		if utils.IsURL(s) {
+		if util.IsURL(s) {
 			cc.urls = append(cc.urls, s)
 		}
 		return nil
@@ -44,7 +43,7 @@ func (curl *CurlCmd) Exec(arg string) ([]byte, error) {
 		Method: curl.method,
 		Data:   curl.body,
 		Save:   save,
-		Filename: func(s string) string {
+		FilenameHandle: func(s string) string {
 			if len(curl.O) > 0 {
 				return curl.o
 			}

@@ -5,8 +5,8 @@
 package yocki
 
 import (
-	"github.com/ansurfen/cushion/utils"
 	yockr "github.com/ansurfen/yock/runtime"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -18,7 +18,7 @@ type YockScheduler interface {
 	MntYocksFn(lib *yockr.YockLib, funcs YocksFuncs)
 
 	// yocks field
-	EnvVar() utils.EnvVar
+	EnvVar() util.EnvVar
 	Signal() SignalStream
 	Opt() *yockr.Table
 	SetOpt(o *yockr.Table)

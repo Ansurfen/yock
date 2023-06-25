@@ -233,7 +233,7 @@ function load_module(target)
     if is_exist(path.join(wd, "yock_modules", module)) then
         if #version == 0 then
             ---@diagnostic disable-next-line: redundant-return-value
-            return import(module)
+            return import(target)
         else
             ---@diagnostic disable-next-line: redundant-return-value
             return import(path.join(wd, "yock_modules", module, version, "index"))

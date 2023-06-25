@@ -1,3 +1,7 @@
+--  Copyright 2023 The Yock Authors. All rights reserved.
+--  Use of this source code is governed by a MIT-style
+--  license that can be found in the LICENSE file.
+
 print("start to build")
 
 local zip_name = "release"
@@ -41,7 +45,11 @@ go build -o ../yock/yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=r
         [path.join(wd, "../yock-todo/ypm/source")] = path.join(yock_path, "ypm"),
         [path.join(wd, "../ypm/boot.tpl")] = path.join(yock_path, "ypm")
     })
-    rm({ safe = false }, path.join(yock_lib_path, "test"), path.join(yock_lib_path, "bash"))
+    rm({ safe = false },
+        path.join(yock_lib_path, "test"),
+        path.join(yock_lib_path, "bash"),
+        path.join(yock_lib_path, "go"),
+        path.join(yock_lib_path, "yock"))
     zip_name = assign.string(zip_name, cenv.flags.o)
     err = zip(path.join(wd, "../" .. zip_name .. ".zip"), yock_path)
     yassert(err)

@@ -17,6 +17,7 @@ var libyock = []loader{
 	liby.LoadWatch,
 	liby.LoadSSH,
 	liby.LoadMisc,
+	liby.LoadRandom,
 	loadEnv,
 	loadTask,
 }

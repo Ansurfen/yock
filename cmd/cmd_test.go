@@ -46,7 +46,7 @@ func TestHTTP(t *testing.T) {
 		Save:   true,
 		Debug:  true,
 		Dir:    ".",
-		Filename: func(s string) string {
+		FilenameHandle: func(s string) string {
 			return s
 		},
 		Caller: "TestHTTP",

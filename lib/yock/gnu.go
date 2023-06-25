@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ansurfen/cushion/utils"
 	yockc "github.com/ansurfen/yock/cmd"
 	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
@@ -154,7 +153,7 @@ func gnuCd(l *yockr.YockState) int {
 //
 // @return err
 func gnuTouch(l *yockr.YockState) int {
-	err := utils.SafeWriteFile(l.CheckString(1), nil)
+	err := util.SafeWriteFile(l.CheckString(1), nil)
 	l.PushError(err)
 	return 1
 }
@@ -163,7 +162,7 @@ func gnuTouch(l *yockr.YockState) int {
 //
 // @return string, err
 func gnuCat(l *yockr.YockState) int {
-	out, err := utils.ReadStraemFromFile(l.CheckString(1))
+	out, err := util.ReadStraemFromFile(l.CheckString(1))
 	l.Push(lua.LString(string(out)))
 	l.PushError(err)
 	return 2
@@ -237,7 +236,7 @@ func gnuCp(l *yockr.YockState) int {
 		}
 		l.PushError(g_err)
 	} else {
-		utils.ReadLineFromString(paths[0], func(s string) string {
+		util.ReadLineFromString(paths[0], func(s string) string {
 			if len(s) == 0 {
 				return ""
 			}
@@ -270,7 +269,7 @@ func gnuCp(l *yockr.YockState) int {
 func gnuMkdir(l *yockr.YockState) int {
 	var g_err error
 	for i := 1; i <= l.GetTop(); i++ {
-		err := utils.SafeMkdirs(l.CheckString(i))
+		err := util.SafeMkdirs(l.CheckString(i))
 		if err != nil {
 			util.Ycho.Warn(err.Error())
 			g_err = err

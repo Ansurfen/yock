@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/ansurfen/cushion/utils"
-	"github.com/ansurfen/yock/runtime"
+	yockr "github.com/ansurfen/yock/runtime"
+	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
@@ -53,7 +53,7 @@ func (lib *yockfLib) close() {
 
 func (yockf *yockffi) Open(path string) *yockfLib {
 	path = pathf(path)
-	name := utils.Filename(path)
+	name := util.Filename(path)
 	if lib, ok := yockf.libs[name]; ok {
 		return lib
 	}
@@ -64,7 +64,7 @@ func (yockf *yockffi) Open(path string) *yockfLib {
 }
 
 func (yockf *yockffi) Close(path string) {
-	path = utils.Filename(path)
+	path = util.Filename(path)
 	if lib, ok := yockf.libs[path]; ok {
 		lib.close()
 		delete(yockf.libs, path)
@@ -79,7 +79,7 @@ func (yockf *yockffi) Free() {
 
 func pathf(path string) string {
 	if filepath.Ext(path) == "" {
-		switch utils.CurPlatform.OS {
+		switch util.CurPlatform.OS {
 		case "windows":
 			path += ".dll"
 		case "darwin":
@@ -143,6 +143,12 @@ func ffiLibrary(l *lua.LState) int {
 						lua_args = append(lua_args, reflect.ValueOf(float32(num)))
 					case typeFloat64:
 						lua_args = append(lua_args, reflect.ValueOf(float64(num)))
+					}
+				case lua.LTUserData:
+					u := l.CheckUserData(i)
+					switch go_args[i-1] {
+					case typeUnsafePointer:
+						lua_args = append(lua_args, reflect.ValueOf(u.Value))
 					}
 				}
 			}

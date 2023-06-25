@@ -11,12 +11,12 @@ function is_url(path)
 end
 
 ---
----{{.http}}
+---{{.curl}}
 ---
 ---@param opt table
 ---@vararg string
 ---
-function http(opt, ...)
+function curl(opt, ...)
 end
 
 ---@param url string

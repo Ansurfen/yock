@@ -5,17 +5,17 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 )
 
 func init() {
-	utils.SafeBatchMkdirs([]string{"a", "b"})
+	util.SafeBatchMkdirs([]string{"a", "b"})
 }
 
 func TestMove(t *testing.T) {
 	mv := &MoveCmd{}
 	out, err := mv.Exec("a b")
-	fmt.Println(utils.ConvertByte2String(out, utils.GB18030), err)
+	fmt.Println(util.ConvertByte2String(out, util.GB18030), err)
 	os.RemoveAll("b")
 }
 

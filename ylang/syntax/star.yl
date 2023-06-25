@@ -1,0 +1,36 @@
+s = "Hello World"
+
+s: *string = new String(s)
+/*
+---@type String
+local s = String(s)
+*/
+
+print(*s) // print(s:Var())
+
+// str_star.d.yl
+class Str {
+    s: userdata;
+
+    construct(s: string) {
+        this.s = lua.String(s);
+    }
+
+    operator *() str {
+        return this.s:Var();
+    }
+
+    operator this() userdata {
+        return this.s:Ptr();
+    }
+}
+
+a = new Str("abc")
+a
+*a
+
+/*
+    local a = String("abc")
+    a:Ptr()
+    a:Var()
+*/
