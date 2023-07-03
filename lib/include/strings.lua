@@ -250,3 +250,15 @@ end
 ---@return integer
 function strings.LastIndexFunc(s, f)
 end
+
+---@param s string
+---@param prefix string
+---@return string
+function strings.TrimPrefix(s, prefix)
+end
+
+---@param s string
+---@param suffix string
+---@return string
+function strings.TrimSuffix(s, suffix)
+end

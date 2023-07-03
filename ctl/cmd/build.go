@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +23,7 @@ var (
 but a Go compiler is required`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
-				util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
+				ycho.Fatal(util.ErrArgsTooLittle)
 			}
 			switch buildParameter.compiler {
 			case "tcc":
@@ -30,7 +31,7 @@ but a Go compiler is required`,
 			case "go":
 				// pack sys layer + user layer
 			default:
-				util.Ycho.Fatal("no support the compiler")
+				ycho.Fatalf("no support the compiler")
 			}
 		},
 	}

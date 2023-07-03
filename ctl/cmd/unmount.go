@@ -9,6 +9,7 @@ import (
 
 	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -19,10 +20,10 @@ var unmountCmd = &cobra.Command{
 which enables file fail to access in global.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
+			ycho.Fatal(util.ErrArgsTooLittle)
 		}
-		if err := util.SafeMkdirs(util.Pathf("@/unmount")); err != nil {
-			util.Ycho.Fatal(err.Error())
+		if err := util.SafeMkdirs(util.Pathf("@/unmnt")); err != nil {
+			ycho.Fatal(err)
 		}
 		file := args[0]
 		exf := ""
@@ -32,9 +33,9 @@ which enables file fail to access in global.`,
 		default:
 			exf = ".sh"
 		}
-		if err := yockc.Mv(yockc.MvOpt{}, filepath.Join(util.Pathf("@/mount"), file+exf),
-			filepath.Join(util.Pathf("@/unmount"), file+exf)); err != nil {
-			util.Ycho.Fatal(err.Error())
+		if err := yockc.Mv(yockc.MvOpt{}, filepath.Join(util.Pathf("@/mnt"), file+exf),
+			filepath.Join(util.Pathf("@/unmnt"), file+exf)); err != nil {
+			ycho.Fatal(err)
 		}
 	},
 }

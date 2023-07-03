@@ -10,8 +10,8 @@ import (
 
 	yockc "github.com/ansurfen/yock/cmd"
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -25,17 +25,24 @@ func LoadMisc(yocks yocki.YockScheduler) {
 		"is_url":       netIsURL,
 		"is_localhost": netIsLocalhost,
 		"safe_write":   safe_write,
-		"zip":          zip,
-		"unzip":        unzip,
 		"write_file":   write_file,
 		"is_exist":     is_exist,
 		"printf":       printf,
 		"pathf":        ioPathf,
-		"read_file":    ioReadFile,
+		"open_conf":    openConf,
 	})
 	yocks.RegYocksFn(yocki.YocksFuncs{
 		"curl": netCurl,
 	})
+}
+
+// @param path string
+//
+// @return userdata, err
+func openConf(s yocki.YockState) int {
+	conf, err := util.OpenConf(s.CheckString(1))
+	s.Pusha(conf).PushError(err)
+	return 2
 }
 
 /*
@@ -43,10 +50,17 @@ func LoadMisc(yocks yocki.YockScheduler) {
 * @param charset string
 * @return string
  */
-func osStrf(l *yockr.YockState) int {
-	out := util.ConvertByte2String([]byte(l.CheckString(1)), util.Charset(l.CheckString(2)))
-	l.PushString(out)
+func osStrf(s yocki.YockState) int {
+	out := util.ConvertByte2String([]byte(s.CheckString(1)), util.Charset(s.CheckString(2)))
+	s.PushString(out)
 	return 1
+}
+
+func aliasHandle(cmd string) string {
+	for k, v := range aliases {
+		cmd = strings.ReplaceAll(cmd, "$"+k, v)
+	}
+	return cmd
 }
 
 /*
@@ -54,21 +68,21 @@ func osStrf(l *yockr.YockState) int {
 * @param cmds string
 * @return table, err
  */
-func osSh(l *yockr.YockState) int {
+func osSh(s yocki.YockState) int {
 	cmds := []string{}
 	opt := yockc.ExecOpt{Quiet: true}
-	if l.IsTable(1) {
-		tbl := l.CheckTable(1)
+	if s.IsTable(1) {
+		tbl := s.CheckTable(1)
 		if err := tbl.Bind(&opt); err != nil {
-			return l.PushNil().Throw(err).Exit()
+			return s.PushNil().Throw(err).Exit()
 		}
-		for i := 2; i <= l.GetTop(); i++ {
-			cmds = append(cmds, l.CheckString(i))
+		for i := 2; i <= s.Argc(); i++ {
+			cmds = append(cmds, s.CheckString(i))
 		}
 	} else {
 		opt.Redirect = true
-		for i := 1; i <= l.GetTop(); i++ {
-			cmds = append(cmds, l.CheckString(i))
+		for i := 1; i <= s.Argc(); i++ {
+			cmds = append(cmds, s.CheckString(i))
 		}
 	}
 	outs := &lua.LTable{}
@@ -76,11 +90,11 @@ func osSh(l *yockr.YockState) int {
 	for _, cmd := range cmds {
 		util.ReadLineFromString(cmd, func(s string) string {
 			if len(s) > 0 {
-				out, err := yockc.Exec(opt, s)
+				out, err := yockc.Exec(opt, aliasHandle(s))
 				outs.Append(lua.LString(out))
 				if err != nil {
 					if opt.Debug {
-						util.Ycho.Warn(err.Error())
+						ycho.Warn(err)
 					}
 					if opt.Strict {
 						return ""
@@ -93,28 +107,28 @@ func osSh(l *yockr.YockState) int {
 		})
 	}
 
-	return l.Push(outs).PushError(g_err).Exit()
+	return s.Push(outs).PushError(g_err).Exit()
 }
 
 // @param cmd ...string
 //
 // @return string
-func osCmdf(l *yockr.YockState) int {
+func osCmdf(s yocki.YockState) int {
 	tmp := []string{}
-	for i := 0; i <= l.GetTop(); i++ {
-		switch l.CheckAny(i).Type() {
+	for i := 0; i <= s.Argc(); i++ {
+		switch s.LState().CheckAny(i).Type() {
 		case lua.LTNumber:
-			tmp = append(tmp, l.CheckNumber(i).String())
+			tmp = append(tmp, s.LState().CheckNumber(i).String())
 		case lua.LTString:
-			tmp = append(tmp, l.CheckString(i))
+			tmp = append(tmp, s.LState().CheckString(i))
 		}
 	}
-	l.PushString(strings.Join(tmp, " "))
+	s.PushString(strings.Join(tmp, " "))
 	return 1
 }
 
 // @return userdata
-func osNewCommand(l *yockr.YockState) int {
+func osNewCommand(l yocki.YockState) int {
 	l.Pusha(&cobra.Command{})
 	return 1
 }
@@ -125,22 +139,22 @@ func osNewCommand(l *yockr.YockState) int {
 * @param urls ...string
 * @retrun err
  */
-func netCurl(yocks yocki.YockScheduler, s *yockr.YockState) int {
-	opt := yockc.HttpOpt{Method: "GET"}
+func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
+	opt := yockc.CurlOpt{Method: "GET"}
 	urls := []string{}
 	if s.IsTable(1) {
 		tbl := s.CheckTable(1)
 
-		if fn := tbl.RawGetString("filename"); fn.Type() == lua.LTFunction {
+		if fn := tbl.Value().RawGetString("filename"); fn.Type() == lua.LTFunction {
 			opt.FilenameHandle = func(s string) string {
-				lvm, _ := yocks.State().NewThread()
-				if err := lvm.CallByParam(lua.P{
+				tmp, _ := yocks.NewState()
+				if err := tmp.Call(yocki.YockFuncInfo{
 					NRet: 1,
-					Fn:   fn.(*lua.LFunction),
+					Fn:   fn,
 				}, lua.LString(s)); err != nil {
 					panic(err)
 				}
-				return lvm.CheckString(1)
+				return tmp.CheckString(1)
 			}
 		}
 
@@ -148,30 +162,30 @@ func netCurl(yocks yocki.YockScheduler, s *yockr.YockState) int {
 			s.Throw(err)
 			return s.Exit()
 		}
-		for i := 2; i <= s.GetTop(); i++ {
+		for i := 2; i <= s.Argc(); i++ {
 			urls = append(urls, s.CheckString(i))
 		}
 	} else {
-		for i := 1; i < s.GetTop(); i++ {
+		for i := 1; i < s.Argc(); i++ {
 			urls = append(urls, s.CheckString(i))
 		}
 	}
-	s.PushError(yockc.HTTP(opt, urls))
+	s.PushError(yockc.Curl(opt, urls))
 	return s.Exit()
 }
 
 // @param url string
 //
 // @return bool
-func netIsURL(l *yockr.YockState) int {
-	l.PushBool(util.IsURL(l.CheckString(1)))
+func netIsURL(s yocki.YockState) int {
+	s.PushBool(util.IsURL(s.CheckString(1)))
 	return 1
 }
 
 // @param url string
 //
 // @return bool
-func netIsLocalhost(s *yockr.YockState) int {
+func netIsLocalhost(s yocki.YockState) int {
 	url := s.CheckString(1)
 	if url == "localhost" {
 		return s.PushBool(true).Exit()
@@ -188,36 +202,9 @@ func netIsLocalhost(s *yockr.YockState) int {
 * @param data string
 * @return err
  */
-func safe_write(l *yockr.YockState) int {
-	err := util.SafeWriteFile(l.CheckString(1), []byte(l.CheckString(2)))
-	l.PushError(err)
-	return 1
-}
-
-/*
-* @param src string
-* @param dst string
-* @return err
- */
-func zip(l *yockr.YockState) int {
-	zipPath := l.CheckString(1)
-	paths := []string{}
-	for i := 2; i <= l.GetTop(); i++ {
-		paths = append(paths, l.CheckString(i))
-	}
-	err := util.Zip(zipPath, paths...)
-	l.PushError(err)
-	return 1
-}
-
-/*
-* @param src string
-* @param dst string
-* @return err
- */
-func unzip(l *yockr.YockState) int {
-	err := util.Unzip(l.CheckString(1), l.CheckString(2))
-	l.PushError(err)
+func safe_write(s yocki.YockState) int {
+	err := util.SafeWriteFile(s.CheckString(1), []byte(s.CheckString(2)))
+	s.PushError(err)
 	return 1
 }
 
@@ -226,31 +213,31 @@ func unzip(l *yockr.YockState) int {
 * @param data string
 * @return err
  */
-func write_file(l *yockr.YockState) int {
-	err := util.WriteFile(l.CheckString(1), []byte(l.CheckString(2)))
-	l.PushError(err)
+func write_file(s yocki.YockState) int {
+	err := util.WriteFile(s.CheckString(1), []byte(s.CheckString(2)))
+	s.PushError(err)
 	return 1
 }
 
 // @param path string
 //
 // @return bool
-func is_exist(l *yockr.YockState) int {
-	ok := util.IsExist(l.CheckString(1))
-	l.PushBool(ok)
+func is_exist(s yocki.YockState) int {
+	ok := util.IsExist(s.CheckString(1))
+	s.PushBool(ok)
 	return 1
 }
 
 // @param title string
 //
 // @param rows string[][]
-func printf(l *yockr.YockState) int {
+func printf(s yocki.YockState) int {
 	title := []string{}
 	rows := [][]string{}
-	l.CheckTable(1).ForEach(func(idx, el lua.LValue) {
+	s.CheckTable(1).Value().ForEach(func(idx, el lua.LValue) {
 		title = append(title, el.String())
 	})
-	l.CheckTable(2).ForEach(func(ri, row lua.LValue) {
+	s.CheckTable(2).Value().ForEach(func(ri, row lua.LValue) {
 		tmp := []string{}
 		row.(*lua.LTable).ForEach(func(fi, field lua.LValue) {
 			tmp = append(tmp, field.String())
@@ -270,17 +257,7 @@ func printf(l *yockr.YockState) int {
 * @param path string
 * @return string
  */
-func ioPathf(l *yockr.YockState) int {
-	l.PushString(util.Pathf(l.CheckString(1)))
+func ioPathf(s yocki.YockState) int {
+	s.PushString(util.Pathf(s.CheckString(1)))
 	return 1
-}
-
-/*
-* @param file string
-* @return string, err
- */
-func ioReadFile(l *yockr.YockState) int {
-	out, err := util.ReadStraemFromFile(l.CheckString(1))
-	l.PushString(string(out)).PushError(err)
-	return 2
 }

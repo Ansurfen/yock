@@ -16,6 +16,17 @@ import (
 	"github.com/shirou/gopsutil/v3/net"
 )
 
+func init() {
+	// init yock watch
+	yockCpu = newCPU()
+	yockMem = newMem()
+	yockDisk = newDisk()
+	yockHost = newHost()
+	yockNet = newNet()
+
+	center = &SSHCenter{}
+}
+
 var (
 	yockCpu  *psutilCPU
 	yockMem  *psutilMem
@@ -34,11 +45,11 @@ func newCPU() *psutilCPU {
 	var err error
 	c.LogicalCore, err = cpu.Counts(true)
 	if err != nil {
-		Ycho.Warn(err.Error())
+		panic(err)
 	}
 	c.PhysicalCore, err = cpu.Counts(false)
 	if err != nil {
-		Ycho.Warn(err.Error())
+		panic(err)
 	}
 	return c
 }

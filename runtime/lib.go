@@ -5,34 +5,37 @@
 package yockr
 
 import (
+	yocki "github.com/ansurfen/yock/interface"
 	lua "github.com/yuin/gopher-lua"
 )
 
 type YockLib struct {
-	tbl   *Table
-	state *YockState
+	tbl   yocki.Table
+	state yocki.YockState
 	name  string
 }
 
+var _ yocki.YockLib = (*YockLib)(nil)
+
 // CreateYockLib returns new library whether it exist or not.
-func CreateYockLib(state *YockState, name string, tbl ...*Table) *YockLib {
+func CreateYockLib(state yocki.YockState, name string, tbl ...*Table) *YockLib {
 	var t *Table
 	if len(tbl) > 0 {
 		t = tbl[0]
 	} else {
 		t = NewTable()
 	}
-	state.SetGlobal(name, t.LTable)
+	state.LState().SetGlobal(name, t.LTable)
 	return &YockLib{name: name, tbl: t, state: state}
 }
 
 // OpenYockLib returns existed library based on name
 // and creates new library when lib isn't exist.
-func OpenYockLib(state *YockState, name string) *YockLib {
-	var t *Table
-	if v := state.GetGlobal(name); v.Type() == lua.LTNil {
+func OpenYockLib(state yocki.YockState, name string) *YockLib {
+	var t yocki.Table
+	if v := state.LState().GetGlobal(name); v.Type() == lua.LTNil {
 		t = NewTable()
-		state.SetGlobal(name, t.LTable)
+		state.LState().SetGlobal(name, t.Value())
 	} else if v.Type() == lua.LTTable {
 		t = UpgradeTable(v.(*lua.LTable))
 	} else {
@@ -46,53 +49,53 @@ func (lib *YockLib) Name() string {
 }
 
 func (lib *YockLib) Value() lua.LValue {
-	return lib.tbl
+	return lib.tbl.Value()
 }
 
 func (lib *YockLib) SetField(v map[string]any) {
-	lib.tbl.SetField(lib.state.LState, v)
+	lib.tbl.SetField(lib.state.LState(), v)
 }
 
 func (lib *YockLib) SetFunction(name string, fn lua.LGFunction) {
-	lib.tbl.RawSetString(name, lib.state.NewFunction(fn))
+	lib.tbl.Value().RawSetString(name, lib.state.LState().NewFunction(fn))
 }
 
 func (lib *YockLib) SetFunctions(v map[string]lua.LGFunction) {
 	for name, fn := range v {
-		lib.tbl.RawSetString(name, lib.state.NewFunction(fn))
+		lib.tbl.Value().RawSetString(name, lib.state.LState().NewFunction(fn))
 	}
 }
 
-func wrapYFunction(fn YGFunction) lua.LGFunction {
+func wrapYFunction(fn yocki.YGFunction) lua.LGFunction {
 	return func(l *lua.LState) int {
 		return fn(UpgradeLState(l))
 	}
 }
 
-func (lib *YockLib) SetYFunction(v map[string]YGFunction) {
+func (lib *YockLib) SetYFunction(v map[string]yocki.YGFunction) {
 	for name, fn := range v {
-		lib.tbl.RawSetString(name, lib.state.NewFunction(wrapYFunction(fn)))
+		lib.tbl.Value().RawSetString(name, lib.state.LState().NewFunction(wrapYFunction(fn)))
 	}
 }
 
 func (lib *YockLib) SetClosure(v map[string]lua.LGFunction) {
 	for name, fn := range v {
-		lib.tbl.RawSetString(name, lib.state.NewClosure(fn))
+		lib.tbl.Value().RawSetString(name, lib.state.LState().NewClosure(fn))
 	}
 }
 
-func (lib *YockLib) Meta() *Table {
+func (lib *YockLib) Meta() yocki.Table {
 	return lib.tbl
 }
 
-func (lib *YockLib) SetTable(t *Table) {
+func (lib *YockLib) SetTable(t yocki.Table) {
 	lib.tbl = t
 }
 
-func (lib *YockLib) State() *YockState {
+func (lib *YockLib) State() yocki.YockState {
 	return lib.state
 }
 
-func (lib *YockLib) SetState(s *YockState) {
+func (lib *YockLib) SetState(s yocki.YockState) {
 	lib.state = s
 }

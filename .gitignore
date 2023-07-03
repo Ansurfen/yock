@@ -32,9 +32,12 @@ go.work
 tutorial
 
 interface/c/libyock/cJSON.*
-interface/c/libyock/yock.pb.go
-interface/c/libyock/yock_grpc.pb.go
 
 **/sys.ini
 **/user.ini
 **/exp.bat
+
+**/secret.ini
+**/openssl.cfg
+
+/bin

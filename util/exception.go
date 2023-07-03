@@ -50,5 +50,7 @@ var (
 
 	ErrPermDenied = errors.New("permission denied")
 
+	ErrOutRange = errors.New("out of range")
+
 	ErrGeneral = errors.New("err happen")
 )

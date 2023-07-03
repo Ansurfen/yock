@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/yuin/gopher-lua/ast"
 )
 
@@ -95,7 +96,7 @@ func (yockpack *YockPack[T]) Decompose(opt DecomposeOpt, stmts []ast.Stmt) {
 	unique := util.RandString(3)
 	for idx, mb := range modeBlocks {
 		if mb.limit == -1 {
-			util.Ycho.Warn("invalid mode block")
+			ycho.Warnf("invalid mode block")
 			continue
 		}
 		util.WriteFile(unique+prefix+strconv.Itoa(idx)+".lua", []byte(yockpack.BuildScript(stmts[:mb.limit+1], mb.filter)))

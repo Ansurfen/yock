@@ -33,6 +33,7 @@ local ychoOpt = {}
 ---@field yock_path string
 ---@field conf yockConf
 ---@field yock_tmp string
+---@field yock_bin string
 ---@field params table?
 ---
 env = {}

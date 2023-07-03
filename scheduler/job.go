@@ -2,12 +2,12 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package scheduler
+package yocks
 
 import (
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -36,11 +36,11 @@ func loadTask(yocks yocki.YockScheduler) {
 * @param jobName string
 * @param jobFn function
  */
-func taskJob(yocks yocki.YockScheduler, l *yockr.YockState) int {
-	jobName := l.CheckString(1)
-	jobFn := l.CheckFunction(2)
+func taskJob(yocks yocki.YockScheduler, l yocki.YockState) int {
+	jobName := l.LState().CheckString(1)
+	jobFn := l.LState().CheckFunction(2)
 	if yocks.GetTask(jobName) {
-		util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
+		ycho.Fatal(util.ErrDumplicateJobName)
 	} else {
 		yocks.AppendTask(jobName, &yockJob{
 			fn: jobFn,
@@ -56,18 +56,18 @@ func taskJob(yocks yocki.YockScheduler, l *yockr.YockState) int {
 * @param name string
 * @param jobs ...string
  */
-func taskJobs(ys yocki.YockScheduler, l *yockr.YockState) int {
+func taskJobs(ys yocki.YockScheduler, l yocki.YockState) int {
 	yocks := ys.(*YockScheduler)
 	groups := []string{}
-	for i := 1; i <= l.GetTop(); i++ {
-		groups = append(groups, l.CheckString(i))
+	for i := 1; i <= l.LState().GetTop(); i++ {
+		groups = append(groups, l.LState().CheckString(i))
 	}
 	if len(groups) <= 1 {
 		return 0
 	}
 	name := groups[0]
 	if yocks.GetTask(name) {
-		util.Ycho.Fatal(util.ErrDumplicateJobName.Error())
+		ycho.Fatal(util.ErrDumplicateJobName)
 	}
 	for _, n := range groups[1:] {
 		if job, ok := yocks.task[n]; ok {
@@ -81,7 +81,7 @@ func taskJobs(ys yocki.YockScheduler, l *yockr.YockState) int {
 // and stores them in the scheduler's opt field.
 //
 // @param opt table
-func taskJobOption(yocks yocki.YockScheduler, l *yockr.YockState) int {
+func taskJobOption(yocks yocki.YockScheduler, l yocki.YockState) int {
 	yocks.SetOpt(l.CheckTable(1))
 	return 0
 }

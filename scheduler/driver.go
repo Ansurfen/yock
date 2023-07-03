@@ -4,7 +4,7 @@
 
 // dns, plugin, and driver are all derivatives of the dependency analysis pattern.
 // They are now abandoned, see pack/dependency.go for details.
-package scheduler
+package yocks
 
 import (
 	"fmt"

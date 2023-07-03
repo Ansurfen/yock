@@ -11,6 +11,7 @@ import (
 
 	parser "github.com/ansurfen/yock/pack"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +30,7 @@ var (
 		Long:  `Compile preprocess yock script to meet different demand`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
-				util.Ycho.Fatal(util.ErrFileNotExist.Error())
+				ycho.Fatal(util.ErrFileNotExist)
 			}
 			for i := 0; i < len(args); i++ {
 				if i == 0 {
@@ -48,7 +49,7 @@ var (
 			} else {
 				include, err := util.OpenConf(util.Pathf("@/include.yaml"))
 				if err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 				files := include.GetStringSlice("file")
 				methods := include.GetStringSlice("method")
@@ -56,10 +57,10 @@ var (
 				// import stdlib
 				out, err := util.ReadStraemFromFile(util.Pathf("@/sdk/yock/deps/stdlib.json"))
 				if err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 				if err = json.Unmarshal(out, anlyzer); err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 				for _, method := range methods {
 					if !strings.HasSuffix(method, "()") {

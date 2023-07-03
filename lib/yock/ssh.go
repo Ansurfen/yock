@@ -6,8 +6,8 @@ package liby
 
 import (
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 )
 
 func LoadSSH(yocks yocki.YockScheduler) {
@@ -21,7 +21,7 @@ func LoadSSH(yocks yocki.YockScheduler) {
 * @param cb function(*SSHClient)
 * @return userdata (*SSHClient), err
  */
-func sshSSH(yocks yocki.YockScheduler, state *yockr.YockState) int {
+func sshSSH(yocks yocki.YockScheduler, state yocki.YockState) int {
 	opt := util.SSHOpt{}
 	if state.IsTable(1) {
 		state.CheckTable(1).Bind(&opt)
@@ -30,11 +30,13 @@ func sshSSH(yocks yocki.YockScheduler, state *yockr.YockState) int {
 			state.PushNil().Throw(err)
 			return 2
 		}
-		if state.GetTop() >= 2 && state.IsFunction(2) {
+		if state.Argc() >= 2 && state.IsFunction(2) {
 			fn := state.CheckFunction(2)
-			state.Call(yockr.YockFuncInfo{
+			if err := state.Call(yocki.YockFuncInfo{
 				Fn: fn,
-			}, cli)
+			}, cli); err != nil {
+				ycho.Fatal(err)
+			}
 		}
 		state.Pusha(cli)
 	}

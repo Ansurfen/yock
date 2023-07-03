@@ -9,11 +9,16 @@ import (
 )
 
 type LoadBalancer[T any] interface {
+	// Next returns an element and its index.
+	// If error, returns -1.
 	Next() (T, int)
+	// Up increases the probability of element to be specified
 	Up(idx int)
+	// Down decreases the probability of element to be specified
 	Down(idx int)
 	Put(e T)
 	Del(idx int)
+	Weights() []float64
 }
 
 var _ LoadBalancer[int] = (*WeightedRandom[int])(nil)
@@ -43,12 +48,14 @@ func NewWeightedRandom[T any](
 	return wr
 }
 
+// Up increases the probability of element to be specified
 func (wr *WeightedRandom[T]) Up(idx int) {
 	if idx >= 0 && idx < len(wr.elements) {
 		wr.weights[idx] += wr.policy(wr.weights)
 	}
 }
 
+// Down decreases the probability of element to be specified
 func (wr *WeightedRandom[T]) Down(idx int) {
 	if idx >= 0 && idx < len(wr.elements) {
 		wr.weights[idx] -= wr.policy(wr.weights)
@@ -68,6 +75,8 @@ func (wr *WeightedRandom[T]) Del(idx int) {
 	wr.elements = append(wr.elements[:idx], wr.elements[idx+1:]...)
 }
 
+// Next returns an element and its index.
+// If error, returns -1.
 func (wr *WeightedRandom[T]) Next() (T, int) {
 	var (
 		totalWeight      float64
@@ -85,4 +94,8 @@ func (wr *WeightedRandom[T]) Next() (T, int) {
 	}
 	var v T
 	return v, -1
+}
+
+func (wr *WeightedRandom[T]) Weights() []float64 {
+	return wr.weights
 }

@@ -65,3 +65,35 @@ flag_type = {}
 ---@param todo table
 function argsparse(env, todo)
 end
+
+---@class argBuilder
+---@field params table
+argBuilder = {}
+
+---@return argBuilder
+function argBuilder:new()
+end
+
+---@param cmd string
+---@return argBuilder
+function argBuilder:add(cmd)
+end
+
+---@param cmd string
+---@param v boolean|nil
+function argBuilder:add_bool(cmd, v)
+end
+
+---@param cmd string
+---@param v string|nil
+function argBuilder:add_str(cmd, v)
+end
+
+---@return string
+function argBuilder:build()
+end
+
+---@param opt table
+---@return table, err
+function argBuilder:exec(opt)
+end

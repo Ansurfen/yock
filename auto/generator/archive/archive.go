@@ -5,100 +5,212 @@
 package archive
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
-	lua "github.com/yuin/gopher-lua"
+	"github.com/ansurfen/yock/util"
 )
 
-type TypeArchive struct {
-	types map[string]*TypeRecord
-}
-
-func (*TypeArchive) Save(name string, record *TypeRecord) {
-	archive.types[name] = record
-}
-
-func (archive *TypeArchive) BatchSave(t map[string]*TypeRecord) {
-	archive.types = t
-}
-
-func (archive *TypeArchive) Lookup(typeName string) *TypeRecord {
-	if record, ok := archive.types[typeName]; ok {
-		return record
+func init() {
+	archive = &TypeArchive{
+		records: map[string]*TypeRecord{
+			"[]byte":     {luaType: "integer[]"},
+			"bool":       {luaType: "boolean"},
+			"error":      {luaType: "err"},
+			"byte":       {luaType: "integer"},
+			"int64":      {luaType: "number"},
+			"int":        {luaType: "number"},
+			"float32":    {luaType: "number"},
+			"float64":    {luaType: "number"},
+			"string":     {luaType: "string"},
+			"[]string":   {luaType: "string[]"},
+			"uint64":     {luaType: "number"},
+			"complex128": {luaType: "any"},
+			"func":       {luaType: "function"},
+			"any":        {luaType: "any"},
+		},
 	}
-	return archive.types["any"]
 }
 
 type TypeRecord struct {
-	valueType lua.LValueType
+	luaType string
+	vargs   bool
 }
 
-func (record *TypeRecord) CheckType() lua.LValueType {
-	return record.valueType
+type TypeArchive struct {
+	records map[string]*TypeRecord
 }
 
-func (record *TypeRecord) Type(ident string) string {
-	switch record.valueType {
-	case lua.LTNil:
-		return "lua.LNil"
-	case lua.LTBool:
-		return fmt.Sprintf("if %s {\n  l.Push(lua.LTrue)\n} else {\n  l.Push(lua.LFalse)\n}", ident)
-	case lua.LTNumber:
-		return fmt.Sprintf("lua.LNumber(%s)", ident)
-	case lua.LTString:
-		return fmt.Sprintf("lua.LString(%s)", ident)
-	case lua.LTFunction:
-		fallthrough
-	case lua.LTUserData:
-		fallthrough
-	case lua.LTThread:
-		fallthrough
-	case lua.LTTable:
-		fallthrough
-	case lua.LTChannel:
-		fallthrough
-	default:
-		return fmt.Sprintf("luar.New(l, %s)", ident)
+var archive *TypeArchive
+
+func Put(lib, name, ident string) {
+	if _, ok := archive.records[name]; !ok {
+		_type := ""
+		if strings.Contains(ident, ".") {
+			_type = strings.ReplaceAll(ident, ".", "")
+		} else if strings.HasPrefix(ident, "...") {
+			_type := Get(strings.ReplaceAll(ident, ".", ""))
+			archive.records[ident] = &TypeRecord{luaType: _type, vargs: true}
+		} else {
+			_type = lib + ident
+		}
+		archive.records[name] = &TypeRecord{luaType: _type}
 	}
 }
 
-func (record *TypeRecord) Check(i int) string {
-	switch record.valueType {
-	case lua.LTNil:
-		return ""
-	case lua.LTBool:
-		return fmt.Sprintf("l.CheckBool(%d)", i)
-	case lua.LTNumber:
-		return fmt.Sprintf("l.CheckNumber(%d)", i)
-	case lua.LTString:
-		return fmt.Sprintf("l.CheckString(%d)", i)
-	case lua.LTFunction:
-		return fmt.Sprintf("l.CheckFunction(%d)", i)
-	case lua.LTUserData:
-		return fmt.Sprintf("l.CheckUserData(%d)", i)
-	case lua.LTThread:
-		fallthrough
-	case lua.LTTable:
-		fallthrough
-	case lua.LTChannel:
-		fallthrough
-	default:
-		return fmt.Sprintf("l.CheckAny(%d)", i)
+func Get(ident string) string {
+	if v, ok := archive.records[ident]; ok {
+		return v.luaType
+	}
+	return "any"
+}
+
+func GetRecord(ident string) *TypeRecord {
+	if v, ok := archive.records[ident]; ok {
+		return v
+	}
+	return nil
+}
+
+func GetRecordWithReg(ident string) *TypeRecord {
+	if v, ok := archive.records[ident]; ok {
+		return v
+	}
+	if strings.Contains(ident, "...") {
+		_type := Get(strings.ReplaceAll(ident, ".", ""))
+		archive.records[ident] = &TypeRecord{luaType: _type, vargs: true}
+	} else if strings.Contains(ident, ".") {
+		_type := strings.ReplaceAll(ident, ".", "")
+		archive.records[ident] = &TypeRecord{luaType: _type}
+	}
+	return archive.records[ident]
+}
+
+func GetWithReg(ident string) string {
+	if v, ok := archive.records[ident]; ok {
+		return v.luaType
+	}
+	if strings.Contains(ident, "...") {
+		_type := Get(strings.ReplaceAll(ident, ".", ""))
+		archive.records[ident] = &TypeRecord{luaType: _type, vargs: true}
+		return _type
+	} else if strings.Contains(ident, ".") {
+		_type := strings.ReplaceAll(ident, ".", "")
+		archive.records[ident] = &TypeRecord{luaType: _type}
+		return _type
+	}
+	return "any"
+}
+
+func EnableYockComment() {
+	archive.records["byte"] = &TypeRecord{luaType: "byte"}
+	archive.records["[]byte"] = &TypeRecord{luaType: "byte[]"}
+}
+
+func LoadFile(libn, path string) {
+	lib := getLib(libn)
+	file := parse(path)
+	for name, stu := range file.structs {
+		if canExport(name) {
+			Put(libn, name, name)
+			lib.structs[name] = stu
+		}
+	}
+	for name := range file.types {
+		if canExport(name) {
+			Put(libn, name, name)
+		}
+	}
+	for name, cb := range file.functions {
+		if canExport(name) {
+			lib.functions[name] = cb
+		}
+	}
+	for _, cns := range file.constants {
+		if canExport(cns) {
+			lib.constants = append(lib.constants, cns)
+		}
+	}
+	for _, cns := range file.variable {
+		if canExport(cns) {
+			lib.variable = append(lib.variable, cns)
+		}
 	}
 }
 
-var archive *TypeArchive = &TypeArchive{}
-
-func GetArchive() *TypeArchive {
-	return archive
+func LoadDir(libn, dir string) {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		panic(err)
+	}
+	for _, file := range files {
+		if !file.IsDir() {
+			filename := file.Name()
+			if !strings.Contains(filename, "_test.go") && filepath.Ext(filename) == ".go" {
+				LoadFile(libn, filepath.Join(dir, filename))
+			}
+		}
+	}
 }
 
-func init() {
-	archive.BatchSave(map[string]*TypeRecord{
-		"string": {valueType: lua.LTString},
-		"int":    {valueType: lua.LTNumber},
-		"bool":   {valueType: lua.LTBool},
-		"float":  {valueType: lua.LTNumber},
-		"any":    {valueType: lua.LTUserData},
-	})
+func PrintLua(name string) {
+	if lib, ok := libs[name]; ok {
+		fmt.Println(lib.LuaString())
+	}
+}
+
+func PrintGo(name string) {
+	if lib, ok := libs[name]; ok {
+		fmt.Println(lib.GoString())
+	}
+}
+
+func Export(path string) {
+	util.Mkdirs(path)
+	for name, lib := range libs {
+		mod := filepath.Join(path, name)
+		util.Mkdirs(mod)
+		util.WriteFile(filepath.Join(mod, name+".lua"), []byte(lib.LuaString()))
+		util.WriteFile(filepath.Join(mod, name+".go"), []byte(lib.GoString()))
+		doc := make(map[string]string)
+		for name, fn := range lib.functions {
+			doc[lib.name+name] = commentf(fn.Comments)
+		}
+		for stuName, stu := range lib.structs {
+			for name, fn := range stu.Methods {
+				doc[Get(stuName)+name] = commentf(fn.Comments)
+			}
+		}
+		raw, err := json.Marshal(doc)
+		if err != nil {
+			panic(err)
+		}
+		var out bytes.Buffer
+		err = json.Indent(&out, raw, "", "\t")
+		if err != nil {
+			panic(err)
+		}
+		util.WriteFile(filepath.Join(mod, name+".json"), out.Bytes())
+	}
+}
+
+func SetInfo(a, l string) {
+	author = a
+	license = l
+}
+
+func commentf(comments []string) string {
+	buf := ""
+	for idx, comment := range comments {
+		text := strings.Replace(comment, "//", "---", 1)
+		if idx != len(comments)-1 {
+			text += "\n"
+		}
+		buf += text
+	}
+	return buf
 }

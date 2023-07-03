@@ -8,8 +8,7 @@ import (
 	"time"
 
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
-	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 )
 
 func LoadGoroutine(yocks yocki.YockScheduler) {
@@ -24,25 +23,24 @@ func LoadGoroutine(yocks yocki.YockScheduler) {
 // goroutineGo wraps the callback function of the Lua language into a go callback
 // and passes it into the goroutines for unified scheduling.
 // @param fn function
-func goroutineGo(yocks yocki.YockScheduler, state *yockr.YockState) int {
+func goroutineGo(yocks yocki.YockScheduler, state yocki.YockState) int {
 	fn := state.CheckFunction(1)
 	yocks.Do(func() {
 		tmp, cancel := yocks.NewState()
 		if cancel != nil {
 			defer cancel()
 		}
-		err := tmp.Call(yockr.YockFuncInfo{
+		if err := tmp.Call(yocki.YockFuncInfo{
 			Fn: fn,
-		})
-		if err != nil {
-			util.Ycho.Warn(err.Error())
+		}); err != nil {
+			ycho.Warn(err)
 		}
 	})
 	return 0
 }
 
 // @param sig string
-func goroutineWait(yocks yocki.YockScheduler, state *yockr.YockState) int {
+func goroutineWait(yocks yocki.YockScheduler, state yocki.YockState) int {
 	sig := state.CheckString(1)
 	if _, ok := yocks.Signal().Load(sig); !ok {
 		yocks.Signal().Store(sig, false)
@@ -63,9 +61,9 @@ func goroutineWait(yocks yocki.YockScheduler, state *yockr.YockState) int {
 }
 
 // @param sig ...string
-func goroutineWaits(yocks yocki.YockScheduler, state *yockr.YockState) int {
+func goroutineWaits(yocks yocki.YockScheduler, state yocki.YockState) int {
 	sigs := []string{}
-	for i := 1; i <= state.GetTop(); i++ {
+	for i := 1; i <= state.Argc(); i++ {
 		sigs = append(sigs, state.CheckString(i))
 	}
 	cnt := 0
@@ -91,7 +89,7 @@ func goroutineWaits(yocks yocki.YockScheduler, state *yockr.YockState) int {
 }
 
 // @param sig string
-func goroutineNotify(yocks yocki.YockScheduler, state *yockr.YockState) int {
+func goroutineNotify(yocks yocki.YockScheduler, state yocki.YockState) int {
 	sig := state.CheckString(1)
 	yocks.Signal().Store(sig, true)
 	return 0

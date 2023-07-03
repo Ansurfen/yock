@@ -7,82 +7,108 @@ package yockr
 import (
 	"fmt"
 
+	yocki "github.com/ansurfen/yock/interface"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
 
-type YGFunction func(*YockState) int
-
 type YockState struct {
-	*lua.LState
+	ls *lua.LState
 	rn int
 }
 
-type YockFuncInfo lua.P
+var _ yocki.YockState = (*YockState)(nil)
 
 func NewYState() *YockState {
-	return &YockState{LState: lua.NewState()}
+	return &YockState{ls: lua.NewState()}
 }
 
 func UpgradeLState(s *lua.LState) *YockState {
-	return &YockState{LState: s}
+	return &YockState{ls: s}
 }
 
-func (s *YockState) Call(info YockFuncInfo, args ...any) error {
+func (s *YockState) Call(info yocki.YockFuncInfo, args ...any) error {
 	lua_args := []lua.LValue{}
 	for _, arg := range args {
-		lua_args = append(lua_args, luar.New(s.LState, arg))
+		lua_args = append(lua_args, luar.New(s.ls, arg))
 	}
-	return s.LState.CallByParam(lua.P(info), lua_args...)
+	return s.ls.CallByParam(lua.P(info), lua_args...)
 }
 
 func (s *YockState) PCall() error {
-
 	return nil
 }
 
-func (s *YockState) CheckTable(n int) *Table {
-	return UpgradeTable(s.LState.CheckTable(n))
+func (s *YockState) CheckTable(n int) yocki.Table {
+	return UpgradeTable(s.ls.CheckTable(n))
+}
+
+func (s *YockState) CheckString(n int) string {
+	return s.ls.CheckString(n)
+}
+
+func (s *YockState) CheckRune(n int) rune {
+	r := s.ls.CheckString(n)
+	if len(r) > 0 {
+		return rune(r[0])
+	}
+	return 0
+}
+
+func (s *YockState) CheckNumber(n int) lua.LNumber {
+	return s.ls.CheckNumber(n)
+}
+
+func (s *YockState) CheckInt(n int) int {
+	return s.ls.CheckInt(n)
+}
+
+func (s *YockState) CheckBool(n int) bool {
+	return s.ls.CheckBool(n)
+}
+
+func (s *YockState) CheckFunction(n int) *lua.LFunction {
+	return s.ls.CheckFunction(n)
 }
 
 func (s *YockState) IsNil(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTNil
+	return s.ls.CheckAny(n).Type() == lua.LTNil
 }
 
 func (s *YockState) IsFunction(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTFunction
+	return s.ls.CheckAny(n).Type() == lua.LTFunction
 }
 
 func (s *YockState) IsNumber(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTNumber
+	return s.ls.CheckAny(n).Type() == lua.LTNumber
 }
 
 func (s *YockState) IsBool(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTBool
+	return s.ls.CheckAny(n).Type() == lua.LTBool
 }
 
 func (s *YockState) IsTable(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTTable
+	return s.ls.CheckAny(n).Type() == lua.LTTable
 }
 
 func (s *YockState) IsString(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTString
+	return s.ls.CheckAny(n).Type() == lua.LTString
 }
 
 func (s *YockState) IsUserData(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTUserData
+	return s.ls.CheckAny(n).Type() == lua.LTUserData
 }
 
 func (s *YockState) IsThread(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTThread
+	return s.ls.CheckAny(n).Type() == lua.LTThread
 }
 
 func (s *YockState) IsChannel(n int) bool {
-	return s.LState.CheckAny(n).Type() == lua.LTChannel
+	return s.ls.CheckAny(n).Type() == lua.LTChannel
 }
 
-func (s *YockState) Throw(err error) *YockState {
-	s.LState.Push(lua.LString(err.Error()))
+func (s *YockState) Throw(err error) yocki.YockState {
+	s.ls.Push(lua.LString(err.Error()))
 	s.rn++
 	return s
 }
@@ -91,74 +117,74 @@ func (s *YockState) Throw(err error) *YockState {
 // Exists, returns error's text information, otherwise returns null.
 //
 // @return string|nil
-func (s *YockState) PushError(err error) *YockState {
+func (s *YockState) PushError(err error) yocki.YockState {
 	if err != nil {
-		s.LState.Push(lua.LString(err.Error()))
+		s.ls.Push(lua.LString(err.Error()))
 	} else {
-		s.LState.Push(lua.LNil)
+		s.ls.Push(lua.LNil)
 	}
 	s.rn++
 	return s
 }
 
-func (s *YockState) PushNil() *YockState {
-	s.LState.Push(lua.LNil)
+func (s *YockState) PushNil() yocki.YockState {
+	s.ls.Push(lua.LNil)
 	s.rn++
 	return s
 }
 
-func (s *YockState) Push(v lua.LValue) *YockState {
-	s.LState.Push(v)
+func (s *YockState) Push(v lua.LValue) yocki.YockState {
+	s.ls.Push(v)
 	s.rn++
 	return s
 }
 
-func (s *YockState) PushNilTable() *YockState {
-	s.LState.Push(&lua.LTable{})
+func (s *YockState) PushNilTable() yocki.YockState {
+	s.ls.Push(&lua.LTable{})
 	s.rn++
 	return s
 }
 
-func (s *YockState) PushString(str string) *YockState {
-	s.LState.Push(lua.LString(str))
+func (s *YockState) PushString(str string) yocki.YockState {
+	s.ls.Push(lua.LString(str))
 	s.rn++
 	return s
 }
 
-func (s *YockState) PushBool(b bool) *YockState {
+func (s *YockState) PushBool(b bool) yocki.YockState {
 	if b {
-		s.LState.Push(lua.LTrue)
+		s.ls.Push(lua.LTrue)
 	} else {
-		s.LState.Push(lua.LFalse)
+		s.ls.Push(lua.LFalse)
 	}
 	s.rn++
 	return s
 }
 
-func (s *YockState) PushInt(i int) *YockState {
-	s.LState.Push(lua.LNumber(i))
+func (s *YockState) PushInt(i int) yocki.YockState {
+	s.ls.Push(lua.LNumber(i))
 	s.rn++
 	return s
 }
 
-func (s *YockState) Pusha(val any) *YockState {
-	s.Push(luar.New(s.LState, val))
+func (s *YockState) Pusha(val any) yocki.YockState {
+	s.Push(luar.New(s.ls, val))
 	return s
 }
 
-func (s *YockState) PushAll(vals ...any) *YockState {
+func (s *YockState) PushAll(vals ...any) yocki.YockState {
 	for _, v := range vals {
-		s.Push(luar.New(s.LState, v))
+		s.Push(luar.New(s.ls, v))
 	}
 	return s
 }
 
 func (s *YockState) NewLFunction(f lua.LGFunction) *lua.LFunction {
-	return s.LState.NewFunction(f)
+	return s.ls.NewFunction(f)
 }
 
-func (s *YockState) NewYFunction(f YGFunction) *lua.LFunction {
-	return s.LState.NewFunction(func(l *lua.LState) int {
+func (s *YockState) NewYFunction(f yocki.YGFunction) *lua.LFunction {
+	return s.ls.NewFunction(func(l *lua.LState) int {
 		return f(UpgradeLState(l))
 	})
 }
@@ -170,13 +196,25 @@ func (s *YockState) Exit() int {
 
 // stacktrace returns the stack info of function, in form of file:line
 func (s *YockState) Stacktrace() string {
-	dgb, ok := s.GetStack(1)
+	dgb, ok := s.ls.GetStack(1)
 	if ok {
-		s.GetInfo("S", dgb, &lua.LFunction{})
-		s.GetInfo("l", dgb, &lua.LFunction{})
+		s.ls.GetInfo("S", dgb, &lua.LFunction{})
+		s.ls.GetInfo("l", dgb, &lua.LFunction{})
 		return fmt.Sprintf("%s:%d\t", dgb.Source, dgb.CurrentLine)
 	}
 	return ""
+}
+
+func (s *YockState) LState() *lua.LState {
+	return s.ls
+}
+
+func (s *YockState) PopTop() {
+	s.ls.Pop(s.ls.GetTop())
+}
+
+func (s *YockState) Argc() int {
+	return s.ls.GetTop()
 }
 
 func LuaDoFunc(lvm *lua.LState, fun *lua.LFunction) error {

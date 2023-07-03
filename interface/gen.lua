@@ -60,21 +60,7 @@ job("go", function(cenv)
 end)
 
 job("c", function(cenv)
-    local repo = "https://raw.githubusercontent.com/DaveGamble/cJSON/master/"
-    local libs = { "cJSON.c", "cJSON.h" }
-    local wd, err = pwd()
-    yassert(err)
-    local workspace = "/c"
-    for _, lib in ipairs(libs) do
-        http({
-            save = true,
-            filename = function(s)
-                return path.join(wd, workspace, "libyock", lib)
-            end,
-            debug = true
-        }, repo .. lib)
-    end
-    workspace = "/c/libyock"
+    local workspace = "/c/libyock"
     protoc({
         plugin = "golang",
         out = root .. workspace,

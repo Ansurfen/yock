@@ -4,6 +4,8 @@
 
 ---@meta _
 
+---@class byte: integer
+
 ---@param e err
 ---@param msg? any
 function yassert(e, msg)
@@ -28,5 +30,190 @@ end
 ---@param charset "UTF-8" | "GB18030"
 ---@return string
 function strf(str, charset)
-    return ""
 end
+
+---@param title string[]
+---@param rows string[][]
+function printf(title, rows)
+end
+
+---@param path string
+---@return Viper, err
+function open_conf(path)
+end
+
+---@class Viper
+local Viper = {}
+
+---@param p string
+function Viper:AddConfigPath(p)
+end
+
+---@param provider string
+---@param endpoint string
+---@param path string
+---@return err
+function Viper:AddRemoteProvider(provider, endpoint, path)
+end
+
+---@param provider string
+---@param endpoint string
+---@param path string
+---@param secretkeyring string
+---@return err
+function Viper:AddSecureRemoteProvider(provider, endpoint, path, secretkeyring)
+end
+
+---@return string[]
+function Viper:AllKeys()
+end
+
+---@return table
+function Viper:AllSettings()
+end
+
+---@param allowEmptyEnv boolean
+function Viper:AllowEmptyEnv(allowEmptyEnv)
+end
+
+function Viper:AutomaticEnv()
+end
+
+---@vararg string
+---@return err
+function Viper:BindEnv(...)
+end
+
+---@param key string
+---@param flag FlagValue
+---@return err
+function Viper:BindFlagValue(key, flag)
+end
+
+---@param flags FlagValueSet
+---@return err
+function Viper:BindFlagValues(flags)
+end
+
+---@param key string
+---@param flag pflagFlag
+---@return err
+function Viper:BindPFlag(key, flag)
+end
+
+---@param key string
+---@param flags pflagFlagSet
+---@return err
+function Viper:BindPFlags(key, flags)
+end
+
+---@return string
+function Viper:ConfigFileUsed()
+end
+
+function Viper:Debug()
+end
+
+---@param w ioWriter
+function Viper:DebugTo(w)
+end
+
+---@param key string
+---@return userdata
+function Viper:Get(key)
+end
+
+---@param key string
+---@return boolean
+function Viper:GetBool(key)
+end
+
+---@param key string
+---@return number
+function Viper:GetFloat64(key)
+end
+
+---@param key string
+---@return integer
+function Viper:GetInt(key)
+end
+
+---@param key string
+---@return integer
+function Viper:GetInt32(key)
+end
+
+---@param key string
+---@return integer
+function Viper:GetInt64(key)
+end
+
+---@param key string
+---@return integer[]
+function Viper:GetIntSlice(key)
+end
+
+---@param key string
+---@return integer
+function Viper:GetSizeInBytes(key)
+end
+
+---@param key string
+---@return string
+function Viper:GetString(key)
+end
+
+---@param key string
+---@return table
+function Viper:GetStringMap(key)
+end
+
+---@param key string
+---@return table
+function Viper:GetStringMapString(key)
+end
+
+---@param key string
+---@return table
+function Viper:GetStringMapStringSlice(key)
+end
+
+---@param key string
+---@return Duration
+function Viper:GetDuration(key)
+end
+
+---@param key string
+---@param value any
+function Viper:Set(key, value)
+end
+
+---@return err
+function Viper:WriteConfig()
+end
+
+---@return err
+function Viper:SafeWriteConfig()
+end
+
+---@param filename string
+---@return err
+function Viper:WriteConfigAs(filename)
+end
+
+---@param filename string
+---@return err
+function Viper:SafeWriteConfigAs(filename)
+end
+
+---@class FlagValueSet
+local FlagValueSet = {}
+
+---@class FlagValue
+local FlagValue = {}
+
+---@class pflagFlag
+local pflagFlag = {}
+
+---@class pflagFlagSet
+local pflagFlagSet = {}

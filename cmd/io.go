@@ -5,12 +5,12 @@
 package yockc
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 )
 
 // RmOpt indicates configuration of rm
@@ -41,14 +41,14 @@ func Rm(opt RmOpt, targets []string) error {
 						err := os.Remove(path)
 						if err != nil {
 							if opt.Debug {
-								util.Ycho.Warn(err.Error())
+								ycho.Warn(err)
 							}
 							if opt.Strict {
 								return err
 							}
 						} else {
 							if opt.Debug {
-								util.Ycho.Info(fmt.Sprintf("delete %s", path))
+								ycho.Infof("delete %s", path)
 							}
 						}
 					}
@@ -60,13 +60,13 @@ func Rm(opt RmOpt, targets []string) error {
 		if opt.Safe {
 			for _, t := range targets {
 				if err := os.Remove(t); err != nil && opt.Debug {
-					util.Ycho.Warn(fmt.Sprintf("%s\t%s", opt.Caller, err.Error()))
+					ycho.Warnf("%s\t%s", opt.Caller, err.Error())
 				}
 			}
 		} else {
 			for _, t := range targets {
 				if err := os.RemoveAll(t); err != nil && opt.Debug {
-					util.Ycho.Warn(fmt.Sprintf("%s\t%s", opt.Caller, err.Error()))
+					ycho.Warnf("%s\t%s", opt.Caller, err.Error())
 				}
 			}
 		}
@@ -83,6 +83,7 @@ type CpOpt struct {
 	//
 	// It'll printed on console when debug is true
 	Caller string
+	Force  bool
 
 	Strict bool
 }
@@ -97,6 +98,9 @@ func Cp(opt CpOpt, src, dst string) error {
 				term.SetCmds("cp", "-r", src, dst)
 			} else {
 				term.SetCmds("cp", src, dst)
+			}
+			if opt.Force {
+				term.AppendCmds("-Force")
 			}
 		} else {
 			term.SetCmds("copy", src, dst)

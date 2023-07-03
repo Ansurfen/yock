@@ -5,7 +5,9 @@
 package cmd
 
 import (
-	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ctl/conf"
+	yocke "github.com/ansurfen/yock/env"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -22,15 +24,15 @@ var (
 		Long:  `Conf is used to modify yock's configuration`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if confParameter.restore {
-				if err := util.Conf().Restore(); err != nil {
-					util.Ycho.Fatal(err.Error())
+				if err := conf.Instance().Restore(); err != nil {
+					ycho.Fatal(err)
 				}
 				return
 			}
 			if len(confParameter.lang) > 0 {
-				util.GetEnv().Commit("lang", confParameter.lang)
+				// yocke.GetEnv[conf.YockConf]().Commit("lang", confParameter.lang)
 			}
-			util.GetEnv().Write()
+			yocke.GetEnv[conf.YockConf]().Save()
 		},
 	}
 )

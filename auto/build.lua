@@ -2,6 +2,17 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
+--[[
+require:
+    go version 1.20
+
+deploy in develop:
+    cd ctl
+    ./build.bat/sh
+]]
+
+---@diagnostic disable: param-type-mismatch
+
 print("start to build")
 
 local zip_name = "release"
@@ -16,8 +27,9 @@ job_option({
 
 job("build", function(cenv)
     argsparse(cenv, {
-        o = flag_type.str,
-        os = flag_type.str
+        o = flag_type.str,   -- release name (output)
+        os = flag_type.str,
+        ver = flag_type.str, -- release version
     })
     local os = env.platform.OS
     os = assign.string(os, cenv.flags["os"])
@@ -51,12 +63,28 @@ go build -o ../yock/yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=r
         path.join(yock_lib_path, "go"),
         path.join(yock_lib_path, "yock"))
     zip_name = assign.string(zip_name, cenv.flags.o)
-    err = zip(path.join(wd, "../" .. zip_name .. ".zip"), yock_path)
-    yassert(err)
+    if os == "windows" then
+        zip_name = zip_name .. ".zip"
+    else
+        zip_name = zip_name .. ".tar.gz"
+    end
+    compress(yock_path, zip_name)
     return true
 end)
 
-job("zip", function(cenv)
+job("depoly-dev", function(cenv)
+    local conf, err = open_conf("secret.ini")
+    if err ~= nil then
+        write_file("secret.ini", "path = ")
+        print("please set path in secret.ini")
+        yassert(err)
+    end
+    local p = conf:GetString("default.path")
+    if #p == 0 then
+        yassert("path not set")
+    end
+    cp({ force = true, debug = true, redirect = true },
+        string.format([[%s %s]], path.join(wd, "../yock/*"), conf:GetString("default.path")))
     return true
 end)
 
@@ -67,5 +95,6 @@ job("clean", function(cenv)
     return true
 end)
 
-jobs("all", "build", "zip", "clean")
+jobs("all", "build", "clean")
+jobs("all-dev", "build", "depoly-dev", "clean")
 jobs("dist", "build")

@@ -10,6 +10,7 @@ import (
 
 	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -26,12 +27,12 @@ var (
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
-				util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
+				ycho.Fatal(util.ErrArgsTooLittle)
 			}
 			name := args[0]
 			file, err := filepath.Abs(args[1])
 			if err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 
 			mount_file := name
@@ -57,18 +58,18 @@ var (
 				}
 			}
 
-			mount_path := util.Pathf("@/mount")
+			mount_path := util.Pathf("@/mnt")
 
 			if err := util.SafeMkdirs(mount_path); err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 			if mountParameter.recovery {
 				if util.IsExist(filepath.Join(mount_path, mount_file)) {
-					util.Ycho.Fatal(util.ErrFileExist.Error())
+					ycho.Fatal(util.ErrFileExist)
 				}
-				err := yockc.Mv(yockc.MvOpt{}, util.Pathf("@/unmount/")+unmount_file, filepath.Join(mount_path, mount_file))
+				err := yockc.Mv(yockc.MvOpt{}, util.Pathf("@/unmnt/")+unmount_file, filepath.Join(mount_path, mount_file))
 				if err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 			} else {
 				if mountParameter.plain {
@@ -79,7 +80,7 @@ var (
 				if err := util.WriteFile(
 					filepath.Join(mount_path, mount_file),
 					[]byte(mount_tmpl)); err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 			}
 		},

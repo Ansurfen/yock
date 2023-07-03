@@ -2,46 +2,135 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package os
+package oslib
 
 import (
-	"os"
-
 	yocki "github.com/ansurfen/yock/interface"
+	"github.com/ansurfen/yock/lib/go/os/exec"
+	"github.com/ansurfen/yock/lib/go/os/signal"
+	"github.com/ansurfen/yock/lib/go/os/user"
+	"os"
 )
 
-func LoadOS(yocks yocki.YockScheduler) {
+func LoadOs(yocks yocki.YockScheduler) {
+	userlib.LoadUser(yocks)
+	execlib.LoadExec(yocks)
+	signallib.LoadSignal(yocks)
 	lib := yocks.OpenLib("os")
 	lib.SetField(map[string]any{
-		"Stdin":  os.Stdin,
-		"Stdout": os.Stdout,
-		"Stderr": os.Stderr,
-
-		"ReadDir":   os.ReadDir,
-		"Open":      os.Open,
-		"Create":    os.Create,
-		"OpenFile":  os.OpenFile,
-		"ReadFile":  os.ReadFile,
-		"WriteFile": os.WriteFile,
-
+		// functions
+		"Getpagesize":     os.Getpagesize,
+		"Unsetenv":        os.Unsetenv,
+		"Clearenv":        os.Clearenv,
+		"Getppid":         os.Getppid,
+		"Chtimes":         os.Chtimes,
+		"SameFile":        os.SameFile,
+		"Environ":         os.Environ,
+		"Getpid":          os.Getpid,
+		"Mkdir":           os.Mkdir,
+		"UserHomeDir":     os.UserHomeDir,
+		"ExpandEnv":       os.ExpandEnv,
+		"IsPermission":    os.IsPermission,
+		"WriteFile":       os.WriteFile,
+		"Lstat":           os.Lstat,
+		"TempDir":         os.TempDir,
+		"Lchown":          os.Lchown,
+		"Getgid":          os.Getgid,
+		"Remove":          os.Remove,
+		"NewFile":         os.NewFile,
+		"IsPathSeparator": os.IsPathSeparator,
+		"Expand":          os.Expand,
+		"Rename":          os.Rename,
+		"RemoveAll":       os.RemoveAll,
+		"UserCacheDir":    os.UserCacheDir,
+		"Symlink":         os.Symlink,
+		"Getuid":          os.Getuid,
+		"Open":            os.Open,
+		"Chdir":           os.Chdir,
+		"Chmod":           os.Chmod,
+		"MkdirTemp":       os.MkdirTemp,
+		"LookupEnv":       os.LookupEnv,
+		"Pipe":            os.Pipe,
+		"Exit":            os.Exit,
+		"IsTimeout":       os.IsTimeout,
+		"FindProcess":     os.FindProcess,
+		"StartProcess":    os.StartProcess,
+		"IsNotExist":      os.IsNotExist,
+		"Chown":           os.Chown,
+		"Link":            os.Link,
+		"Setenv":          os.Setenv,
+		"Getenv":          os.Getenv,
+		"Create":          os.Create,
+		"Hostname":        os.Hostname,
+		"CreateTemp":      os.CreateTemp,
+		"OpenFile":        os.OpenFile,
+		"ReadFile":        os.ReadFile,
+		"Getegid":         os.Getegid,
+		"ReadDir":         os.ReadDir,
+		"IsExist":         os.IsExist,
+		"NewSyscallError": os.NewSyscallError,
+		"DirFS":           os.DirFS,
+		"Stat":            os.Stat,
+		"Readlink":        os.Readlink,
+		"Getwd":           os.Getwd,
+		"MkdirAll":        os.MkdirAll,
+		"Getgroups":       os.Getgroups,
+		"Geteuid":         os.Geteuid,
+		"Executable":      os.Executable,
+		"UserConfigDir":   os.UserConfigDir,
+		"Truncate":        os.Truncate,
+		// constants
 		"O_RDONLY": os.O_RDONLY,
 		"O_WRONLY": os.O_WRONLY,
 		"O_RDWR":   os.O_RDWR,
-
 		"O_APPEND": os.O_APPEND,
 		"O_CREATE": os.O_CREATE,
 		"O_EXCL":   os.O_EXCL,
 		"O_SYNC":   os.O_SYNC,
 		"O_TRUNC":  os.O_TRUNC,
-
-		"Rename":        os.Rename,
-		"TempDir":       os.TempDir,
-		"UserCacheDir":  os.UserCacheDir,
-		"UserConfigDir": os.UserConfigDir,
-		"UserHomeDir":   os.UserHomeDir,
-		"Chmod":         os.Chmod,
-		"Chdir":         os.Chdir,
-		"DirFS":         os.DirFS,
-		"Mkdir":         os.Mkdir,
+		"SEEK_SET": os.SEEK_SET,
+		"SEEK_CUR": os.SEEK_CUR,
+		"SEEK_END": os.SEEK_END,
+		"DevNull":  os.DevNull,
+		// "DevNull":           os.DevNull,
+		// "DevNull":           os.DevNull,
+		"PathSeparator":     os.PathSeparator,
+		"PathListSeparator": os.PathListSeparator,
+		// "PathSeparator":     os.PathSeparator,
+		// "PathListSeparator": os.PathListSeparator,
+		// "PathSeparator":     os.PathSeparator,
+		// "PathListSeparator": os.PathListSeparator,
+		"ModeDir":        os.ModeDir,
+		"ModeAppend":     os.ModeAppend,
+		"ModeExclusive":  os.ModeExclusive,
+		"ModeTemporary":  os.ModeTemporary,
+		"ModeSymlink":    os.ModeSymlink,
+		"ModeDevice":     os.ModeDevice,
+		"ModeNamedPipe":  os.ModeNamedPipe,
+		"ModeSocket":     os.ModeSocket,
+		"ModeSetuid":     os.ModeSetuid,
+		"ModeSetgid":     os.ModeSetgid,
+		"ModeCharDevice": os.ModeCharDevice,
+		"ModeSticky":     os.ModeSticky,
+		"ModeIrregular":  os.ModeIrregular,
+		"ModeType":       os.ModeType,
+		"ModePerm":       os.ModePerm,
+		// variable
+		"ErrInvalid":          os.ErrInvalid,
+		"ErrPermission":       os.ErrPermission,
+		"ErrExist":            os.ErrExist,
+		"ErrNotExist":         os.ErrNotExist,
+		"ErrClosed":           os.ErrClosed,
+		"ErrNoDeadline":       os.ErrNoDeadline,
+		"ErrDeadlineExceeded": os.ErrDeadlineExceeded,
+		"ErrProcessDone":      os.ErrProcessDone,
+		"Interrupt":           os.Interrupt,
+		"Kill":                os.Kill,
+		// "Interrupt":           os.Interrupt,
+		// "Kill":                os.Kill,
+		"Stdin":  os.Stdin,
+		"Stdout": os.Stdout,
+		"Stderr": os.Stderr,
+		"Args":   os.Args,
 	})
 }

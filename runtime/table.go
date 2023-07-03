@@ -5,22 +5,26 @@
 package yockr
 
 import (
+	yocki "github.com/ansurfen/yock/interface"
 	"github.com/yuin/gluamapper"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
 
-var _ lua.LValue = (*Table)(nil)
-
 type Table struct {
 	*lua.LTable
 }
+
+var (
+	_ lua.LValue  = (*Table)(nil)
+	_ yocki.Table = (*Table)(nil)
+)
 
 func NewTable() *Table {
 	return &Table{LTable: &lua.LTable{}}
 }
 
-func UpgradeTable(tbl *lua.LTable) *Table {
+func UpgradeTable(tbl *lua.LTable) yocki.Table {
 	return &Table{tbl}
 }
 
@@ -40,8 +44,8 @@ func (t *Table) SetInt(k string, v int) {
 	t.RawSetString(k, lua.LNumber(v))
 }
 
-func (t *Table) SetTable(k string, v *Table) {
-	t.RawSetString(k, v.LTable)
+func (t *Table) SetTable(k string, v yocki.Table) {
+	t.RawSetString(k, v.Value())
 }
 
 func (t *Table) SetField(l *lua.LState, v map[string]any) {
@@ -50,8 +54,8 @@ func (t *Table) SetField(l *lua.LState, v map[string]any) {
 	}
 }
 
-func (t *Table) SetDo(k string, v func(*YockState) lua.LValue, env ...*YockState) {
-	var s *YockState
+func (t *Table) SetDo(k string, v func(yocki.YockState) lua.LValue, env ...yocki.YockState) {
+	var s yocki.YockState
 	if len(env) > 0 {
 		s = env[0]
 	} else {
@@ -64,9 +68,9 @@ func (t *Table) ToString(n int) string {
 	return t.RawGetInt(n).String()
 }
 
-func (t *Table) ToTable(n int) *lua.LTable {
+func (t *Table) ToTable(n int) yocki.Table {
 	if tbl, ok := t.RawGetInt(n).(*lua.LTable); ok {
-		return tbl
+		return UpgradeTable(tbl)
 	}
 	return nil
 }
@@ -107,22 +111,26 @@ func (t *Table) Bind(v any) error {
 	return gluamapper.Map(t.LTable, v)
 }
 
-func (t *Table) MustGetTable(key string) *lua.LTable {
-	return t.RawGetString(key).(*lua.LTable)
+func (t *Table) MustGetTable(key string) yocki.Table {
+	return UpgradeTable(t.RawGetString(key).(*lua.LTable))
 }
 
-func (t *Table) GetTable(key string) (*lua.LTable, bool) {
+func (t *Table) GetTable(key string) (yocki.Table, bool) {
 	tbl := t.RawGetString(key)
 	if tbl.Type() == lua.LTTable {
-		return tbl.(*lua.LTable), true
+		return UpgradeTable(tbl.(*lua.LTable)), true
 	}
 	return nil, false
 }
 
-func (tbl *Table) Clone(l *lua.LState) *Table {
+func (tbl *Table) Clone(l *lua.LState) yocki.Table {
 	netTable := &lua.LTable{}
 	copyTable(l, tbl.LTable, netTable)
 	return UpgradeTable(netTable)
+}
+
+func (tbl *Table) Value() *lua.LTable {
+	return tbl.LTable
 }
 
 func copyTable(l *lua.LState, src *lua.LTable, dst *lua.LTable) {

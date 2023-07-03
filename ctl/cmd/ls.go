@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -18,20 +19,20 @@ var lsCmd = &cobra.Command{
 such as 'ls mount/unmount' to display mount/unmount information`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
+			ycho.Fatal(util.ErrArgsTooLittle)
 		}
 		switch v := args[0]; v {
 		case "mount", "unmount":
 			files, err := os.ReadDir(util.Pathf("@/" + v))
 			if err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 			rows := [][]string{}
 			for _, file := range files {
 				if !file.IsDir() {
 					info, err := file.Info()
 					if err != nil {
-						util.Ycho.Fatal(err.Error())
+						ycho.Fatal(err)
 					}
 					rows = append(rows, []string{info.Mode().Perm().String(), file.Name(), info.ModTime().Format("Jan _2 15:04")})
 				}

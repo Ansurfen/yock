@@ -5,16 +5,12 @@
 package util
 
 import (
-	"archive/zip"
 	"bufio"
 	"fmt"
-	"io"
-	"io/fs"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -230,108 +226,4 @@ func Prinf(opt PrintfOpt, title []string, rows [][]string) {
 func IsExist(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil || os.IsExist(err)
-}
-
-// Zip to compress zip of source to specify path
-func Zip(zipPath string, paths ...string) error {
-	if err := os.MkdirAll(filepath.Dir(zipPath), os.ModePerm); err != nil {
-		return err
-	}
-	archive, err := os.Create(zipPath)
-	if err != nil {
-		return err
-	}
-	defer archive.Close()
-	zipWriter := zip.NewWriter(archive)
-	defer zipWriter.Close()
-	// traverse the file or directory
-	for _, srcPath := range paths {
-		// remove the trailing path separator if path is a directory
-		srcPath = strings.TrimSuffix(srcPath, string(os.PathSeparator))
-
-		// visit all the files or directories in the tree
-		err = filepath.Walk(srcPath, func(path string, info fs.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-
-			// create a local file header
-			header, err := zip.FileInfoHeader(info)
-			if err != nil {
-				return err
-			}
-
-			// set compression
-			header.Method = zip.Deflate
-
-			// set relative path of a file as the header name
-			header.Name, err = filepath.Rel(filepath.Dir(srcPath), path)
-			if err != nil {
-				return err
-			}
-			if info.IsDir() {
-				header.Name += string(os.PathSeparator)
-			}
-
-			// create writer for the file header and save content of the file
-			headerWriter, err := zipWriter.CreateHeader(header)
-			if err != nil {
-				return err
-			}
-			if info.IsDir() {
-				return nil
-			}
-			f, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-			_, err = io.Copy(headerWriter, f)
-			return err
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// Unzip unzip zip of source to specify path
-func Unzip(src, dst string) error {
-	reader, err := zip.OpenReader(src)
-	if err != nil {
-		return err
-	}
-	defer reader.Close()
-	for _, file := range reader.File {
-		if err := unzipFile(file, dst); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func unzipFile(file *zip.File, dstDir string) error {
-	filePath := path.Join(dstDir, file.Name)
-	if file.FileInfo().IsDir() {
-		if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
-			return err
-		}
-		return nil
-	}
-	if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-		return err
-	}
-	rc, err := file.Open()
-	if err != nil {
-		return err
-	}
-	defer rc.Close()
-	w, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer w.Close()
-	_, err = io.Copy(w, rc)
-	return err
 }

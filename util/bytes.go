@@ -10,6 +10,7 @@ import (
 	"math"
 	"math/rand"
 	"strings"
+	"unicode"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -311,4 +312,16 @@ func RandString(n int) string {
 		sb.WriteByte(letters[rand.Intn(len(letters))])
 	}
 	return sb.String()
+}
+
+func Title(str string) string {
+	if str == "" {
+		return str
+	}
+	firstChar := rune(str[0])
+	if unicode.IsLower(firstChar) {
+		capitalizedChar := strings.ToUpper(string(firstChar))
+		str = capitalizedChar + str[1:]
+	}
+	return str
 }

@@ -1,6 +1,6 @@
 # Yock Interface
 
-English | [简体中文](../docs/zh_cn/interface/README.md)
+English | [简体中文](../docs/zh_cn/yocki/README.md)
 
 Yock Interface provides a mesh interface based on grpc and protobuf to help developers build Yock extensions quickly and easily. It's somewhat similar to microservices and requires constant local loopbacks. But the benefits are self-evident, and the use of networking supports more languages and is more convenient than intrusive (dynamic libraries).
 

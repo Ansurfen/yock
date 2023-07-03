@@ -8,23 +8,26 @@ import (
 	"context"
 	"sync"
 
-	"github.com/ansurfen/yock/util"
+	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util/container"
+	"github.com/ansurfen/yock/ycho"
+
+	// "github.com/ansurfen/yock/ycho"
 	lua "github.com/yuin/gopher-lua"
 )
 
-var _ YockRuntime = (*YockInterpPool)(nil)
+var _ yocki.YockRuntime = (*YockInterpPool)(nil)
 
 type YockInterpPool struct {
 	m       sync.Mutex
-	interps container.Stack[YockRuntime]
-	idle    YockRuntime
+	interps container.Stack[yocki.YockRuntime]
+	idle    yocki.YockRuntime
 }
 
-func UpgradeInterpPool(yockr YockRuntime) YockRuntime {
+func UpgradeInterpPool(yockr yocki.YockRuntime) yocki.YockRuntime {
 	return &YockInterpPool{
 		idle:    yockr,
-		interps: container.NewStack[YockRuntime](10),
+		interps: container.NewStack[yocki.YockRuntime](10),
 	}
 }
 
@@ -74,15 +77,15 @@ func (yockr *YockInterpPool) SafeSetGlobalVar(string, lua.LValue) {}
 // LoadModule to immediately load module to be specified
 // LoadModule(string, lua.LGFunction)
 // State returns LState
-func (yockr *YockInterpPool) State() *YockState { return nil }
+func (yockr *YockInterpPool) State() yocki.YockState { return nil }
 
-func (yockr *YockInterpPool) SetState(l *YockState) {}
+func (yockr *YockInterpPool) SetState(l yocki.YockState) {}
 
-func (yockr *YockInterpPool) NewState() (*YockState, context.CancelFunc) {
+func (yockr *YockInterpPool) NewState() (yocki.YockState, context.CancelFunc) {
 	return yockr.idle.NewState()
 }
 
-func (yockr *YockInterpPool) Get() YockRuntime {
+func (yockr *YockInterpPool) Get() yocki.YockRuntime {
 	yockr.m.Lock()
 	defer yockr.m.Unlock()
 	n := yockr.interps.Len()
@@ -91,18 +94,18 @@ func (yockr *YockInterpPool) Get() YockRuntime {
 	}
 	interp, err := yockr.interps.Top()
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	yockr.interps.Pop()
 	return interp
 }
 
-func (yockr *YockInterpPool) Put(interp YockRuntime) error {
+func (yockr *YockInterpPool) Put(interp yocki.YockRuntime) error {
 	yockr.m.Lock()
 	defer yockr.m.Unlock()
 	return yockr.interps.Push(interp)
 }
 
-func (yockr *YockInterpPool) New() YockRuntime {
+func (yockr *YockInterpPool) New() yocki.YockRuntime {
 	return New()
 }

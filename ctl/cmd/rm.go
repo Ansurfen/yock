@@ -7,6 +7,7 @@ package cmd
 import (
 	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var rmCmd = &cobra.Command{
 	Long:  `Rm removes files from the specified area`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
-			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
+			ycho.Fatal(util.ErrArgsTooLittle)
 		}
 		area := args[0]
 		pattern := args[1]
@@ -33,10 +34,10 @@ var rmCmd = &cobra.Command{
 		case "unmount":
 			pattern = util.Pathf("@/unmount/") + pattern + ext
 		default:
-			util.Ycho.Fatal("invalid area")
+			ycho.Fatalf("invalid area")
 		}
 		if err := yockc.Rm(yockc.RmOpt{Safe: false}, []string{pattern}); err != nil {
-			util.Ycho.Fatal(err.Error())
+			ycho.Fatal(err)
 		}
 	},
 }

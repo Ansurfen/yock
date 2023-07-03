@@ -5,26 +5,8 @@
 ---@meta _
 
 ---@param file string
----@return string, err
-function read_file(file)
-    return ""
-end
-
----@param file string
 ---@param data string
 function safe_write(file, data)
-end
-
----@param zipPath string
----@vararg string
----@return err
-function zip(zipPath, ...)
-end
-
----@param src string
----@param dst string
----@return err
-function unzip(src, dst)
 end
 
 ---@param file string

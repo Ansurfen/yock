@@ -1,0 +1,12 @@
+{
+	"httpHeaderAddressList": "--- AddressList parses the named header field as a list of addresses.",
+	"httpHeaderDate": "--- Date parses the Date header field.",
+	"httpHeaderGet": "--- Get gets the first value associated with the given key.\n--- It is case insensitive; CanonicalMIMEHeaderKey is used\n--- to canonicalize the provided key.\n--- If there are no values associated with the key, Get returns \"\".\n--- To access multiple values of a key, or to use non-canonical keys,\n--- access the map directly.",
+	"mailAddressParserParse": "--- Parse parses a single RFC 5322 address of the\n--- form \"Gogh Fir \u003cgf@example.com\u003e\" or \"foo@example.com\".",
+	"mailAddressParserParseList": "--- ParseList parses the given string as a list of comma-separated addresses\n--- of the form \"Gogh Fir \u003cgf@example.com\u003e\" or \"foo@example.com\".",
+	"mailAddressString": "--- String formats the address as a valid RFC 5322 address.\n--- If the address's name contains non-ASCII characters\n--- the name will be rendered according to RFC 2047.",
+	"mailParseAddress": "--- ParseAddress parses a single RFC 5322 address, e.g. \"Barry Gibbs \u003cbg@example.com\u003e\"",
+	"mailParseAddressList": "--- ParseAddressList parses the given string as a list of addresses.",
+	"mailParseDate": "--- ParseDate parses an RFC 5322 date string.",
+	"mailReadMessage": "--- ReadMessage reads a message from r.\n--- The headers are parsed, and the body of the message will be available\n--- for reading from msg.Body."
+}

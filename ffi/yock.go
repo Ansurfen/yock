@@ -8,18 +8,20 @@ import (
 	"path/filepath"
 	"reflect"
 
+	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
 
-func LoadFFI(l *lua.LState) lua.LValue {
+func LoadFFI(yocks yocki.YockScheduler) {
 	yockf = New()
-	ffi := &lua.LTable{}
-	ffi.RawSetString("lib", yockf.tbl)
-	ffi.RawSetString("library", l.NewFunction(ffiLibrary))
-	return ffi
+	lib := yocks.CreateLib("ffi")
+	lib.SetField(map[string]any{
+		"lib": yockf.tbl,
+	})
+	lib.SetFunction("library", ffiLibrary)
 }
 
 type yockffi struct {
@@ -107,7 +109,7 @@ func ffiLibrary(l *lua.LState) int {
 			rtype         = Archive.MustFindRecord(rtype_literal)
 		)
 
-		def.ToTable(2).ForEach(func(_, arg lua.LValue) {
+		def.ToTable(2).Value().ForEach(func(_, arg lua.LValue) {
 			args = append(args, arg.String())
 		})
 

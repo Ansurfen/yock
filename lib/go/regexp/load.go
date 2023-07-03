@@ -8,12 +8,11 @@ import (
 	"regexp"
 
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
 )
 
 func LoadRegexp(yocks yocki.YockScheduler) {
 	lib := yocks.CreateLib("regexp")
-	lib.SetYFunction(map[string]yockr.YGFunction{
+	lib.SetYFunction(map[string]yocki.YGFunction{
 		"Compile":     regexpCompile,
 		"MustCompile": regexpMustCompile,
 	})
@@ -22,8 +21,8 @@ func LoadRegexp(yocks yocki.YockScheduler) {
 // @param expr string
 //
 // @return userdata (*regexp.Regexp), err
-func regexpCompile(l *yockr.YockState) int {
-	r, err := regexp.Compile(l.CheckString(1))
+func regexpCompile(l yocki.YockState) int {
+	r, err := regexp.Compile(l.LState().CheckString(1))
 	l.Pusha(r).PushError(err)
 	return 0
 }
@@ -31,8 +30,8 @@ func regexpCompile(l *yockr.YockState) int {
 // @param expr string
 //
 // @return userdata (*regexp.Regexp)
-func regexpMustCompile(l *yockr.YockState) int {
-	r := regexp.MustCompile(l.CheckString(1))
+func regexpMustCompile(l yocki.YockState) int {
+	r := regexp.MustCompile(l.LState().CheckString(1))
 	l.Pusha(r)
 	return 1
 }

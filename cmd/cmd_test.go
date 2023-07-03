@@ -41,7 +41,7 @@ func TestExec(t *testing.T) {
 }
 
 func TestHTTP(t *testing.T) {
-	HTTP(HttpOpt{
+	Curl(CurlOpt{
 		Method: "GET",
 		Save:   true,
 		Debug:  true,

@@ -2,34 +2,40 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package scheduler
+package yocks
 
 import (
+	"github.com/ansurfen/yock/lib/go/archive"
 	"github.com/ansurfen/yock/lib/go/bufio"
+	compresslib "github.com/ansurfen/yock/lib/go/compress"
 	"github.com/ansurfen/yock/lib/go/fmt"
-	"github.com/ansurfen/yock/lib/go/io"
-	"github.com/ansurfen/yock/lib/go/net"
+	iolib "github.com/ansurfen/yock/lib/go/io"
+	netlib "github.com/ansurfen/yock/lib/go/net"
 	"github.com/ansurfen/yock/lib/go/os"
 	"github.com/ansurfen/yock/lib/go/path"
-	"github.com/ansurfen/yock/lib/go/reflect"
+	reflectlib "github.com/ansurfen/yock/lib/go/reflect"
 	"github.com/ansurfen/yock/lib/go/regexp"
-	"github.com/ansurfen/yock/lib/go/strings"
-	"github.com/ansurfen/yock/lib/go/sync"
-	"github.com/ansurfen/yock/lib/go/time"
+	"github.com/ansurfen/yock/lib/go/strconv"
+	libstrings "github.com/ansurfen/yock/lib/go/strings"
+	libsync "github.com/ansurfen/yock/lib/go/sync"
+	libtime "github.com/ansurfen/yock/lib/go/time"
 	"github.com/ansurfen/yock/lib/go/unicode"
 )
 
 var libgo = []loader{
-	reflect.LoadReflect,
+	reflectlib.LoadReflect,
 	fmt.LoadFmt,
-	net.LoadNet,
+	netlib.LoadNet,
 	path.LoadPath,
 	regexp.LoadRegexp,
 	libstrings.LoadStrings,
 	libtime.LoadTime,
 	libsync.LoadSync,
-	io.LoadIO,
+	iolib.LoadIo,
 	bufio.LoadBufio,
 	unicode.LoadUnicode,
-	os.LoadOS,
+	oslib.LoadOs,
+	strconv.LoadStrconv,
+	compresslib.LoadCompress,
+	archive.LoadArchive,
 }

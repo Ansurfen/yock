@@ -9,6 +9,6 @@ import (
 func TestCompile(t *testing.T) {
 	yockp := New()
 	yockp.Compile(CompileOpt{
-		VM: scheduler.New(),
+		VM: yocks.New(),
 	}, "print.lua")
 }

@@ -16,10 +16,11 @@ import (
 	"sync"
 
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 )
 
-// HttpOpt indicates configuration of HTTP request
-type HttpOpt struct {
+// CurlOpt indicates configuration of HTTP request
+type CurlOpt struct {
 	// Header contains the request header fields either received
 	// by the server or to be sent by the client.
 	Header map[string]string
@@ -52,11 +53,11 @@ type HttpOpt struct {
 	err error
 }
 
-// httpExceptionHandle controls return of HTTP function when value of return is true
-func httpExceptionHandle(err error, opt *HttpOpt, exception error) bool {
+// curlExceptionHandle controls return of HTTP function when value of return is true
+func curlExceptionHandle(err error, opt *CurlOpt, exception error) bool {
 	if err != nil {
 		if opt.Debug {
-			util.Ycho.Warn(fmt.Sprintf("%s\t%s", opt.Caller, exception.Error()))
+			ycho.Warnf("%s\t%s", opt.Caller, exception.Error())
 		}
 		if opt.Strict {
 			return true
@@ -67,10 +68,10 @@ func httpExceptionHandle(err error, opt *HttpOpt, exception error) bool {
 	return false
 }
 
-// Http is similar with curl, which is used to send HTTP request according to opt and urls.
-func HTTP(opt HttpOpt, urls []string) error {
+// Curl is similar with curl, which is used to send Curl request according to opt and urls.
+func Curl(opt CurlOpt, urls []string) error {
 	for _, url := range urls {
-		if !util.IsURL(url) && httpExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidURL) {
+		if !util.IsURL(url) && curlExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidURL) {
 			return util.ErrInvalidURL
 		}
 		req, err := http.NewRequest("GET", url, nil)
@@ -80,12 +81,12 @@ func HTTP(opt HttpOpt, urls []string) error {
 		case "GET", "HEAD", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH":
 			req.Method = opt.Method
 		default:
-			if httpExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidMethod) {
+			if curlExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidMethod) {
 				return util.ErrInvalidMethod
 			}
 		}
 
-		if httpExceptionHandle(err, &opt, util.ErrBadCreateFile) {
+		if curlExceptionHandle(err, &opt, util.ErrBadCreateFile) {
 			return util.ErrBadCreateRequest
 		}
 
@@ -101,7 +102,7 @@ func HTTP(opt HttpOpt, urls []string) error {
 		}
 
 		if opt.Debug {
-			util.Ycho.Info(fmt.Sprintf("%s\t%s", opt.Caller, fmt.Sprintf("%s %s", req.Method, url)))
+			ycho.Infof("%s\t%s", opt.Caller, fmt.Sprintf("%s %s", req.Method, url))
 		}
 
 		if opt.Async {
@@ -119,7 +120,7 @@ func HTTP(opt HttpOpt, urls []string) error {
 
 				res, err := http.DefaultClient.Do(req)
 
-				if httpExceptionHandle(err, &opt, util.ErrBadSendRequest) {
+				if curlExceptionHandle(err, &opt, util.ErrBadSendRequest) {
 					return
 				}
 
@@ -129,7 +130,7 @@ func HTTP(opt HttpOpt, urls []string) error {
 					dst := path.Join(opt.Dir, opt.FilenameHandle(u))
 					dir := filepath.Dir(dst)
 
-					if httpExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
+					if curlExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
 						return
 					}
 
@@ -145,22 +146,26 @@ func HTTP(opt HttpOpt, urls []string) error {
 		} else {
 			res, err := http.DefaultClient.Do(req)
 
-			if httpExceptionHandle(err, &opt, util.ErrBadSendRequest) {
+			if curlExceptionHandle(err, &opt, util.ErrBadSendRequest) {
 				return util.ErrBadSendRequest
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				if res.Body != nil {
+					res.Body.Close()
+				}
+			}()
 
 			if opt.Save {
 				dst := path.Join(opt.Dir, opt.FilenameHandle(url))
 				dir := filepath.Dir(dst)
 
-				if httpExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
+				if curlExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
 					return util.ErrBadCreateDir
 				}
 
 				file, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0666)
-				if httpExceptionHandle(err, &opt, util.ErrBadCreateFile) {
+				if curlExceptionHandle(err, &opt, util.ErrBadCreateFile) {
 					return util.ErrBadCreateFile
 				}
 				defer file.Close()

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package scheduler
+package yocks
 
 import (
 	"os"
@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 
 	yockd "github.com/ansurfen/yock/daemon/client"
-	yockf "github.com/ansurfen/yock/ffi"
 	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
@@ -31,23 +31,23 @@ type YockScheduler struct {
 	// Note that concurrency is not safe,
 	// so each different task or asynchronous function will call the thread method
 	// to derive a new interpreter and isolate execution.
-	yockr.YockRuntime
+	yocki.YockRuntime
 
 	*yockLoader
 
 	// env carries local environment variables for the program to run.
 	// For example, working directory, executable path, passed flags, etc.
-	env *yockr.YockLib
+	env yocki.YockLib
 
 	// like env, opt also stores local environmental information.
 	// However, opt is provided by the job_option functions declared in the script.
 	// When the attributes of env and opt coincide, env prevails.
 	// Their relationship is like global and local variables.
-	opt *yockr.Table
+	opt yocki.Table
 
 	// envVar is initialized only when OptionEnableEnvVar is called.
 	// Once initialized, the user can manipulate environment variables in the script.
-	envVar util.EnvVar
+	envVar yocki.EnvVar
 
 	// it's deprecated in lateset version
 	driverManager *yockDriverManager
@@ -88,13 +88,13 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 
 	for _, opt := range opts {
 		if err := opt(yocks); err != nil {
-			util.Ycho.Fatal(err.Error())
+			ycho.Fatal(err)
 		}
 	}
 
 	if yocks.driverManager != nil {
 		if err := util.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
-			util.Ycho.Fatal(err.Error())
+			ycho.Fatal(err)
 		}
 	}
 
@@ -107,11 +107,11 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 	return yocks
 }
 
-func (yocks *YockScheduler) EnvVar() util.EnvVar {
+func (yocks *YockScheduler) EnvVar() yocki.EnvVar {
 	return yocks.envVar
 }
 
-func (yocks *YockScheduler) State() *yockr.YockState {
+func (yocks *YockScheduler) State() yocki.YockState {
 	return yocks.YockRuntime.State()
 }
 
@@ -123,13 +123,13 @@ func wrapFunc(fn yocki.YocksFunction, yocks yocki.YockScheduler) lua.LGFunction 
 
 func (yocks *YockScheduler) RegYocksFn(funcs yocki.YocksFuncs) {
 	for name, fn := range funcs {
-		yocks.State().SetGlobal(name,
-			yocks.State().LState.NewFunction(wrapFunc(fn, yocks)),
+		yocks.State().LState().SetGlobal(name,
+			yocks.State().LState().NewFunction(wrapFunc(fn, yocks)),
 		)
 	}
 }
 
-func (yocks *YockScheduler) MntYocksFn(lib *yockr.YockLib, funcs yocki.YocksFuncs) {
+func (yocks *YockScheduler) MntYocksFn(lib yocki.YockLib, funcs yocki.YocksFuncs) {
 	for name, fn := range funcs {
 		lib.SetFunction(name, wrapFunc(fn, yocks))
 	}
@@ -188,7 +188,6 @@ func (yocks *YockScheduler) AppendTask(name string, job yocki.YockJob) {
 
 const (
 	yockLibYcho = "ycho"
-	yockLibFFI  = "ffi"
 )
 
 type yockLib struct {
@@ -202,10 +201,7 @@ type luaFuncs map[string]lua.LGFunction
 
 var yockLibs = []yockLib{
 	{yockLibYcho, func(yocks *YockScheduler) lua.LValue {
-		return luar.New(yocks.State().LState, util.Ycho)
-	}},
-	{yockLibFFI, func(ys *YockScheduler) lua.LValue {
-		return yockf.LoadFFI(ys.State().LState)
+		return luar.New(yocks.State().LState(), ycho.GetYcho())
 	}},
 }
 
@@ -235,13 +231,13 @@ func (yocks *YockScheduler) loadLibs() {
 	}
 
 	var yockGlobalVars = map[string]lua.LValue{
-		"env": yocks.env.Meta().LTable,
+		"env": yocks.env.Meta().Value(),
 	}
 
 	if yocks.driverManager != nil {
 		yockGlobalVars["plugins"] = yocks.driverManager.plugins
-		yockGlobalVars["ldns"] = luar.New(yocks.State().LState, yocks.driverManager.localDNS)
-		yockGlobalVars["gdns"] = luar.New(yocks.State().LState, yocks.driverManager.globalDNS)
+		yockGlobalVars["ldns"] = luar.New(yocks.State().LState(), yocks.driverManager.localDNS)
+		yockGlobalVars["gdns"] = luar.New(yocks.State().LState(), yocks.driverManager.globalDNS)
 	}
 	yocks.setGlobalVars(yockGlobalVars)
 
@@ -252,12 +248,12 @@ func (yocks *YockScheduler) loadLibs() {
 	lib_path := util.Pathf("~/lib")
 	files, err := os.ReadDir(lib_path)
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	for _, file := range files {
 		if fn := file.Name(); filepath.Ext(fn) == ".lua" {
 			if err := yocks.EvalFile(path.Join(lib_path, fn)); err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 		}
 	}
@@ -267,12 +263,12 @@ func (yocks *YockScheduler) loadLibs() {
 		boot_path := util.Pathf("~/lib/boot")
 		files, err = os.ReadDir(boot_path)
 		if err != nil {
-			util.Ycho.Fatal(err.Error())
+			ycho.Fatal(err)
 		}
 		for _, file := range files {
 			if fn := file.Name(); filepath.Ext(fn) == ".lua" {
 				if err := yocks.EvalFile(path.Join(boot_path, fn)); err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 			}
 		}
@@ -285,17 +281,17 @@ func (yocks *YockScheduler) setGlobalVars(vars map[string]lua.LValue) {
 	}
 }
 
-func (yocks *YockScheduler) Opt() *yockr.Table {
+func (yocks *YockScheduler) Opt() yocki.Table {
 	return yocks.opt
 }
 
-func (yocks *YockScheduler) SetOpt(o *yockr.Table) {
+func (yocks *YockScheduler) SetOpt(o yocki.Table) {
 	yocks.opt = o
 }
 
 // LaunchTask executes the corresponding task based on the task name
 func (yocks *YockScheduler) LaunchTask(name string) {
-	var flags *lua.LTable
+	var flags yocki.Table
 	if yocks.opt != nil {
 		if tmp, ok := yocks.opt.GetTable("flags"); ok {
 			flags = tmp
@@ -303,17 +299,17 @@ func (yocks *YockScheduler) LaunchTask(name string) {
 	}
 	for _, job := range yocks.task[name] {
 		tmp, cancel := yocks.NewState()
-		tbl := yocks.env.Meta().Clone(tmp.LState)
+		tbl := yocks.env.Meta().Clone(tmp.LState())
 		tbl.SetString("job", name)
 		if flags != nil {
-			if tmp, ok := flags.RawGetString(name).(*lua.LTable); ok {
-				tbl.RawSetString("flags", tmp)
+			if tmp, ok := flags.Value().RawGetString(name).(*lua.LTable); ok {
+				tbl.Value().RawSetString("flags", tmp)
 			}
 		}
-		if err := tmp.Call(yockr.YockFuncInfo{
+		if err := tmp.Call(yocki.YockFuncInfo{
 			Fn: job.fn,
-		}, tbl.LTable); err != nil {
-			util.Ycho.Warn(err.Error())
+		}, tbl.Value()); err != nil {
+			ycho.Warn(err)
 		}
 		if cancel != nil {
 			cancel()

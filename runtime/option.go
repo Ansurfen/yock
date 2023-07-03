@@ -5,11 +5,12 @@
 package yockr
 
 import (
+	yocki "github.com/ansurfen/yock/interface"
 	lua "github.com/yuin/gopher-lua"
 )
 
 func OptionLState(opt lua.Options) YockrOption {
-	return func(yockr YockRuntime) error {
+	return func(yockr yocki.YockRuntime) error {
 		state := lua.NewState(opt)
 		yockr.SetState(UpgradeLState(state))
 		return nil
@@ -17,7 +18,7 @@ func OptionLState(opt lua.Options) YockrOption {
 }
 
 func OptionEnableInterpPool() YockrOption {
-	return func(yockr YockRuntime) error {
+	return func(yockr yocki.YockRuntime) error {
 		yockr = UpgradeInterpPool(yockr)
 		return nil
 	}

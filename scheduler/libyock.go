@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package scheduler
+package yocks
 
 import liby "github.com/ansurfen/yock/lib/yock"
 
@@ -18,6 +18,9 @@ var libyock = []loader{
 	liby.LoadSSH,
 	liby.LoadMisc,
 	liby.LoadRandom,
+	liby.LoadCrypto,
+	liby.LoadTea,
+	liby.LoadBit,
 	loadEnv,
 	loadTask,
 }

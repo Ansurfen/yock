@@ -20,10 +20,10 @@ func TestCreateYockLib(t *testing.T) {
 			fmt.Println("Hello, I'm Golang")
 		},
 	})
-	lib.Meta().ForEach(func(l1, l2 lua.LValue) {
+	lib.Meta().Value().ForEach(func(l1, l2 lua.LValue) {
 		fmt.Println(l1, l2)
 	})
-	s.DoString("print(os.ver); os.echo()")
+	s.LState().DoString("print(os.ver); os.echo()")
 }
 
 func TestOpenYockLib(t *testing.T) {
@@ -35,7 +35,7 @@ func TestOpenYockLib(t *testing.T) {
 			fmt.Println("Hello, I'm Golang")
 		},
 	})
-	lib.Meta().ForEach(func(l1, l2 lua.LValue) {
+	lib.Meta().Value().ForEach(func(l1, l2 lua.LValue) {
 		fmt.Println(l1, l2)
 	})
 }

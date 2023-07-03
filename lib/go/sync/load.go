@@ -2,25 +2,38 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package libsync
+package synclib
 
 import (
 	"sync"
 
 	yocki "github.com/ansurfen/yock/interface"
-	lua "github.com/yuin/gopher-lua"
-	luar "layeh.com/gopher-luar"
+	atomiclib "github.com/ansurfen/yock/lib/go/sync/atomic"
 )
 
 func LoadSync(yocks yocki.YockScheduler) {
+	atomiclib.LoadAtomic(yocks)
 	lib := yocks.CreateLib("sync")
-	lib.SetFunctions(map[string]lua.LGFunction{
-		"new": syncNew,
+	lib.SetField(map[string]any{
+		// functions
+		"NewCond": sync.NewCond,
+		// constants
+		// variable
+	})
+	lib.SetYFunction(map[string]yocki.YGFunction{
+		"new":   syncNew,
+		"mutex": syncMutex,
 	})
 }
 
 // @return userdata
-func syncNew(l *lua.LState) int {
-	l.Push(luar.New(l, &sync.WaitGroup{}))
+func syncNew(l yocki.YockState) int {
+	l.Pusha(&sync.WaitGroup{})
+	return 1
+}
+
+// @return userdata
+func syncMutex(l yocki.YockState) int {
+	l.Pusha(&sync.Mutex{})
 	return 1
 }

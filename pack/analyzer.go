@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/yuin/gopher-lua/ast"
 )
 
@@ -103,7 +104,7 @@ func (analyzer *luaDependencyAnalyzer) Preload(name string, method LuaMethod) {
 func (analyzer *luaDependencyAnalyzer) Export(file string) {
 	out, err := json.Marshal(analyzer)
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	util.WriteFile(file, out)
 }

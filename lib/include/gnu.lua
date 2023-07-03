@@ -30,7 +30,7 @@ function touch(file)
 end
 
 ---@param file string
----@return err
+---@return string, err
 function cat(file)
 end
 
@@ -90,4 +90,37 @@ local rmOpt = {}
 ---@vararg string
 ---
 function rm(opt, ...)
+end
+
+---@param cmd table|string
+function sudo(cmd)
+end
+
+---@param opt table
+function grep(opt)
+end
+
+---@param opt table
+function awk(opt)
+end
+
+---@param opt table
+function sed(opt)
+end
+
+function find()
+end
+
+---@param k string
+---@return string
+function whereis(k)
+end
+
+---@param k string
+---@param v string
+function alias(k, v)
+end
+
+---@vararg string
+function unalias(...)
 end

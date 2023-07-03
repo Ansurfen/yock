@@ -85,21 +85,21 @@ func newSSHClient(opt SSHOpt) (*SSHClient, error) {
 func (cli *SSHClient) Put(src, dst string) {
 	sftpClient, err := sftp.NewClient(cli.Client)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 	defer sftpClient.Close()
 	remoteFile, err := sftpClient.Create(dst)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 	defer remoteFile.Close()
 	out, err := ReadStraemFromFile(src)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 	_, err = remoteFile.Write(out)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 }
 
@@ -107,46 +107,43 @@ func (cli *SSHClient) Put(src, dst string) {
 func (cli *SSHClient) Get(src, dst string) {
 	sftpClient, err := sftp.NewClient(cli.Client)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 	defer sftpClient.Close()
 	remoteFile, err := sftpClient.Open(src)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 	defer remoteFile.Close()
 	fp, err := os.Create(dst)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 	defer fp.Close()
 	_, err = remoteFile.WriteTo(fp)
 	if err != nil {
-		Ycho.Fatal(err.Error())
+		panic(err)
 	}
 }
 
 // Exec creates a temporary session to execute commands
-func (cli *SSHClient) Exec(cmds []string) {
-	for _, cmd := range cmds {
-		session, err := cli.NewSession()
-		if err != nil {
-			Ycho.Warn(fmt.Sprintf("%s: %s", ErrCreateSession.Error(), err.Error()))
-			continue
-		}
-		defer session.Close()
-		output, err := session.CombinedOutput(cmd)
-		if err != nil {
-			Ycho.Warn(fmt.Sprintf("%s: %s", ErrExecuteCommand.Error(), err.Error()))
-			continue
-		}
-		fmt.Println(string(output))
+func (cli *SSHClient) Exec(cmd string) error {
+	session, err := cli.NewSession()
+	if err != nil {
+		return fmt.Errorf("%s: %s", ErrCreateSession.Error(), err.Error())
 	}
+	defer session.Close()
+	output, err := session.CombinedOutput(cmd)
+	if err != nil {
+		return fmt.Errorf("%s: %s", ErrExecuteCommand.Error(), err.Error())
+	}
+	fmt.Println(string(output))
+	return nil
 }
 
 // Shell assigns a terminal to the user while redrecting stdout, stderr, stdin.
 // Input exit to release the terminal to close the session.
-func (cli *SSHClient) Shell() {
+func (cli *SSHClient) Shell() error {
 	session, _ := cli.NewSession()
 	defer session.Close()
 	w := NewSSHWriter()
@@ -160,12 +157,10 @@ func (cli *SSHClient) Shell() {
 		ssh.TTY_OP_OSPEED: 14400,
 	}
 	if err := session.RequestPty("xterm", 25, 80, modes); err != nil {
-		Ycho.Warn(ErrAllocTerm.Error())
-		return
+		return ErrAllocTerm
 	}
 	if err := session.Shell(); err != nil {
-		Ycho.Warn(ErrAllocShell.Error())
-		return
+		return ErrAllocShell
 	}
 	go func() {
 		for {
@@ -187,6 +182,7 @@ func (cli *SSHClient) Shell() {
 		}
 		r.channel <- cmd
 	}
+	return nil
 }
 
 // SSHCenter manages the SSHClient

@@ -14,8 +14,8 @@ var installCmd = &cobra.Command{
 	Short: `Install updates yock`,
 	Long:  `Install updates yock`,
 	Run: func(cmd *cobra.Command, args []string) {
-		
-		yockc.HTTP(yockc.HttpOpt{}, []string{})
+
+		yockc.Curl(yockc.CurlOpt{}, []string{})
 	},
 }
 

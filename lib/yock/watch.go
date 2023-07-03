@@ -8,14 +8,13 @@ import (
 	"time"
 
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
 )
 
 func LoadWatch(yocks yocki.YockScheduler) {
 	cpu := yocks.CreateLib("cpu")
-	cpu.SetYFunction(map[string]yockr.YGFunction{
+	cpu.SetYFunction(map[string]yocki.YGFunction{
 		"percent": watchCpuPercent,
 		"times":   watchCpuTimes,
 	})
@@ -27,7 +26,7 @@ func LoadWatch(yocks yocki.YockScheduler) {
 	var cpuInfo lua.LValue
 	if infos, err := util.CPU().Info(); err == nil {
 		if len(infos) > 0 {
-			if info, err := Decode(yocks.State().LState, []byte(infos[0].String())); err == nil {
+			if info, err := Decode(yocks.State().LState(), []byte(infos[0].String())); err == nil {
 				cpuInfo = info
 			}
 		}
@@ -35,7 +34,7 @@ func LoadWatch(yocks yocki.YockScheduler) {
 	if cpuInfo == nil {
 		cpuInfo = &lua.LTable{}
 	}
-	cpu.Meta().RawSetString("info", cpuInfo)
+	cpu.Meta().Value().RawSetString("info", cpuInfo)
 
 	yocks.CreateLib("mem").SetFunctions(map[string]lua.LGFunction{
 		"info": watchMemVirtualMemory,
@@ -48,12 +47,12 @@ func LoadWatch(yocks yocki.YockScheduler) {
 		"usage":      watchDiskUsage,
 	})
 
-	yocks.CreateLib("host").SetYFunction(map[string]yockr.YGFunction{
+	yocks.CreateLib("host").SetYFunction(map[string]yocki.YGFunction{
 		"info":      watchHostInfo,
 		"boot_time": watchHostBootTime,
 	})
 
-	yocks.CreateLib("net").SetYFunction(map[string]yockr.YGFunction{
+	yocks.CreateLib("net").SetYFunction(map[string]yocki.YGFunction{
 		"interfaces":  watchNetInterfaces,
 		"io":          watchNetIO,
 		"connections": watchNetConnections,
@@ -65,8 +64,8 @@ func LoadWatch(yocks yocki.YockScheduler) {
 * @param percpu bool
 * @retrun table, error
  */
-func watchCpuPercent(l *yockr.YockState) int {
-	per, err := util.CPU().Percent(time.Duration(l.CheckInt64(1)), l.CheckBool(2))
+func watchCpuPercent(l yocki.YockState) int {
+	per, err := util.CPU().Percent(time.Duration(l.LState().CheckInt64(1)), l.LState().CheckBool(2))
 	ptbl := &lua.LTable{}
 	for i := 0; i < len(per); i++ {
 		ptbl.Insert(i+1, lua.LNumber(per[i]))
@@ -79,11 +78,11 @@ func watchCpuPercent(l *yockr.YockState) int {
 * @param percpu bool
 * @retrun table, error
  */
-func watchCpuTimes(l *yockr.YockState) int {
-	stats, err := util.CPU().Times(l.CheckBool(1))
+func watchCpuTimes(l yocki.YockState) int {
+	stats, err := util.CPU().Times(l.LState().CheckBool(1))
 	pstat := &lua.LTable{}
 	for idx, stat := range stats {
-		if info, err := Decode(l.LState, []byte(stat.String())); err == nil {
+		if info, err := Decode(l.LState(), []byte(stat.String())); err == nil {
 			pstat.Insert(idx+1, info)
 		} else {
 			pstat.Insert(idx+1, &lua.LTable{})
@@ -199,7 +198,7 @@ func watchDiskUsage(l *lua.LState) int {
 }
 
 // @retrun string
-func watchHostBootTime(l *yockr.YockState) int {
+func watchHostBootTime(l yocki.YockState) int {
 	timestamp, _ := util.Host().BootTime()
 	t := time.Unix(int64(timestamp), 0)
 	l.Push(lua.LString(t.Local().Format("2006-01-02 15:04:05")))
@@ -207,7 +206,7 @@ func watchHostBootTime(l *yockr.YockState) int {
 }
 
 // @return string, string, string, err
-func watchHostInfo(l *yockr.YockState) int {
+func watchHostInfo(l yocki.YockState) int {
 	platform, family, version, err := util.Host().PlatformInformation()
 	l.PushString(platform)
 	l.PushString(family)
@@ -217,13 +216,13 @@ func watchHostInfo(l *yockr.YockState) int {
 }
 
 // @return table, err
-func watchNetInterfaces(l *yockr.YockState) int {
+func watchNetInterfaces(l yocki.YockState) int {
 	stats, err := util.Net().Interfaces()
 	if err != nil {
 		l.PushNilTable().Throw(err)
 		return 2
 	}
-	if v, err := Decode(l.LState, []byte(stats.String())); err == nil {
+	if v, err := Decode(l.LState(), []byte(stats.String())); err == nil {
 		l.Push(v).PushNil()
 	} else {
 		l.PushNilTable().Throw(err)
@@ -235,15 +234,15 @@ func watchNetInterfaces(l *yockr.YockState) int {
 * @param pernic bool
 * @return table, err
  */
-func watchNetIO(l *yockr.YockState) int {
+func watchNetIO(l yocki.YockState) int {
 	info := &lua.LTable{}
-	stats, err := util.Net().IOCounters(l.CheckBool(1))
+	stats, err := util.Net().IOCounters(l.LState().CheckBool(1))
 	if err != nil {
 		l.Push(info).Throw(err)
 		return 2
 	}
 	for idx, stat := range stats {
-		if s, err := Decode(l.LState, []byte(stat.String())); err == nil {
+		if s, err := Decode(l.LState(), []byte(stat.String())); err == nil {
 			info.Insert(idx+1, s)
 		}
 	}
@@ -255,16 +254,16 @@ func watchNetIO(l *yockr.YockState) int {
 * @param kind string
 * @return table, err
  */
-func watchNetConnections(l *yockr.YockState) int {
+func watchNetConnections(l yocki.YockState) int {
 	info := &lua.LTable{}
-	stats, err := util.Net().Connections(l.CheckString(1))
+	stats, err := util.Net().Connections(l.LState().CheckString(1))
 	if err != nil {
 		l.Push(info)
 		l.Push(lua.LString(err.Error()))
 		return 2
 	}
 	for idx, stat := range stats {
-		if s, err := Decode(l.LState, []byte(stat.String())); err == nil {
+		if s, err := Decode(l.LState(), []byte(stat.String())); err == nil {
 			info.Insert(idx+1, s)
 		}
 	}

@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/ansurfen/yock/daemon/server/api"
-	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -21,14 +21,14 @@ type yockdParameter struct {
 }
 
 var (
-	opt    = yockdParameter{}
+	opt     = yockdParameter{}
 	rootCmd = &cobra.Command{
 		Use:   `yockd`,
 		Short: ``,
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if opt.port == 0 {
-				util.Ycho.Fatal("invalid port")
+				ycho.Fatalf("invalid port")
 			}
 			s := api.New()
 			defer s.Close()

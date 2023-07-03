@@ -8,15 +8,15 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
-	yockr "github.com/ansurfen/yock/runtime"
+	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	lua "github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/ast"
 	"github.com/yuin/gopher-lua/parse"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 // YockPack serves as yock's preprocessing tool for decomposing Lua source code
@@ -114,7 +114,7 @@ func (*YockPack[T]) ParseStr(str string) []ast.Stmt {
 	reader := bufio.NewReader(strings.NewReader(str))
 	chunk, err := parse.Parse(reader, "<string>")
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	return chunk
 }
@@ -123,13 +123,13 @@ func (*YockPack[T]) ParseStr(str string) []ast.Stmt {
 func (*YockPack[T]) ParseFile(file string) []ast.Stmt {
 	fp, err := os.Open(file)
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	defer fp.Close()
 	reader := bufio.NewReader(fp)
 	chunk, err := parse.Parse(reader, file)
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	return chunk
 }
@@ -148,14 +148,14 @@ func (yockpack *YockPack[T]) DumpFile(file string) string {
 
 type CompileOpt struct {
 	DisableAnalyse bool
-	VM             yockr.YockRuntime
+	VM             yocki.YockRuntime
 }
 
 // Compile compiles the contents of the given file into functions that can be executed by the virtual machine.
 func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction {
 	fp, err := os.Open(file)
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	defer fp.Close()
 	reader := bufio.NewReader(fp)
@@ -165,14 +165,14 @@ func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction
 		anlyzer := NewLuaDependencyAnalyzer()
 		out, err := util.ReadStraemFromFile(util.Pathf("~/lib/dep/stdlib.json"))
 		if err != nil {
-			util.Ycho.Fatal(err.Error())
+			ycho.Fatal(err)
 		}
 		if err = json.Unmarshal(out, anlyzer); err != nil {
-			util.Ycho.Fatal(err.Error())
+			ycho.Fatal(err)
 		}
 		files, err := os.ReadDir(util.Pathf("~/lib"))
 		if err != nil {
-			util.Ycho.Fatal(err.Error())
+			ycho.Fatal(err)
 		}
 		for _, file := range files {
 			if fn := file.Name(); filepath.Ext(fn) == ".lua" {
@@ -187,11 +187,11 @@ func (yockpack *YockPack[T]) Compile(opt CompileOpt, file string) *lua.LFunction
 	}
 
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
 	proto, err := lua.Compile(chunk, file)
 	if err != nil {
-		util.Ycho.Fatal(err.Error())
+		ycho.Fatal(err)
 	}
-	return opt.VM.State().NewFunctionFromProto(proto)
+	return opt.VM.State().LState().NewFunctionFromProto(proto)
 }

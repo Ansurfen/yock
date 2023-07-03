@@ -12,7 +12,7 @@ import (
 func TestCrypto(t *testing.T) {
 	Key := `Yock Key`
 	Raw := "Hello World!"
-	enc := EncodeAESWithKey(Raw, Key)
-	dec := DecodeAESWithKey(enc, Key)
+	enc := EncodeAESWithKey(Key, Raw)
+	dec := DecodeAESWithKey(Key, enc)
 	fmt.Printf("Raw: %s\nEnc: %s\nDec: %s\n", Raw, enc, dec)
 }

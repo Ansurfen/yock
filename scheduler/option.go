@@ -2,9 +2,11 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package scheduler
+package yocks
 
-import "github.com/ansurfen/yock/util"
+import (
+	yocke "github.com/ansurfen/yock/env"
+)
 
 type YockSchedulerOption func(*YockScheduler) error
 
@@ -30,7 +32,7 @@ func OptionEnableYockDriverMode() YockSchedulerOption {
 // In some systems, you need administrator privileges to start
 func OptionEnableEnvVar() YockSchedulerOption {
 	return func(ys *YockScheduler) error {
-		ys.envVar = util.NewEnvVar()
+		ys.envVar = yocke.NewEnvVar()
 		return nil
 	}
 }

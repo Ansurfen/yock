@@ -15,7 +15,13 @@ func LoadType(yocks yocki.YockScheduler) {
 		"Boolean":     typeBoolean,
 		"String":      typeString,
 		"StringArray": typeStringArray,
+		"Ptr":         typePtr,
 	})
+}
+
+func typePtr(l *lua.LState) int {
+	l.Push(luar.New(l, &l.CheckUserData(1).Value))
+	return 1
 }
 
 // @param b bool

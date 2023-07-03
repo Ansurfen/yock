@@ -6,9 +6,7 @@ package liby
 
 import (
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
-	lua "github.com/yuin/gopher-lua"
 )
 
 func LoadCheck(yocks yocki.YockScheduler) {
@@ -18,16 +16,16 @@ func LoadCheck(yocks yocki.YockScheduler) {
 	})
 }
 
-func checkVersion(l *yockr.YockState) int {
-	want := util.NewCheckedVersion(l.CheckString(1))
-	got := util.NewCheckedVersion(l.CheckString(2))
-	l.PushBool(want.Compare(got))
+func checkVersion(s yocki.YockState) int {
+	want := util.NewCheckedVersion(s.CheckString(1))
+	got := util.NewCheckedVersion(s.CheckString(2))
+	s.PushBool(want.Compare(got))
 	return 1
 }
 
-func checkVersionf(l *yockr.YockState) int {
-	rawVersion := l.CheckString(1)
-	targetCnt := l.CheckInt(2)
+func checkVersionf(s yocki.YockState) int {
+	rawVersion := s.CheckString(1)
+	targetCnt := s.CheckInt(2)
 	cnt := 0
 	curVersion := ""
 	for _, ch := range rawVersion {
@@ -42,6 +40,6 @@ func checkVersionf(l *yockr.YockState) int {
 	if curVersionLen := len(curVersion); curVersion[curVersionLen-1] == '.' {
 		curVersion = curVersion[:curVersionLen-1]
 	}
-	l.Push(lua.LString(curVersion))
+	s.PushString(curVersion)
 	return 1
 }

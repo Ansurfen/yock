@@ -4,12 +4,16 @@
 
 package yockr
 
-import "testing"
+import (
+	"testing"
+
+	yocki "github.com/ansurfen/yock/interface"
+)
 
 func TestYockState(t *testing.T) {
 	s := NewYState()
-	s.DoString("function Echo(x) print(x) end")
-	s.Call(YockFuncInfo{
-		Fn: s.GetGlobal("Echo"),
+	s.LState().DoString("function Echo(x) print(x) end")
+	s.Call(yocki.YockFuncInfo{
+		Fn: s.LState().GetGlobal("Echo"),
 	}, "Hello World")
 }

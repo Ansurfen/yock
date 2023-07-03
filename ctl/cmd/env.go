@@ -10,7 +10,10 @@ import (
 	"os"
 	"path/filepath"
 
+	yocke "github.com/ansurfen/yock/env"
+	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +23,7 @@ type envCmdParameter struct {
 	expand bool
 	local  bool
 
-	env util.EnvVar
+	env yocki.EnvVar
 }
 
 func getChar() {
@@ -43,9 +46,9 @@ Examples:
 	yock env search`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
-				util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
+				ycho.Fatal(util.ErrArgsTooLittle)
 			}
-			envParameter.env = util.NewEnvVar()
+			envParameter.env = yocke.NewEnvVar()
 			if len(envParameter.path) > 0 {
 				switch util.CurPlatform.OS {
 				case "windows":
@@ -55,7 +58,7 @@ Examples:
 					case "user":
 						envParameter.env.SetPath(envParameter.path)
 					default:
-						util.Ycho.Fatal(util.ErrInvalidPath.Error())
+						ycho.Fatal(util.ErrInvalidPath)
 					}
 				default:
 					envParameter.env.SetPath(envParameter.path)
@@ -65,7 +68,7 @@ Examples:
 			switch action {
 			case "set":
 				if len(args) < 3 {
-					util.Ycho.Fatal("Usage env set [key] [value]")
+					ycho.Fatalf("Usage env set [key] [value]")
 				}
 				key := args[1]
 				value := args[2]
@@ -85,29 +88,29 @@ Examples:
 				}
 			case "unset":
 				if len(args) < 2 {
-					util.Ycho.Fatal("Usage env unset [key]")
+					ycho.Fatalf("Usage env unset [key]")
 				}
 				if err := envParameter.env.Unset(args[1]); err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 			// export current enviroment string into specify file
 			case "export":
 				if len(args) < 2 {
-					util.Ycho.Fatal("Usage env export [file]")
+					ycho.Fatalf("Usage env export [file]")
 				}
 				file := args[1]
 				if len(filepath.Ext(file)) == 0 {
 					file += ".ini"
 				}
 				if err := envParameter.env.Export(file); err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 			case "search":
 			case "print":
 				envParameter.env.Print()
 				getChar()
 			default:
-				util.Ycho.Fatal(util.ErrGeneral.Error())
+				ycho.Fatal(util.ErrGeneral)
 			}
 		},
 	}

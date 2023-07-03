@@ -11,6 +11,7 @@
 package.path = "?.lua"
 
 env.yock_tmp = path.join(env.yock_path, "tmp")
+env.yock_bin = path.join(env.yock_path, "bin")
 
 ---@param e err
 ---@param msg? any

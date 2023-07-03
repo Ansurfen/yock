@@ -6,7 +6,6 @@ package liby
 
 import (
 	yocki "github.com/ansurfen/yock/interface"
-	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/beevik/etree"
 )
 
@@ -16,7 +15,7 @@ func LoadXML(yocks yocki.YockScheduler) {
 	})
 }
 
-func xmlXML(l *yockr.YockState) int {
+func xmlXML(l yocki.YockState) int {
 	l.Pusha(etree.NewDocument())
 	return 1
 }

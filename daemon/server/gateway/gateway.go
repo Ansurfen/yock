@@ -10,12 +10,11 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 
 	"github.com/ansurfen/yock/daemon/server/gateway/agent"
 	"github.com/ansurfen/yock/daemon/server/gateway/rule"
-	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
@@ -69,17 +68,17 @@ func (gate *YockdGateWay) GuardStream() grpc.ServerOption {
 func (gate *YockdGateWay) GuardTransport(c, k string, cas ...string) grpc.ServerOption {
 	cert, err := tls.LoadX509KeyPair(c, k)
 	if err != nil {
-		util.Ycho.Fatal(fmt.Sprintf("failed to load key pair: %s", err))
+		ycho.Fatalf("failed to load key pair: %s", err)
 	}
 
 	caCertPool := x509.NewCertPool()
 	for _, ca := range cas {
 		caCert, err := ioutil.ReadFile(ca)
 		if err != nil {
-			util.Ycho.Fatal(fmt.Sprintf("failed to read CA certificate: %s", err))
+			ycho.Fatalf("failed to read CA certificate: %s", err)
 		}
 		if !caCertPool.AppendCertsFromPEM(caCert) {
-			util.Ycho.Fatal("failed to append CA certificate")
+			ycho.Fatalf("failed to append CA certificate")
 		}
 	}
 

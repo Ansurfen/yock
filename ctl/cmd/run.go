@@ -5,13 +5,14 @@
 package cmd
 
 import (
-	"fmt"
 	"path/filepath"
 	"sync"
-	yockr "github.com/ansurfen/yock/runtime"
+
 	yockpack "github.com/ansurfen/yock/pack"
+	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/scheduler"
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +33,7 @@ var (
 		Long:  `Run runs the yock script or module`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 || filepath.Ext(args[0]) != ".lua" {
-				util.Ycho.Fatal(util.ErrFileNotExist.Error())
+				ycho.Fatal(util.ErrFileNotExist)
 			}
 			for idx, arg := range args {
 				if idx == 0 {
@@ -42,15 +43,15 @@ var (
 				runParameter.modes = append(runParameter.modes, arg)
 			}
 
-			opts := []scheduler.YockSchedulerOption{}
+			opts := []yocks.YockSchedulerOption{}
 			if runParameter.cooperate {
-				opts = append(opts, scheduler.OptionUpgradeSingalStream())
+				opts = append(opts, yocks.OptionUpgradeSingalStream())
 			}
 			if runParameter.enableAnalyse {
-				opts = append(opts, scheduler.OptionEnableYockDriverMode())
+				opts = append(opts, yocks.OptionEnableYockDriverMode())
 			}
 
-			yocks := scheduler.New(opts...)
+			yocks := yocks.New(opts...)
 			go yocks.EventLoop()
 
 			yockp := yockpack.New()
@@ -59,15 +60,15 @@ var (
 				VM:             yocks.YockRuntime,
 			}, runParameter.file)
 
-			if err := yockr.LuaDoFunc(yocks.State().LState, fn); err != nil {
-				util.Ycho.Fatal(err.Error())
+			if err := yockr.LuaDoFunc(yocks.State().LState(), fn); err != nil {
+				ycho.Fatal(err)
 			}
 
 			var tasks sync.WaitGroup
 			for _, mode := range runParameter.modes {
 				tasks.Add(1)
 				if runParameter.debug {
-					util.Ycho.Info(fmt.Sprintf("%s start to run", mode))
+					ycho.Infof("%s start to run", mode)
 				}
 				go func(mode string) {
 					yocks.LaunchTask(mode)

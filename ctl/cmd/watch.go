@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
 )
 
@@ -21,32 +22,32 @@ You can use yock watch [hardware] command to view details.
 At present yock only supports cpu, mem, disk, net and host as hardware parameter`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			util.Ycho.Fatal(util.ErrArgsTooLittle.Error())
+			ycho.Fatal(util.ErrArgsTooLittle)
 		}
 		hardware := args[0]
 		switch hardware {
 		case "cpu":
 			info, err := util.CPU().Info()
 			if err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 			fmt.Printf("LogicalCore: %d\nPhysicalCore: %d\nModelName: %s\nMHZ: %f",
 				util.CPU().LogicalCore, util.CPU().PhysicalCore, info[0].ModelName, info[0].Mhz)
 		case "mem":
 			stat, err := util.Mem().VirtualMemory()
 			if err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 			fmt.Printf("Total: %d\nAvailable: %d\nUsed: %d (%.1f%%)\nFree: %d", stat.Total, stat.Available, stat.Used, stat.UsedPercent, stat.Free)
 		case "disk":
 			parts, err := util.Disk().Partitions(true)
 			if err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 			for _, part := range parts {
 				stat, err := util.Disk().Usage(part.Device)
 				if err != nil {
-					util.Ycho.Fatal(err.Error())
+					ycho.Fatal(err)
 				}
 				fmt.Printf("%s\n  Type: %s\n  Opts: %s\n  Total: %d\n  Free: %d\n  Used: %d (%.2f%%)\n",
 					part.Device, part.Fstype, strings.Join(part.Opts, " "), stat.Total, stat.Free, stat.Used, stat.UsedPercent)
@@ -54,7 +55,7 @@ At present yock only supports cpu, mem, disk, net and host as hardware parameter
 		case "net":
 			interfaces, err := util.Net().Interfaces()
 			if err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 			for _, inter := range interfaces {
 				fmt.Printf("%s\n  MTU: %s\n  Type: %s\n  MAC: %s\n  IPv6: %s\n  IPv4: %s\n",
@@ -63,11 +64,11 @@ At present yock only supports cpu, mem, disk, net and host as hardware parameter
 		case "host":
 			os, fam, ver, err := util.Host().PlatformInformation()
 			if err != nil {
-				util.Ycho.Fatal(err.Error())
+				ycho.Fatal(err)
 			}
 			fmt.Printf("OS: %s\nFamily: %s\nVersion: %s", os, fam, ver)
 		default:
-			util.Ycho.Fatal(util.ErrNoSupportHardward.Error())
+			ycho.Fatal(util.ErrNoSupportHardward)
 		}
 	},
 }

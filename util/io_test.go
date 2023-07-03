@@ -24,6 +24,3 @@ func TestExec(t *testing.T) {
 	fmt.Println(PathIsExist("./abc"))
 }
 
-func TestZip(t *testing.T) {
-	Zip("./Test.zip", ".")
-}
