@@ -7,7 +7,7 @@
 ---@class sshClient
 local sshClient = {}
 
----@param cmds table
+---@param cmds string
 function sshClient:Exec(cmds)
 end
 

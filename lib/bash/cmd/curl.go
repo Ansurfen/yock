@@ -40,7 +40,7 @@ func (curl *CurlCmd) Exec(arg string) ([]byte, error) {
 	if len(curl.O) > 0 {
 		save = true
 	}
-	return NilByte, yockc.Curl(yockc.CurlOpt{
+	return yockc.Curl(yockc.CurlOpt{
 		Method: curl.method,
 		Data:   curl.body,
 		Save:   save,

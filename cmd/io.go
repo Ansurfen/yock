@@ -93,7 +93,7 @@ func Cp(opt CpOpt, src, dst string) error {
 	switch util.CurPlatform.OS {
 	case "windows":
 		term = WindowsTerm()
-		if term.this == TermPowershell {
+		if term.kind == TermPowershell {
 			if opt.Recurse {
 				term.SetCmds("cp", "-r", src, dst)
 			} else {
@@ -136,7 +136,7 @@ func Mv(opt MvOpt, src, dst string) error {
 	switch util.CurPlatform.OS {
 	case "windows":
 		term = WindowsTerm()
-		if term.this == TermPowershell {
+		if term.kind == TermPowershell {
 			term.SetCmds("mv", src, dst)
 		} else {
 			term.SetCmds("move", src, dst)
@@ -150,4 +150,8 @@ func Mv(opt MvOpt, src, dst string) error {
 		Quiet:  true,
 	})
 	return err
+}
+
+func Rename(old, new string) {
+	os.Rename(old, new)
 }

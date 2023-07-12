@@ -4,7 +4,14 @@
 
 ---@meta _
 
----@alias err string | nil
+-----@alias err string | nil
+
+---@class err: string
+
+---@alias starType
+---| BooleanType
+---| StringType
+---| StringArrayType
 
 ---@class BooleanType
 local BooleanType = {}

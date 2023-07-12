@@ -4,20 +4,34 @@
 
 package ycho
 
-import yocki "github.com/ansurfen/yock/interface"
+import (
+	"io"
+
+	yocki "github.com/ansurfen/yock/interface"
+)
 
 var ycho yocki.Ycho
 
+const defaultTimeFormat = "2006-01-02 15:04:05.000 -0700"
+
 func init() {
-	ycho = &vlog{}
+	ycho = &Vlog{}
 }
 
-func GetYcho() yocki.Ycho {
+func Get() yocki.Ycho {
 	return ycho
 }
 
-func SetYcho(y yocki.Ycho) {
+func Set(y yocki.Ycho) {
 	ycho = y
+}
+
+func Progress(total int64, r io.Reader) io.Reader {
+	return io.TeeReader(r, ycho.Progress(total, r))
+}
+
+func Eventloop() {
+	ycho.Eventloop()
 }
 
 func Info(msg string) {

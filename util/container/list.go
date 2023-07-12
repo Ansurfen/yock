@@ -13,6 +13,7 @@ type DoubleLinkedList[T any] interface {
 	Remove(node ListNode[T])
 	Front() ListNode[T]
 	Back() ListNode[T]
+	Size() int
 }
 
 type ListNode[T any] interface {
@@ -33,18 +34,28 @@ type VectorNode[T any] struct {
 }
 
 func newVectorNode[T any](v T) *VectorNode[T] {
-	return &VectorNode[T]{data: v}
+	return &VectorNode[T]{data: v, prev: nil, next: nil}
 }
 
 func (node *VectorNode[T]) Value() T {
+	if node == nil {
+		var v T
+		return v
+	}
 	return node.data
 }
 
 func (node *VectorNode[T]) Prev() ListNode[T] {
+	if node == nil {
+		return nil
+	}
 	return node.prev
 }
 
 func (node *VectorNode[T]) Next() ListNode[T] {
+	if node == nil {
+		return nil
+	}
 	return node.next
 }
 
@@ -55,12 +66,12 @@ type Vector[T any] struct {
 	tail *VectorNode[T]
 }
 
-func NewVector[T any](cap ...int) *Vector[T] {
+func VectorOf[T any](cap ...int) *Vector[T] {
 	c := -1
 	if len(cap) > 0 {
 		c = cap[0]
 	}
-	return &Vector[T]{cap: c, size: 0}
+	return &Vector[T]{cap: c, size: 0, head: nil, tail: nil}
 }
 
 func (vec *Vector[T]) PushFront(v T) ListNode[T] {
@@ -163,10 +174,16 @@ func (vec *Vector[T]) Find(n int) ListNode[T] {
 }
 
 func (vec *Vector[T]) Front() ListNode[T] {
+	if vec.head == nil {
+		return nil
+	}
 	return vec.head
 }
 
 func (vec *Vector[T]) Back() ListNode[T] {
+	if vec.tail == nil {
+		return nil
+	}
 	return vec.tail
 }
 
@@ -175,4 +192,8 @@ func (vec *Vector[T]) isEnd() bool {
 		return false
 	}
 	return vec.size >= vec.cap
+}
+
+func (vec *Vector[T]) Size() int {
+	return vec.size
 }

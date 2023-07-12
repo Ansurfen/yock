@@ -4,28 +4,47 @@
 
 package ycho
 
-import yocki "github.com/ansurfen/yock/interface"
+import (
+	"io"
 
-var _ yocki.Ycho = (*vlog)(nil)
+	yocki "github.com/ansurfen/yock/interface"
+)
 
-type vlog struct{}
+var (
+	_ io.Writer  = (*vWriter)(nil)
+	_ yocki.Ycho = (*Vlog)(nil)
+)
 
-func (v *vlog) Info(msg string) {}
+type vWriter struct{}
 
-func (v *vlog) Infof(msg string, a ...any) {}
+func (vw *vWriter) Write(p []byte) (int, error) {
+	return len(p), nil
+}
 
-func (v *vlog) Fatal(msg string) {}
+type Vlog struct{}
 
-func (v *vlog) Fatalf(msg string, a ...any) {}
+func (v *Vlog) Eventloop() {}
 
-func (v *vlog) Debug(msg string) {}
+func (v *Vlog) Progress(total int64, r io.Reader) io.Writer {
+	return &vWriter{}
+}
 
-func (v *vlog) Debugf(msg string, a ...any) {}
+func (v *Vlog) Info(msg string) {}
 
-func (v *vlog) Warn(msg string) {}
+func (v *Vlog) Infof(msg string, a ...any) {}
 
-func (v *vlog) Warnf(msg string, a ...any) {}
+func (v *Vlog) Fatal(msg string) {}
 
-func (v *vlog) Error(msg string) {}
+func (v *Vlog) Fatalf(msg string, a ...any) {}
 
-func (v *vlog) Errorf(msg string, a ...any) {}
+func (v *Vlog) Debug(msg string) {}
+
+func (v *Vlog) Debugf(msg string, a ...any) {}
+
+func (v *Vlog) Warn(msg string) {}
+
+func (v *Vlog) Warnf(msg string, a ...any) {}
+
+func (v *Vlog) Error(msg string) {}
+
+func (v *Vlog) Errorf(msg string, a ...any) {}

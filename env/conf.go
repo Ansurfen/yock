@@ -5,11 +5,11 @@
 package yocke
 
 import (
+	"os"
 	"os/user"
 	"path"
 	"path/filepath"
 
-	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
@@ -133,7 +133,9 @@ func GetEnv[T any]() *Env[T] {
 
 func FreeEnv[T any]() {
 	e := env.(*Env[T])
-	yockc.Rm(yockc.RmOpt{Safe: false}, []string{e.opt.Workdir})
+	if err := os.RemoveAll(e.opt.Workdir); err != nil {
+		panic(err)
+	}
 }
 
 var env any

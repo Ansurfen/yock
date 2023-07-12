@@ -15,7 +15,6 @@ end
 ---@param str string
 ---@return reg, err
 function regexp.Compile(str)
-    return {}
 end
 
 ---@class reg

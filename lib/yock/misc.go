@@ -5,7 +5,11 @@
 package liby
 
 import (
+	"fmt"
 	"net"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 
 	yockc "github.com/ansurfen/yock/cmd"
@@ -28,12 +32,19 @@ func LoadMisc(yocks yocki.YockScheduler) {
 		"write_file":   write_file,
 		"is_exist":     is_exist,
 		"printf":       printf,
-		"pathf":        ioPathf,
+		"pathf":        pathf,
 		"open_conf":    openConf,
+		"eval":         eval,
 	})
 	yocks.RegYocksFn(yocki.YocksFuncs{
 		"curl": netCurl,
 	})
+}
+
+func eval(s yocki.YockState) int {
+	err := s.LState().DoString(s.CheckString(1))
+	s.PushError(err)
+	return 1
 }
 
 // @param path string
@@ -51,16 +62,30 @@ func openConf(s yocki.YockState) int {
 * @return string
  */
 func osStrf(s yocki.YockState) int {
-	out := util.ConvertByte2String([]byte(s.CheckString(1)), util.Charset(s.CheckString(2)))
+	out := ""
+	format := s.CheckString(1)
+	if s.IsTable(2) {
+		opt := make(map[string]any)
+		if err := s.CheckTable(2).Bind(&opt); err != nil {
+			s.PushString(out)
+			return 1
+		}
+		tmpl := util.NewTemplate()
+		out, _ = tmpl.OnceParse(format, opt)
+		if v := opt["Charset"]; v != nil {
+			if charset, ok := v.(string); ok {
+				out = util.ConvertByte2String([]byte(out), util.Charset(charset))
+			}
+		}
+	} else {
+		a := []any{}
+		for i := 2; i <= s.Argc(); i++ {
+			a = append(a, s.CheckAny(i))
+		}
+		out = fmt.Sprintf(format, a...)
+	}
 	s.PushString(out)
 	return 1
-}
-
-func aliasHandle(cmd string) string {
-	for k, v := range aliases {
-		cmd = strings.ReplaceAll(cmd, "$"+k, v)
-	}
-	return cmd
 }
 
 /*
@@ -90,7 +115,7 @@ func osSh(s yocki.YockState) int {
 	for _, cmd := range cmds {
 		util.ReadLineFromString(cmd, func(s string) string {
 			if len(s) > 0 {
-				out, err := yockc.Exec(opt, aliasHandle(s))
+				out, err := yockc.Exec(opt, s)
 				outs.Append(lua.LString(out))
 				if err != nil {
 					if opt.Debug {
@@ -151,7 +176,7 @@ func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
 				if err := tmp.Call(yocki.YockFuncInfo{
 					NRet: 1,
 					Fn:   fn,
-				}, lua.LString(s)); err != nil {
+				}, s); err != nil {
 					panic(err)
 				}
 				return tmp.CheckString(1)
@@ -170,7 +195,8 @@ func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
 			urls = append(urls, s.CheckString(i))
 		}
 	}
-	s.PushError(yockc.Curl(opt, urls))
+	str, err := yockc.Curl(opt, urls)
+	s.PushString(string(str)).PushError(err)
 	return s.Exit()
 }
 
@@ -248,16 +274,89 @@ func printf(s yocki.YockState) int {
 	return 0
 }
 
-// ioPathf formats path
+// pathf formats path
 //
 // @/abc => {WorkSpace}/abc (WorkSpace = UserHome + .yock)
 //
 // ~/abc => {YockPath}/abc (YockPath = executable file path)
-/*
-* @param path string
-* @return string
- */
-func ioPathf(s yocki.YockState) int {
-	s.PushString(util.Pathf(s.CheckString(1)))
+//
+// @varag string
+//
+// @return string
+func pathf(s yocki.YockState) int {
+	path := s.CheckString(1)
+	if len(path) > 0 && path[0] == '#' {
+		i, err := strconv.Atoi(path[1:])
+		if err != nil {
+			s.PushString("")
+			return 1
+		}
+		dbg, ok := s.Stack(i)
+		if !ok {
+			s.PushString("")
+			return 1
+		}
+		path = dbg.Source
+	} else {
+		path = util.Pathf(path)
+	}
+	elem := []string{path}
+	for i := 2; i <= s.Argc(); i++ {
+		elem = append(elem, s.CheckString(i))
+	}
+	s.PushString(filepath.Join(elem...))
+	return 1
+}
+
+func pathfV2(s yocki.YockState) int {
+	path := s.CheckString(1)
+	if len(path) == 0 {
+		s.PushString("")
+		return 1
+	}
+	switch path[0] {
+	case '#':
+		i, err := strconv.Atoi(path[1:])
+		if err != nil {
+			s.PushString("")
+			return 1
+		}
+		dbg, ok := s.Stack(i)
+		if !ok {
+			s.PushString("")
+			return 1
+		}
+		path = dbg.Source
+	case '~':
+		wd, err := os.UserHomeDir()
+		if err != nil {
+			s.PushString("")
+			return 1
+		}
+		path = wd
+	case '!':
+		abs, err := filepath.Abs(path[1:])
+		if err != nil {
+			s.PushString("")
+			return 1
+		}
+		path = abs
+	case '?':
+
+	case '@':
+
+	case '$':
+		wd, err := os.Getwd()
+		if err != nil {
+			s.PushString("")
+			return 1
+		}
+		path = wd
+	}
+	elem := []string{path}
+	for i := 2; i <= s.Argc(); i++ {
+		elem = append(elem, s.CheckString(i))
+	}
+	s.PushString(filepath.Join(elem...))
 	return 1
 }

@@ -19,19 +19,28 @@ type ExecOpt struct {
 	Quiet  bool
 	// Strict will exit at once when error occur
 	Strict bool
+
+	Terminal uint8
 }
 
 func Exec(opt ExecOpt, cmd string) (string, error) {
+	cmd = aliasMap(cmd)
 	var term *Terminal
-	switch util.CurPlatform.OS {
-	case "windows":
-		term = WindowsTerm(cmd)
+	switch opt.Terminal {
+	case TermCmd:
+		term = cmdTerm(cmd)
+	case TermPowershell:
+		term = powershellTerm(cmd)
+	case TermBash:
+		term = bashTerm(cmd)
 	default:
-		term = PosixTerm()
+		switch util.CurPlatform.OS {
+		case "windows":
+			term = WindowsTerm(cmd)
+		default:
+			term = PosixTerm(cmd)
+		}
 	}
-	if out, err := term.Exec(&opt); err != nil {
-		return string(out), err
-	} else {
-		return string(out), nil
-	}
+	out, err := term.Exec(&opt)
+	return string(out), err
 }

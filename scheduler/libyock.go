@@ -15,7 +15,6 @@ var libyock = []loader{
 	liby.LoadGNU,
 	liby.LoadJSON,
 	liby.LoadWatch,
-	liby.LoadSSH,
 	liby.LoadMisc,
 	liby.LoadRandom,
 	liby.LoadCrypto,

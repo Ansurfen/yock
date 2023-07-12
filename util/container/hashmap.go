@@ -28,7 +28,7 @@ func NewLinkedHashMap[R util.Comparable, T any](hash func(key R, cap int) R) *Li
 		size:  0,
 		index: make(map[R]ListNode[T]),
 		hash:  hash,
-		list:  NewVector[T](),
+		list:  VectorOf[T](),
 	}
 }
 

@@ -13,7 +13,7 @@ package.path = "?.lua"
 env.yock_tmp = path.join(env.yock_path, "tmp")
 env.yock_bin = path.join(env.yock_path, "bin")
 
----@param e err
+---@param e err|string|nil
 ---@param msg? any
 function yassert(e, msg)
     if e ~= nil then
@@ -23,4 +23,15 @@ function yassert(e, msg)
             ycho:Fatal(e)
         end
     end
+end
+
+---@param file string
+---@param data string
+write = function(file, data)
+    local _, err = write_file(file, data)
+    -- local _, err = echo({
+    --     fd = { file },
+    --     mode = "c|t|rw"
+    -- }, data)
+    yassert(err)
 end

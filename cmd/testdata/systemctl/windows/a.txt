@@ -1,0 +1,9 @@
+SERVICE_NAME: TestService
+TYPE               : 10  WIN32_OWN_PROCESS
+STATE              : 1  STOPPED
+WIN32_EXIT_CODE    : 0  (0x0)
+SERVICE_EXIT_CODE  : 0  (0x0)
+CHECKPOINT         : 0x0
+WAIT_HINT          : 0x7d0
+PID                : 0
+FLAGS              :

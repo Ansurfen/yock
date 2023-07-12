@@ -34,7 +34,7 @@ type MetaTable interface {
 }
 
 type (
-	MetaValue any
-	MetaMap   map[string]any
-	MetaArr   []any
+	MetaValue = any
+	MetaMap   = map[string]any
+	MetaArr   = []any
 )

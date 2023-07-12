@@ -14,7 +14,6 @@ import (
 	"os"
 	"strings"
 
-	yockc "github.com/ansurfen/yock/cmd"
 	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
 )
@@ -32,7 +31,7 @@ func (env *PosixEnvVar) SetPath(path string) error { return nil }
 
 // set global enviroment variable
 func (env *PosixEnvVar) Set(k string, v any) error {
-	if _, err := yockc.Exec(yockc.ExecOpt{}, fmt.Sprintf("export %s=%s", k, v)); err != nil {
+	if _, err := util.Exec(fmt.Sprintf("export %s=%s", k, v)); err != nil {
 		return err
 	}
 	return nil
@@ -40,12 +39,12 @@ func (env *PosixEnvVar) Set(k string, v any) error {
 
 // set global enviroment variable when key isn't exist
 func (env *PosixEnvVar) SafeSet(k string, v any) error {
-	vv, err := yockc.Exec(yockc.ExecOpt{}, fmt.Sprintf("echo $%s", k))
+	vv, err := util.Exec(fmt.Sprintf("echo $%s", k))
 	if err != nil {
 		return err
 	}
 	if string(vv) != "\n" {
-		if _, err := yockc.Exec(yockc.ExecOpt{}, fmt.Sprintf("export %s=%s", k, v)); err != nil {
+		if _, err := util.Exec(fmt.Sprintf("export %s=%s", k, v)); err != nil {
 			return err
 		}
 	}
@@ -74,7 +73,7 @@ func (env *PosixEnvVar) SafeSetL(k, v string) error {
 
 // unset (delete) global enviroment variable
 func (env *PosixEnvVar) Unset(k string) error {
-	if _, err := yockc.Exec(yockc.ExecOpt{}, fmt.Sprintf("unset %s", k)); err != nil {
+	if _, err := util.Exec(fmt.Sprintf("unset %s", k)); err != nil {
 		return err
 	}
 	return nil

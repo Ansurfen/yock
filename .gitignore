@@ -38,6 +38,7 @@ interface/c/libyock/cJSON.*
 **/exp.bat
 
 **/secret.ini
+**/secret.*
 **/openssl.cfg
 
 /bin

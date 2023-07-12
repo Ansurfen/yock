@@ -1,0 +1,11 @@
+-- Copyright 2023 The Yock Authors. All rights reserved.
+-- Use of this source code is governed by a MIT-style
+-- license that can be found in the LICENSE file.
+
+job("path", function(cenv)
+    print(pathf("@"))
+    print(pathf("$"))
+    print(pathf("~"))
+    print(pathf("#1"))
+    return true
+end)

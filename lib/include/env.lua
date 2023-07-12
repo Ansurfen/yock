@@ -25,7 +25,7 @@ local ychoOpt = {}
 ---{{.env}}
 ---
 ---@class env
----@field args table
+---@field args table<string>
 ---@field platform platform
 ---@field flags table
 ---@field job string
@@ -34,7 +34,7 @@ local ychoOpt = {}
 ---@field conf yockConf
 ---@field yock_tmp string
 ---@field yock_bin string
----@field params table?
+---@field params table<string, table<string, starType>>?
 ---
 env = {}
 

@@ -71,6 +71,10 @@ func (s *YockState) CheckFunction(n int) *lua.LFunction {
 	return s.ls.CheckFunction(n)
 }
 
+func (s *YockState) CheckAny(n int) any {
+	return s.ls.CheckAny(n)
+}
+
 func (s *YockState) IsNil(n int) bool {
 	return s.ls.CheckAny(n).Type() == lua.LTNil
 }
@@ -196,13 +200,20 @@ func (s *YockState) Exit() int {
 
 // stacktrace returns the stack info of function, in form of file:line
 func (s *YockState) Stacktrace() string {
-	dgb, ok := s.ls.GetStack(1)
+	dbg, ok := s.Stack(1)
 	if ok {
-		s.ls.GetInfo("S", dgb, &lua.LFunction{})
-		s.ls.GetInfo("l", dgb, &lua.LFunction{})
-		return fmt.Sprintf("%s:%d\t", dgb.Source, dgb.CurrentLine)
+		return fmt.Sprintf("%s:%d\t", dbg.Source, dbg.CurrentLine)
 	}
 	return ""
+}
+
+func (s *YockState) Stack(i int) (dbg *lua.Debug, ok bool) {
+	dbg, ok = s.ls.GetStack(i)
+	if ok {
+		s.ls.GetInfo("S", dbg, &lua.LFunction{})
+		s.ls.GetInfo("l", dbg, &lua.LFunction{})
+	}
+	return
 }
 
 func (s *YockState) LState() *lua.LState {

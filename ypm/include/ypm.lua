@@ -51,3 +51,9 @@ end
 ---@return fun(opt: table)
 function github_loader(url)
 end
+
+---@class module
+---@field name string
+---@field version string
+---@field load fun(opt: table)
+local module = {}

@@ -13,7 +13,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	ycho.SetYcho(zlog)
+	ycho.Set(zlog)
 }
 
 func main() {

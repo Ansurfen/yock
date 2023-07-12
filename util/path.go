@@ -4,6 +4,8 @@
 
 package util
 
+import "os"
+
 var (
 	// WorkSpace is the .yock path in the UserHome
 	//
@@ -23,10 +25,14 @@ var (
 // ~/abc => {YockPath}/abc (YockPath = executable file path)
 func Pathf(path string) string {
 	if len(path) > 0 {
-		if path[0] == '@' {
+		switch path[0] {
+		case '@':
 			path = WorkSpace + path[1:]
-		} else if path[0] == '~' {
+		case '~':
 			path = YockPath + path[1:]
+		case '$':
+			wd, _ := os.Getwd()
+			path = wd + path[1:]
 		}
 	}
 	return path

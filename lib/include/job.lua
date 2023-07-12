@@ -4,6 +4,21 @@
 
 ---@meta _
 
+---@class context
+local context = {}
+
+---@param msg string
+function context.info(msg)
+end
+
+---@param timeout? timeTime
+function context.yeild(timeout)
+end
+
+---@param error string
+function context.throw(error)
+end
+
 ---
 ---{{.job}}
 ---

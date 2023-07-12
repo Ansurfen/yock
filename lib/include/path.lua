@@ -5,20 +5,10 @@
 ---@meta _
 
 ---
----{{.pathf}}
----
----@param path string
----@return string
----
-function pathf(path)
-    return ""
-end
-
----
 ---{{.path}}
 ---
 ---@class path
----@field Separator string
+---@field Separator integer
 ---
 path = {}
 

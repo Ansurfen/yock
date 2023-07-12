@@ -8,17 +8,15 @@ require:
 
 deploy in develop:
     cd ctl
-    ./build.bat/sh
+    ./build.bat/sh dev
 ]]
-
----@diagnostic disable: param-type-mismatch
 
 print("start to build")
 
-local zip_name = "release"
+local zip_name = "yock"
 local wd, err = pwd()
 yassert(err)
-local yock_path = path.join(wd, "../yock")
+local yock_path = pathf(wd, "../yock")
 mkdir(yock_path)
 
 job_option({
@@ -33,42 +31,53 @@ job("build", function(cenv)
     })
     local os = env.platform.OS
     os = assign.string(os, cenv.flags["os"])
+
+    if os == "windows" then
+        alias("yock", "../yock/yock.exe")
+    else
+        alias("yock", "../yock/yock")
+    end
+
     optional({
         case(os == "windows", function()
             ---@diagnostic disable-next-line: param-type-mismatch
             _, err = sh({ debug = true, redirect = true }, [[
 go env -w GOOS=windows
-go build -o ../yock/yock.exe -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
+go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
         end),
     }, function() -- ? PosixOS: linux, darwin, etc.
         ---@diagnostic disable-next-line: param-type-mismatch
-        _, err = sh({ debug = true, redirect = true }, [[
-go env -w GOOS=linux
-go build -o ../yock/yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
+        _, err = sh({ debug = true, redirect = true }, string.format([[
+go env -w GOOS=%s
+go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]], os))
     end)
     yassert(err)
-    local yock_lib_path = path.join(yock_path, "lib")
-    cp(path.join(wd, "../lib"), yock_lib_path)
-    mkdir(path.join(yock_path, "ypm"), path.join(yock_lib_path, "boot"))
-    ---@diagnostic disable-next-line: param-type-mismatch
+    local yock_lib_path = pathf(yock_path, "lib")
+    cp(pathf(wd, "../lib"), yock_lib_path)
+    cp("install.lua", yock_path)
+    mkdir(pathf(yock_path, "ypm"), pathf(yock_lib_path, "boot"))
     cp({ recurse = true, debug = true }, {
-        [path.join(wd, "../ypm/ypm.lua")] = path.join(yock_lib_path, "boot"),
-        [path.join(wd, "../ypm/include/ypm.lua")] = path.join(yock_lib_path, "include"),
-        [path.join(wd, "../yock-todo/ypm/source")] = path.join(yock_path, "ypm"),
-        [path.join(wd, "../ypm/boot.tpl")] = path.join(yock_path, "ypm")
+        [pathf(wd, "../ypm/ypm.lua")]          = pathf(yock_lib_path, "boot"),
+        [pathf(wd, "../ypm/include/ypm.lua")]  = pathf(yock_lib_path, "include"),
+        [pathf(wd, "../ypm/boot.tpl")]         = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/cmd")]              = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/proxy")]            = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/ctl.lua")]          = pathf(yock_path, "ypm"),
     })
     rm({ safe = false },
-        path.join(yock_lib_path, "test"),
-        path.join(yock_lib_path, "bash"),
-        path.join(yock_lib_path, "go"),
-        path.join(yock_lib_path, "yock"))
+        pathf(yock_lib_path, "test"),
+        pathf(yock_lib_path, "bash"),
+        pathf(yock_lib_path, "go"),
+        pathf(yock_lib_path, "yock"))
+    -- sh("$yock run ../auto/bin-tidy.lua")
+    -- mv(path.join(wd, "../bin"), path.join(yock_path, "bin"))
     zip_name = assign.string(zip_name, cenv.flags.o)
     if os == "windows" then
         zip_name = zip_name .. ".zip"
     else
         zip_name = zip_name .. ".tar.gz"
     end
-    compress(yock_path, zip_name)
+    compress(yock_path, pathf("..", zip_name))
     return true
 end)
 
@@ -84,7 +93,7 @@ job("depoly-dev", function(cenv)
         yassert("path not set")
     end
     cp({ force = true, debug = true, redirect = true },
-        string.format([[%s %s]], path.join(wd, "../yock/*"), conf:GetString("default.path")))
+        string.format([[%s %s]], pathf(wd, "../yock/*"), conf:GetString("default.path")))
     return true
 end)
 
@@ -95,6 +104,26 @@ job("clean", function(cenv)
     return true
 end)
 
-jobs("all", "build", "clean")
+job("remote", function(cenv)
+    ssh({
+        user = "ubuntu",
+        pwd = "root",
+        ip = "192.168.127.128",
+        network = "tcp",
+        redirect = true,
+    }, function(s)
+        s:Put("../yock.tar.gz", "yock.tar")
+        s:Exec("tar -xf yock.tar -C .")
+    end)
+    -- TODO
+    ---@diagnostic disable: undefined-global
+    -- sandbox(s, function()
+    --     mkdir("/")
+    --     tarc("yock.tar", ".")
+    -- end)
+    return true
+end)
+
+jobs("all", "build", "clean", "remote")
 jobs("all-dev", "build", "depoly-dev", "clean")
 jobs("dist", "build")

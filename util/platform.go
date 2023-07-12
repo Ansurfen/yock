@@ -5,26 +5,68 @@
 package util
 
 import (
+	"os"
+	"os/exec"
 	"runtime"
+	"strings"
 	"unsafe"
 )
 
 var CurPlatform Platform
 
 type Platform struct {
-	OS   string
-	Ver  string
-	Arch string
+	OS     string
+	Ver    string
+	Arch   string
+	Locale string
+	Lang   string
+}
+
+func (pf Platform) Ext() string {
+	switch pf.OS {
+	case "windows":
+		return ".exe"
+	default:
+		return ""
+	}
 }
 
 func init() {
 	CurPlatform = Platform{
-		Arch: runtime.GOARCH,
-		OS:   runtime.GOOS,
+		Arch:   runtime.GOARCH,
+		OS:     runtime.GOOS,
+		Lang:   "en",
+		Locale: "US",
 	}
 	switch CurPlatform.OS {
 	case "windows":
 		CurPlatform.Ver = windowsVersion()
+		// cmd := wmic os get MUILanguages
+		cmd := exec.Command("powershell", "Get-Culture | select -exp Name")
+		output, err := cmd.Output()
+		if err == nil {
+			langLocRaw := strings.TrimSpace(string(output))
+			langLoc := strings.Split(langLocRaw, "-")
+			CurPlatform.Lang = langLoc[0]
+			CurPlatform.Locale = langLoc[1]
+		}
+	case "linux":
+		envlang, ok := os.LookupEnv("LANG")
+		if ok {
+			langLocRaw := strings.Split(strings.TrimSpace(envlang), ".")[0]
+			langLoc := strings.Split(langLocRaw, "_")
+			CurPlatform.Lang = langLoc[0]
+			CurPlatform.Locale = langLoc[1]
+		}
+	case "darwin":
+		cmd := exec.Command("sh", "osascript -e 'user locale of (get system info)'")
+		output, err := cmd.Output()
+		if err == nil {
+			langLocRaw := strings.TrimSpace(string(output))
+			langLoc := strings.Split(langLocRaw, "_")
+			CurPlatform.Lang = langLoc[0]
+			CurPlatform.Locale = langLoc[1]
+		}
 	}
 }
 

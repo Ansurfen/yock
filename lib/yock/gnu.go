@@ -17,40 +17,310 @@ import (
 	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ycho"
 	lua "github.com/yuin/gopher-lua"
+	luar "layeh.com/gopher-luar"
 )
 
-var aliases map[string]string
-
-func init() {
-	aliases = make(map[string]string)
+func LoadGNU(yocks yocki.YockScheduler) {
+	yocks.RegYocksFn(yocki.YocksFuncs{
+		"ssh": gnuSSH,
+	})
+	yocks.RegYockFn(yocki.YockFuns{
+		"pwd":      gnuPwd,
+		"whoami":   gnuWhoami,
+		"echo":     gnuEcho,
+		"ls":       gnuLs,
+		"clear":    gnuClear,
+		"chmod":    gnuChmod,
+		"chown":    gnuChown,
+		"cd":       gnuCd,
+		"touch":    gnuTouch,
+		"cat":      gnuCat,
+		"mv":       gnuMv,
+		"cp":       gnuCp,
+		"mkdir":    gnuMkdir,
+		"rm":       gnuRm,
+		"alias":    gnuAlias,
+		"unalias":  gnuUnalias,
+		"sudo":     gnuSudo,
+		"find":     gnuFind,
+		"nohup":    gnuNohup,
+		"ps":       gnuPS,
+		"whereis":  gnuWhereis,
+		"export":   gnuExport,
+		"unset":    gnuUnset,
+		"kill":     gnuKill,
+		"pgrep":    gnuPGrep,
+		"ifconfig": gnuIfconfig,
+	})
+	systemCtl := yocks.CreateLib("systemctl")
+	systemCtl.SetYFunction(map[string]yocki.YGFunction{
+		"list":    gnuSystemCtlList,
+		"status":  gnuSystemCtlStatus,
+		"stop":    gnuSystemCtlStop,
+		"delete":  gnuSystemCtlDelete,
+		"start":   gnuSystemCtlStart,
+		"enable":  gnuSystemCtlEnable,
+		"disable": gnuSystemCtlDisable,
+		"create":  gnuSystemCtlCreate,
+	})
+	iptables := yocks.CreateLib("iptables")
+	iptables.SetYFunction(map[string]yocki.YGFunction{
+		"list": gnuIPTablesList,
+		"add":  gnuIPTablesAdd,
+		"del":  gnuIPTablesDel,
+	})
 }
 
-func LoadGNU(yocks yocki.YockScheduler) {
-	yocks.RegYockFn(yocki.YockFuns{
-		"pwd":     gnuPwd,
-		"whoami":  gnuWhoami,
-		"echo":    gnuEcho,
-		"ls":      gnuLs,
-		"clear":   gnuClear,
-		"chmod":   gnuChmod,
-		"chown":   gnuChown,
-		"cd":      gnuCd,
-		"touch":   gnuTouch,
-		"cat":     gnuCat,
-		"mv":      gnuMv,
-		"cp":      gnuCp,
-		"mkdir":   gnuMkdir,
-		"rm":      gnuRm,
-		"alias":   gnuAlias,
-		"unalias": gnuUnalias,
-		"sudo":    gnuSudo,
+// @param opt table
+//
+// @param cb function(*SSHClient)
+//
+// @return userdata (*SSHClient), err
+func gnuSSH(yocks yocki.YockScheduler, state yocki.YockState) int {
+	opt := yockc.SSHOpt{}
+	if state.IsTable(1) {
+		state.CheckTable(1).Bind(&opt)
+		cli, err := yockc.NewSSHClient(opt)
+		if err != nil {
+			state.PushNil().Throw(err)
+			return 2
+		}
+		if state.Argc() >= 2 && state.IsFunction(2) {
+			fn := state.CheckFunction(2)
+			if err := state.Call(yocki.YockFuncInfo{
+				Fn: fn,
+			}, cli); err != nil {
+				ycho.Fatal(err)
+			}
+		}
+		state.Pusha(cli)
+	}
+	state.PushNil()
+	return 2
+}
+
+func gnuIPTablesList(s yocki.YockState) int {
+	opt := yockc.IPTablesListOpt{}
+	if err := s.CheckTable(1).Bind(&opt); err != nil {
+		s.PushNilTable().Throw(err)
+		return 2
+	}
+	rules, err := yockc.IPTablesList(opt)
+	tbl := &lua.LTable{}
+	for _, rule := range rules {
+		tbl.Append(luar.New(s.LState(), rule))
+	}
+	s.Push(tbl).PushError(err)
+	return 2
+}
+
+func gnuIPTablesAdd(s yocki.YockState) int {
+	opt := yockc.IPTablesOpOpt{Op: yockc.IPTablesAdd}
+	if err := s.CheckTable(1).Bind(&opt); err != nil {
+		s.Throw(err)
+		return 1
+	}
+	if err := yockc.IPTablesOp(opt); err != nil {
+		s.Throw(err)
+	}
+	s.PushNil()
+	return 1
+}
+
+func gnuIPTablesDel(s yocki.YockState) int {
+	opt := yockc.IPTablesOpOpt{Op: yockc.IPTablesDel}
+	if err := s.CheckTable(1).Bind(&opt); err != nil {
+		s.Throw(err)
+		return 1
+	}
+	if err := yockc.IPTablesOp(opt); err != nil {
+		s.Throw(err)
+	}
+	s.PushNil()
+	return 1
+}
+
+func gnuSystemCtlCreate(s yocki.YockState) int {
+	opt := yockc.SCCreateOpt{}
+	name := s.CheckString(1)
+	if err := s.CheckTable(2).Bind(&opt); err != nil {
+		s.Throw(err)
+		return 1
+	}
+	err := yockc.SystemCtlCreate(name, opt)
+	s.PushError(err)
+	return 1
+}
+
+func gnuSystemCtlList(s yocki.YockState) int {
+	var (
+		optType   string
+		optStatus string
+	)
+	switch s.Argc() {
+	case 2:
+		optStatus = s.CheckString(2)
+		fallthrough
+	case 1:
+		optType = s.CheckString(1)
+	}
+	infos, err := yockc.SystemCtlStatus(yockc.SystemCtlStatusOpt{
+		Name:   "",
+		Type:   optType,
+		Status: optStatus,
 	})
+	tbl := &lua.LTable{}
+	for _, info := range infos {
+		tbl.Append(luar.New(s.LState(), info))
+	}
+	s.Push(tbl).PushError(err)
+	return 2
+}
+
+func gnuSystemCtlStatus(s yocki.YockState) int {
+	infos, err := yockc.SystemCtlStatus(yockc.SystemCtlStatusOpt{
+		Name: s.CheckString(1),
+	})
+	if len(infos) == 0 {
+		s.PushNil().PushError(err)
+	} else {
+		s.Pusha(infos[0]).PushError(err)
+	}
+	return 2
+}
+
+func gnuSystemCtlStop(s yocki.YockState) int {
+	s.PushError(yockc.SystemCtlStop(s.CheckString(1)))
+	return 1
+}
+
+func gnuSystemCtlDelete(s yocki.YockState) int {
+	s.PushError(yockc.SystemCtlDelete(s.CheckString(1)))
+	return 1
+}
+
+func gnuSystemCtlStart(s yocki.YockState) int {
+	s.PushError(yockc.SystemCtlStart(s.CheckString(1)))
+	return 1
+}
+
+func gnuSystemCtlEnable(s yocki.YockState) int {
+	s.PushBool(yockc.SystemCtlIsEnable(s.CheckString(1)))
+	return 1
+}
+
+func gnuSystemCtlDisable(s yocki.YockState) int {
+	s.PushError(yockc.SystemCtlDisable(s.CheckString(1)))
+	return 1
+}
+
+func gnuIfconfig(s yocki.YockState) int {
+	stats, err := util.Net().Interfaces()
+	if err != nil {
+		s.PushNilTable().Throw(err)
+		return 2
+	}
+	if v, err := Decode(s.LState(), []byte(stats.String())); err == nil {
+		s.Push(v).PushNil()
+	} else {
+		s.PushNilTable().Throw(err)
+	}
+	return 2
+}
+
+func gnuPGrep(s yocki.YockState) int {
+	s.Pusha(yockc.PGrep(s.CheckString(1)))
+	return 1
+}
+
+func gnuKill(s yocki.YockState) int {
+	if s.IsString(1) {
+		yockc.KillByName(s.CheckString(1))
+	} else {
+		yockc.KillByPid(int32(s.CheckInt(1)))
+	}
+	return 1
+}
+
+func gnuUnset(s yocki.YockState) int {
+	err := yockc.Unset(s.CheckString(1))
+	s.PushError(err)
+	return 1
+}
+
+func gnuExport(s yocki.YockState) int {
+	if s.Argc() > 1 {
+		yockc.Export(yockc.ExportOpt{}, s.CheckString(1), s.CheckString(2))
+	} else {
+		kv := strings.SplitN(s.CheckString(1), ":", 2)
+		if len(kv) == 2 {
+			yockc.Export(yockc.ExportOpt{Expand: true}, kv[0], kv[1])
+		} else {
+			s.PushError(fmt.Errorf("invalid command"))
+			return 1
+		}
+	}
+	s.PushNil()
+	return 1
+}
+
+// @return string, err
+func gnuWhereis(s yocki.YockState) int {
+	str, err := yockc.Whereis(s.CheckString(1))
+	s.PushString(str).PushError(err)
+	return 2
+}
+
+func gnuPS(s yocki.YockState) int {
+	opt := yockc.PSOpt{}
+	if err := s.CheckTable(1).Bind(&opt); err != nil {
+		s.PushNil().Throw(err)
+		return 2
+	}
+	info, err := yockc.PS(opt)
+	s.Pusha(info).PushError(err)
+	return 2
+}
+
+func gnuNohup(s yocki.YockState) int {
+	s.PushError(yockc.Nohup(s.CheckString(1)))
+	return 1
+}
+
+func gnuFind(s yocki.YockState) int {
+	opt := yockc.FindOpt{Dir: true, File: true, Search: true}
+	if s.IsTable(1) {
+		err := s.CheckTable(1).Bind(&opt)
+		if err != nil {
+			s.PushNil().Throw(err)
+			return 2
+		}
+		res, err := yockc.Find(opt, s.CheckString(2))
+		if err != nil {
+			s.PushNil().Throw(err)
+			return 2
+		}
+		tbl := &lua.LTable{}
+		for _, str := range res {
+			tbl.Append(lua.LString(str))
+		}
+		s.Push(tbl).PushNil()
+		return 2
+	} else {
+		opt.Search = false
+		if _, err := yockc.Find(opt, s.CheckString(1)); err != nil {
+			s.PushBool(false)
+			return 1
+		}
+		s.PushBool(true)
+		return 1
+	}
 }
 
 func gnuSudo(s yocki.YockState) int {
 	if util.CurPlatform.OS == "windows" {
 		sudo := filepath.Join(util.YockPath, "bin", "sudo.bat")
-		yockc.Exec(yockc.ExecOpt{}, sudo + " " + s.CheckString(1))
+		yockc.Exec(yockc.ExecOpt{}, sudo+" "+s.CheckString(1))
 	}
 	return 0
 }
@@ -59,13 +329,15 @@ func gnuSudo(s yocki.YockState) int {
 //
 // @return string
 func gnuAlias(s yocki.YockState) int {
-	aliases[s.CheckString(1)] = s.CheckString(2)
+	yockc.Alias(s.CheckString(1), s.CheckString(2))
 	return 0
 }
 
 // @param key string
 func gnuUnalias(s yocki.YockState) int {
-	delete(aliases, s.CheckString(1))
+	for i := 1; i <= s.Argc(); i++ {
+		yockc.Unalias(s.CheckString(i))
+	}
 	return 0
 }
 
@@ -87,37 +359,49 @@ func gnuWhoami(s yocki.YockState) int {
 	return 2
 }
 
-// @param str string
+// @param opt table|string
+//
+// @varag string
 //
 // @return string
 func gnuEcho(s yocki.YockState) int {
-	str := s.CheckString(1)
-	out, err := yockc.Echo(str)
-	if err != nil {
-		s.Throw(err)
-		return 1
+	opt := yockc.EchoOpt{}
+	if s.IsTable(1) {
+		if err := s.CheckTable(1).Bind(&opt); err != nil {
+			s.PushNil().Throw(err)
+			return 2
+		}
+	} else {
+		opt.Fd = []string{"stdout"}
 	}
-	debug := true
-	if s.Argc() >= 2 && s.IsBool(2) {
-		debug = s.CheckBool(2)
+	tbl := &lua.LTable{}
+	for i := 2; i <= s.Argc(); i++ {
+		out, err := yockc.Echo(opt, s.CheckString(i))
+		tbl.Append(lua.LString(out))
+		if err != nil {
+			s.Push(tbl).Throw(err)
+			return 2
+		}
 	}
-	if debug {
-		fmt.Println(out)
-	}
-	s.PushString(out)
-	return 1
+	s.Push(tbl).PushNil()
+	return 2
 }
 
 // @param opt table
 //
 // @return table|string, err
 func gnuLs(s yocki.YockState) int {
-	var opt yockc.LsOpt
-	err := s.CheckTable(1).Bind(&opt)
-	if err != nil {
-		s.PushNil().Throw(err)
-		return 2
+	opt := yockc.LsOpt{}
+	if s.IsTable(1) {
+		err := s.CheckTable(1).Bind(&opt)
+		if err != nil {
+			s.PushNil().Throw(err)
+			return 2
+		}
+	} else {
+		opt.Dir = s.CheckString(1)
 	}
+
 	st, str, err := yockc.Ls(opt)
 	if opt.Str {
 		s.PushString(str)
@@ -327,7 +611,7 @@ func gnuRm(s yocki.YockState) int {
 			targets = append(targets, s.CheckString(i))
 		}
 	} else {
-		for i := 1; i < s.Argc(); i++ {
+		for i := 1; i <= s.Argc(); i++ {
 			targets = append(targets, s.CheckString(i))
 		}
 	}

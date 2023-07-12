@@ -2,13 +2,16 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
+---@diagnostic disable: duplicate-set-field
+
 fetch = {}
 
+---@param url string
+---@param file_type string
 function fetch.file(url, file_type)
     if file_type == nil then
         yassert("invalid file type")
     end
-    local tmp_path = path.join(env.yock_path, "tmp")
     local file = ycache:get(url)
     if not (type(file) == "string" and #file > 0) then
         file = random.str(32) .. file_type
@@ -16,7 +19,7 @@ function fetch.file(url, file_type)
             debug = true,
             save = true,
             strict = true,
-            dir = tmp_path,
+            dir = pathf(env.yock_path, "tmp"),
             filename = function(s)
                 return file
             end

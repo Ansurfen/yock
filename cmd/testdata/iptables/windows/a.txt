@@ -1,0 +1,41 @@
+Rule Name:                            ???? - ????(ICMPv6-Out)
+----------------------------------------------------------------------
+Enabled:                              Yes
+Direction:                            Out
+Profiles:                             Domain,Private,Public
+Grouping:                             ????
+LocalIP:                              Any
+RemoteIP:                             Any
+Protocol:                             ICMPv6
+                                      Type    Code
+                                      4       Any
+Edge traversal:                       No
+Action:                               Allow
+
+Rule Name:                            "?????"???????(RTCP-Streaming-In)
+----------------------------------------------------------------------
+Enabled:                              Yes
+Direction:                            In
+Profiles:                             Private
+Grouping:                             "?????"??
+LocalIP:                              Any
+RemoteIP:                             LocalSubnet
+Protocol:                             UDP
+LocalPort:                            Any
+RemotePort:                           Any
+Edge traversal:                       No
+Action:                               Allow
+
+Rule Name:                            ????(LLMNR-UDP-In)
+----------------------------------------------------------------------
+Enabled:                              No
+Direction:                            In
+Profiles:                             Domain,Public
+Grouping:                             ????
+LocalIP:                              Any
+RemoteIP:                             LocalSubnet
+Protocol:                             UDP
+LocalPort:                            5355
+RemotePort:                           Any
+Edge traversal:                       No
+Action:                               Allow

@@ -6,7 +6,7 @@
 
 ---@class byte: integer
 
----@param e err
+---@param e err|string|nil
 ---@param msg? any
 function yassert(e, msg)
 end
@@ -26,15 +26,46 @@ end
 function ycache:free()
 end
 
----@param str string
----@param charset "UTF-8" | "GB18030"
+---@alias charset "UTF-8" | "GB18030"
+
+---@class strfopt
+local strfopt = {}
+
+---@param format string
+---@param opt strfopt
 ---@return string
-function strf(str, charset)
+function strf(format, opt)
+end
+
+---@param format string
+---@vararg any
+---@return string
+function strf(format, ...)
 end
 
 ---@param title string[]
 ---@param rows string[][]
 function printf(title, rows)
+end
+
+---`#(integer)` returns the real path of function from stack
+---
+---`$` returns process's worksapce
+---
+---`~` returns the path of executable file
+---
+---`@` returns yock's worksapce
+---
+---example:
+---```lua
+---pathf("@/", "a", "b")
+---pathf("#1")
+---```
+---
+---@vararg string
+---@return string
+---
+function pathf(...)
 end
 
 ---@param path string
@@ -179,7 +210,7 @@ function Viper:GetStringMapStringSlice(key)
 end
 
 ---@param key string
----@return Duration
+---@return timeDuration
 function Viper:GetDuration(key)
 end
 

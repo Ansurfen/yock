@@ -1,0 +1,5 @@
+No ALTQ support in kernel
+ALTQ related functions disabled
+nat-anchor "com.apple/*" all
+nat on utun2 inet from 192.168.1.0/24 to 128.0.0.1/24 -> (utun2) round-robin
+rdr-anchor "com.apple/*" all

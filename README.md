@@ -45,22 +45,36 @@ go get "github.com/ansurfen/yock"
 
 yockr: A lua interpreter based on the `gopher-lua` package, which is easier to get started.
 ```go
-import yockr "github.com/ansurfen/yock/runtime"
+import (
+	"fmt"
+
+	yockr "github.com/ansurfen/yock/runtime"
+)
+
+type user struct {
+	Name string
+	Pwd  string
+}
 
 func main() {
+	u := user{}
 	r := yockr.New()
-	if err := r.Eval(`print("Hello World")`); err != nil {
+	if err := r.Eval(`return {name = "root", pwd = "123456"}`); err != nil {
 		panic(err)
 	}
+	if err := r.State().CheckTable(1).Bind(&u); err != nil {
+		panic(err)
+	}
+	fmt.Println(u)
 }
 ```
 
-yockc: Provides yock with a series of simple GNU commands such as echo, rm, ls, etc. You can call them directly, and the specific Opt field can be found in `docs/yockc`
+yockc: Provides yock with a series of simple GNU commands such as iptabls, curl, crontab, etc. You can call them directly, and the specific Opt field can be found in `docs/yockc`
 ```go
 import yockc "github.com/ansurfen/yock/cmd"
 
 func main() {
-	yockc.HTTP(yockc.HttpOpt{
+	yockc.Curl(yockc.HttpOpt{
 		Method: "GET",
 		Save:   true,
 		Debug:  true,
@@ -75,12 +89,15 @@ func main() {
 yocks: A scheduler based on the yockr, which is the core of yock. Yocks not only includes interpreters and standard libraries, but also simple goroutine pools to facilitate the scheduling of asynchronous tasks. In addition, yocks is also equipped with protobuf based on the yocki protocol to implement cross-language calling services.
 ```go
 import (
+	"fmt"
 	"log"
+	"sync"
 
 	"github.com/ansurfen/yock/scheduler"
 )
 
 func main() {
+	var wg sync.WaitGroup
 	ys := yocks.New()
 	lib := ys.CreateLib("log")
 	lib.SetField(map[string]any{
@@ -94,6 +111,17 @@ func main() {
 	if err := ys.Eval(`log.Info("Hello World!")`); err != nil {
 		panic(err)
 	}
+	go ys.EventLoop()
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func(i int) {
+			ys.Do(func() {
+				ys.Eval(fmt.Sprintf(`log.Info("%d")`, i))
+				wg.Done()
+			})
+		}(i)
+	}
+	wg.Wait()
 }
 ```
 

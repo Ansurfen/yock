@@ -4,7 +4,11 @@
 
 package yocki
 
+import "io"
+
 type Ycho interface {
+	Progress(total int64, r io.Reader) io.Writer
+	Eventloop()
 	Info(msg string)
 	Infof(msg string, v ...any)
 	Debug(msg string)

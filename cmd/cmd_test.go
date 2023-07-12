@@ -28,8 +28,12 @@ func TestCp(t *testing.T) {
 	}, "a", "b")
 }
 
-func TestEcho(t *testing.T) {
-	fmt.Println(Echo("$GOPATH a"))
+func TestEchoConsole(t *testing.T) {
+	fmt.Println(Echo(EchoOpt{}, "$GOPATH a"))
+}
+
+func TestEchoFile(t *testing.T) {
+	fmt.Println(Echo(EchoOpt{Fd: []string{"file.txt"}, Mode: "c|a"}, "$GOPATH a"))
 }
 
 func TestExec(t *testing.T) {
@@ -40,7 +44,7 @@ func TestExec(t *testing.T) {
 	}, "echo a")
 }
 
-func TestHTTP(t *testing.T) {
+func TestCurl(t *testing.T) {
 	Curl(CurlOpt{
 		Method: "GET",
 		Save:   true,
@@ -50,7 +54,7 @@ func TestHTTP(t *testing.T) {
 			return s
 		},
 		Caller: "TestHTTP",
-	}, []string{"https://www.github.com"})
+	}, []string{"https://github.com"})
 }
 
 func TestLs(t *testing.T) {
@@ -61,4 +65,21 @@ func TestLs(t *testing.T) {
 
 func TestCh(t *testing.T) {
 	Chmod("", 0777)
+}
+
+func TestFind(t *testing.T) {
+	fmt.Println(Find(FindOpt{Search: true, Pattern: "sd$", Dir: false, File: true}, "../bin"))
+}
+
+func TestWhereis(t *testing.T) {
+	fmt.Println(Whereis("go"))
+}
+
+func TestExport(t *testing.T) {
+	Export(ExportOpt{Expand: true}, "a", "b")
+	Export(ExportOpt{}, "a", "c")
+}
+
+func TestUnset(t *testing.T) {
+	Unset("a")
 }

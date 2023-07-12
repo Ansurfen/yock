@@ -24,17 +24,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/ansurfen/yock/ctl/cmd"
-	"github.com/ansurfen/yock/ctl/conf"
-	yocke "github.com/ansurfen/yock/env"
-	"github.com/ansurfen/yock/util"
-	"github.com/ansurfen/yock/ycho"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/ansurfen/yock/ctl/cmd"
+	"github.com/ansurfen/yock/ctl/conf"
+	yocke "github.com/ansurfen/yock/env"
+	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/ycho"
 )
 
 func init() {
@@ -82,13 +83,13 @@ func init() {
 	conf := env.Conf()
 	zlog, err := ycho.NewZLog(ycho.YchoOpt{
 		Compress:    conf.Ycho.Compress,
-		Path:        conf.Ycho.Path,
+		Path:        path.Join(util.WorkSpace, conf.Ycho.Path),
 		FileName:    conf.Ycho.FileName,
 		Level:       conf.Ycho.Level,
 		FileMaxSize: conf.Ycho.FileMaxSize,
 		Stdout:      conf.Ycho.Stdout,
 	})
-	ycho.SetYcho(zlog)
+	ycho.Set(zlog)
 	if err != nil {
 		panic(err)
 	}

@@ -7,7 +7,7 @@ package main
 import yockc "github.com/ansurfen/yock/cmd"
 
 func main() {
-	err := yockc.Curl(yockc.CurlOpt{
+	_, err := yockc.Curl(yockc.CurlOpt{
 		Method: "GET",
 		Save:   false,
 		Debug:  true,

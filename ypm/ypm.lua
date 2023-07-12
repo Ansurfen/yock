@@ -45,15 +45,19 @@ function import(target)
     end
 
     -- The actual path to the script file, not the path where the script runs.
-    local code_path = path.join(debug.getinfo(2, "S").source, "..")
+    local code_path = pathf("#2", "..")
 
     -- import file by relative path
-    if (strings.Contains(target, "/") or strings.Contains(target, "\\"))
-        and string.sub(target, 1, 1) == "." then
-        return require(versionf(path.join(code_path, target)))
-        -- import file by absolute path
-    elseif path.abs(target) == target then
-        return require(versionf(target))
+    -- if (strings.Contains(target, "/") or strings.Contains(target, "\\"))
+    --     and string.sub(target, 1, 1) == "." then
+    --     -- todo: pathf("!", code_path, target)
+    --     return require(versionf(path.abs(path.join(code_path, target))))
+    --     -- import file by absolute path
+    -- elseif path.abs(target) == target then
+    --     return require(versionf(target))
+    -- end
+    if find(pathf(code_path, target .. ".lua")) then
+        return require(pathf(code_path, target))
     end
 
     local module = target
@@ -66,7 +70,7 @@ function import(target)
             yassert("invalid module")
         end
         module = mod
-        version = ver
+        version = versionf(ver)
     end
     -- check local modules
     local modules_json = jsonfile:open(path.join(code_path, "modules.json"), true)
@@ -78,8 +82,17 @@ function import(target)
     if #version == 0 and modules_json.buf ~= nil then
         version = modules_json.buf["dependency"][module]
     end
-
-    return require(path.join(module, versionf(version)))
+    local idx = strings.IndexAny(module, "/")
+    if idx ~= -1 then
+        module = path.join(string.sub(module, 1, idx), version,
+            string.sub(module, idx + 1, #module))
+    else
+        module = pathf(module, version)
+    end
+    if string.sub(module, 1, 1) == string.char(path.Separator) then
+        module = string.sub(module, 2, #module)
+    end
+    return require(module)
 end
 
 function cur_dir()
@@ -123,7 +136,7 @@ function yock_todo_loader(opt)
 end
 
 function github_completion(url, version)
-    fetch.file(string.format(url, version))
+    -- fetch.file(string.format(url, version))
 end
 
 function github_loader(url)
@@ -227,21 +240,18 @@ function load_module(target)
     end
 
     -- check local modules
-    local wd, err = pwd()
-    yassert(err)
-
-    if is_exist(path.join(wd, "yock_modules", module)) then
+    if find(pathf("~/yock_modules", module)) then
         if #version == 0 then
             ---@diagnostic disable-next-line: redundant-return-value
             return import(target)
         else
             ---@diagnostic disable-next-line: redundant-return-value
-            return import(path.join(wd, "yock_modules", module, version, "index"))
+            return import(pathf("~/yock_modules", module, version, "index"))
         end
     end
 
     -- check global modules
-    if is_exist(path.join(env.yock_modules, module)) then
+    if find(path.join(env.yock_modules, module)) then
         if #version == 0 then
             version = ypm.modules.buf["dependency"][module]
         end

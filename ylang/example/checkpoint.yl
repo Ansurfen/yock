@@ -1,0 +1,6 @@
+checkpoint a:
+print("Hello Wolrd!")
+checkpoint b:
+print("Hello ...")
+
+//

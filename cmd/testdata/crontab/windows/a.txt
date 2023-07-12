@@ -1,0 +1,15 @@
+文件夹: \Microsoft\Windows\StateRepository
+任务名                                   下次运行时间           模式
+======================================== ====================== ===============
+MaintenanceTasks                         N/A                    就绪
+
+Folder: \Microsoft\Windows\Live
+TaskName                                 Next Run Time          Status
+======================================== ====================== ===============
+INFO: There are no scheduled tasks presently available at your access level.
+
+文件夹: \Microsoft\Windows\Storage Tiers Management
+任务名                                   下次运行时间           模式
+======================================== ====================== ===============
+Storage Tiers Management Initialization  2023/7/14 12:00:00     就绪
+Storage Tiers Optimization               N/A                    已禁用

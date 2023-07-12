@@ -2,8 +2,8 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
----@see prompt
-function prompt(tbl)
+---@param opt promptopt
+function prompt(opt)
     if env.params == nil then
         env.params = {}
     end
@@ -69,7 +69,7 @@ function prompt(tbl)
         return c
     end
 
-    local c = builder_command(tbl, nil, "")
+    local c = builder_command(opt, nil, "")
     local args = {}
     for i = 2, #env.args do
         args[i - 1] = env.args[i]

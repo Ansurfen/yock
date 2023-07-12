@@ -48,6 +48,7 @@ type YockState interface {
 	CheckInt(n int) int
 	CheckBool(n int) bool
 	CheckFunction(n int) *lua.LFunction
+	CheckAny(n int) any
 
 	IsNil(n int) bool
 	IsFunction(n int) bool
@@ -73,7 +74,10 @@ type YockState interface {
 	NewLFunction(f lua.LGFunction) *lua.LFunction
 	NewYFunction(f YGFunction) *lua.LFunction
 	Exit() int
+
+	Stack(i int) (*lua.Debug, bool)
 	Stacktrace() string
+
 	LState() *lua.LState
 	Argc() int
 	PopTop()

@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-func TestLog(t *testing.T) {
-	ycho, err := NewZLog(YchoOpt{})
+func TestZLog(t *testing.T) {
+	ycho, err := NewZLog(YchoOpt{Stdout: true})
 	if err != nil {
 		panic(err)
 	}

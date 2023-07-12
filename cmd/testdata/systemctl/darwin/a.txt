@@ -1,0 +1,4 @@
+PID     Status      Label
+-       0           com.apple.SafaricHistoryServiceAgent
+319     0           com.apple.Finder
+-       0           com.apple.quicklook

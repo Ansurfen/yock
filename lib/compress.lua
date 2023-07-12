@@ -13,11 +13,17 @@ tarc = function(src, dst)
     yassert(err)
     local gw = gzip.NewWriter(fw)
     local tw = tar.NewWriter(gw)
+    local root = filepath.Base(src)
     path.walk(src, function(fileName, info, err)
         yassert(err)
+        if src == fileName then
+            return true
+        end
         local hdr, err = tar.FileInfoHeader(info, "")
         yassert(err)
-        hdr.Name = strings.TrimPrefix(fileName, string.char(path.Separator))
+        local relPath, err = filepath.Rel(src, fileName)
+        yassert(err)
+        hdr.Name = root .. "/" .. strings.TrimPrefix(strings.ReplaceAll(relPath, "\\", "/"), "/")
         yassert(tw:WriteHeader(hdr))
         if not (bit.And(info:Mode(), fs.ModeType) == 0) then
             return true
@@ -69,6 +75,8 @@ zipc = function(src, dst)
     archive:Close()
 end
 
+---@param src string
+---@param dst string
 untar = function(src, dst)
     local file, err = os.Open(src)
     yassert(err)

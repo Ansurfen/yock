@@ -11,7 +11,9 @@ import (
 	"github.com/ansurfen/yock/ycho"
 )
 
-type mylog struct{}
+type mylog struct{
+	ycho.Vlog
+}
 
 func (m *mylog) Info(msg string) {
 	log.Println(msg)
@@ -56,7 +58,7 @@ func (m *mylog) Errorf(msg string, a ...any) {
 var _ yocki.Ycho = (*mylog)(nil)
 
 func main() {
-	ycho.SetYcho(&mylog{})
+	ycho.Set(&mylog{})
 	ycho.Info("Hello World!")
 	ycho.Fatalf("1 == 2 -> %v", 1 == 2)
 }

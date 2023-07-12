@@ -23,8 +23,6 @@ func init() {
 	yockDisk = newDisk()
 	yockHost = newHost()
 	yockNet = newNet()
-
-	center = &SSHCenter{}
 }
 
 var (

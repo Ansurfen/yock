@@ -8,10 +8,12 @@ prompt({
         short = "ypm is package manager for yock"
     },
     sub = {
-        import("./new"),
-        import("./rm"),
-        import("./install"),
-        import("./uninstall")
+        import("cmd/init"),
+        import("cmd/add"),
+        import("cmd/rm"),
+        import("cmd/proxy"),
+        import("cmd/install"),
+        import("cmd/uninstall"),
+        import("cmd/version")
     },
-    flags = {}
 })

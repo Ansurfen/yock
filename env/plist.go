@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 
-	yockc "github.com/ansurfen/yock/cmd"
 	"github.com/ansurfen/yock/util"
 	"howett.net/plist"
 )
@@ -91,6 +90,8 @@ func (pf *PlistFile) GetDict() CFDictionary {
 	switch v := pf.v.(type) {
 	case cfDictionary:
 		return CFDictionary{val: v}
+	default:
+		fmt.Println(reflect.TypeOf(v))
 	}
 	return CFDictionary{}
 }
@@ -241,9 +242,8 @@ func (pf *PlistFile) SafeSet(key string, value any) error {
 }
 
 func (pf *PlistFile) Backup() error {
-	_, err := yockc.Exec(yockc.ExecOpt{},
-		fmt.Sprintf("cp %s %s", pf.file,
-			fmt.Sprintf("%s_%s.plist", util.Filename(pf.file), util.NowTimestampByString())))
+	_, err := util.Exec(fmt.Sprintf("cp %s %s", pf.file,
+		fmt.Sprintf("%s_%s.plist", util.Filename(pf.file), util.NowTimestampByString())))
 	return err
 }
 

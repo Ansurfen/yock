@@ -20,6 +20,6 @@ func (echo *EchoCmd) Exec(args string) ([]byte, error) {
 			cc.str += s
 			return nil
 		})
-	out, err := yockc.Echo(echo.str)
+	out, err := yockc.Echo(yockc.EchoOpt{}, echo.str)
 	return []byte(out), err
 }

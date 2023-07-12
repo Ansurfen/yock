@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -169,7 +170,7 @@ func ExecStr(args string) ([]byte, error) {
 
 // Filename returns the last element name of fullpath.
 func Filename(fullpath string) string {
-	filename := path.Base(fullpath)
+	filename := filepath.Base(fullpath)
 	ext := path.Ext(filename)
 	return filename[:len(filename)-len(ext)]
 }

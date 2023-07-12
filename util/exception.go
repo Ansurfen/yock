@@ -39,6 +39,7 @@ var (
 
 	ErrInvalidFile  = errors.New("invalid file")
 	ErrFileNotExist = errors.New("file not exist")
+	ErrPathNotFound = errors.New("path not found")
 	ErrFileExist    = errors.New("file exist")
 
 	// yock plugin

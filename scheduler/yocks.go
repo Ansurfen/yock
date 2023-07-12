@@ -5,6 +5,7 @@
 package yocks
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -201,7 +202,7 @@ type luaFuncs map[string]lua.LGFunction
 
 var yockLibs = []yockLib{
 	{yockLibYcho, func(yocks *YockScheduler) lua.LValue {
-		return luar.New(yocks.State().LState(), ycho.GetYcho())
+		return luar.New(yocks.State().LState(), ycho.Get())
 	}},
 }
 
@@ -301,6 +302,14 @@ func (yocks *YockScheduler) LaunchTask(name string) {
 		tmp, cancel := yocks.NewState()
 		tbl := yocks.env.Meta().Clone(tmp.LState())
 		tbl.SetString("job", name)
+		tbl.SetField(tmp.LState(), map[string]any{
+			"info": func(msg string) {
+				dbg, ok := tmp.Stack(1)
+				if ok {
+					ycho.Info(fmt.Sprintf("%s:%d %s", dbg.Source, dbg.CurrentLine, msg))
+				}
+			},
+		})
 		if flags != nil {
 			if tmp, ok := flags.Value().RawGetString(name).(*lua.LTable); ok {
 				tbl.Value().RawSetString("flags", tmp)

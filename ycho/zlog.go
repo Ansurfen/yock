@@ -38,9 +38,14 @@ func (opt YchoOpt) String() string {
 
 type zlog struct {
 	log *zap.Logger
+	Vlog
 }
 
 var _ yocki.Ycho = (*zlog)(nil)
+
+func (z *zlog) Write(p []byte) (int, error) {
+	return len(p), nil
+}
 
 func (z *zlog) Info(msg string) {
 	z.log.Info(msg)
@@ -99,7 +104,7 @@ func NewZLog(conf YchoOpt) (*zlog, error) {
 		level = logLevel["info"]
 	}
 	core := zapcore.NewCore(encoder, writeSyncer, level)
-	logger := zap.New(core, zap.AddCaller())
+	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(2))
 	return &zlog{log: logger}, nil
 }
 
@@ -112,7 +117,7 @@ func getEncoder(conf YchoOpt) zapcore.Encoder {
 		MessageKey:    "msg",
 		StacktraceKey: "stacktrace",
 		EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-			enc.AppendString(t.Format("2006-01-02 15:04:05.000 -0700"))
+			enc.AppendString(t.Format(defaultTimeFormat))
 		},
 		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,

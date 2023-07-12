@@ -5,15 +5,41 @@
 ---@meta _
 
 ---{{.sh}}
----@param opt? table
+---@param opt table
 ---@vararg string
 ---@return table, err
 function sh(opt, ...)
 end
 
+---{{.sh}}
+---@vararg string
+---@return table, err
+function sh(...)
+end
+
+---@class promptoptdesc
+---@field use string
+---@field short string
+local promptoptdesc = {}
+
+---@class promptoptflag
+---@field default boolean|string|table<string>
+---@field type flag_type
+---@field name string
+---@field shorthand string
+---@field usage string
+local promptoptflag = {}
+
+---@class promptopt
+---@field desc promptoptdesc
+---@field sub table<promptopt>
+---@field flags table<promptoptflag>
+---@field run fun(cmd: userdata, args: table<string>)
+local promptopt = {}
+
 ---{{.prompt}}
----@param tbl table
-function prompt(tbl)
+---@param opt promptopt
+function prompt(opt)
 end
 
 ---@class command

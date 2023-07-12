@@ -1,68 +1,130 @@
---  Copyright 2023 The Yock Authors. All rights reserved.
---  Use of this source code is governed by a MIT-style
---  license that can be found in the LICENSE file.
+-- Copyright 2023 The Yock Authors. All rights reserved.
+-- Use of this source code is governed by a MIT-style
+-- license that can be found in the LICENSE file.
 
-argsparse(env, {
-    -- pwd
-    wd = flag_type.str,
-    -- local or global
-    g = flag_type.bool,
-    m = flag_type.str
-})
+local defaultSource = "https://github.com/ansurfen/yock-todo"
+local defaultProxyIdent = "github"
 
-ypm:open()
-local module = env.flags["m"]
-local g = env.flags["g"]
-local wd = env.flags["wd"]
-
-local yock_json = path.join(wd, "modules.json")
-local yock_modules = path.join(wd, "yock_modules")
-
-if g then
-    yock_modules = env.yock_modules
-end
-
-if not is_exist(yock_json) then
-    safe_write(yock_json, [[{"dependency":{}}]])
-end
-
-local fp
-
-if g then
-    fp = ypm.modules
-else
-    fp = jsonfile:open(yock_json)
-    mkdir(yock_modules)
-end
-
-if #module > 0 then
-    fp.buf.dependency[module] = ""
-    fp:write()
-end
-
-for name, _ in pairs(fp.buf["dependency"]) do
-    local remote_path = ypm:get(name)
-    if remote_path == nil then
-        yassert("invalid path")
+---@return string|nil
+local parseProxy = function(p, m)
+    for _, v in pairs(p["filter"]) do
+        if v == m then
+            return nil
+        end
     end
-    local file = fetch.script(ypm:get(name))
-    local mod = import(path.join(env.yock_tmp, file))
-    if mod == nil or mod.load == nil then
-        goto continue
+    local rurl = p["redirect"][m]
+    if rurl ~= nil then
+        return rurl
     end
-    -- mod.load({
-    --     name = module,
-    --     version = mod.version
-    -- })
-    mkdir(path.join(yock_modules, name))
-    cp(path.join(env.yock_modules, name, "boot.lua"), path.join(yock_modules, name, "boot.lua"))
-    local ver = strings.ReplaceAll(mod.version, ".", "_")
-    cp(path.join(env.yock_modules, name, ver), path.join(yock_modules, name, ver))
-    if #module > 0 and #fp.buf.dependency[module] == 0 then
-        fp.buf.dependency[module] = mod.version
-        fp:write()
-    end
-    ::continue::
+    return strf(p["url"], {
+        ver = m
+    })
 end
 
-ypm:close()
+return {
+    desc = { use = "install" },
+    run = function(cmd, args)
+        if #args == 0 then
+            yassert("arguments too little")
+        end
+        local installParameter = env.params["/ypm/install"]
+        local g = false
+        local p = ""
+        if type(installParameter) == "table" then
+            g = installParameter["g"]:Var()
+            p = installParameter["p"]:Var()
+        end
+
+        local mod = args[1]
+        local proxies, err = find({
+            dir = false,
+            pattern = "\\.lua"
+        }, pathf("#1", "../../proxy"))
+
+        local defaultProxy
+        local candidates = {}
+        if err ~= nil or #proxies == 0 then
+            print("prepare to fetch default source...")
+            print(defaultSource)
+        else
+            print("select startegies from proxies")
+            if type(proxies) == "table" then
+                for _, proxy in ipairs(proxies) do
+                    local filename = path.filename(proxy)
+                    if filename == defaultProxyIdent then
+                        defaultProxy = import(proxy)
+                    else
+                        table.insert(candidates, import(proxy))
+                    end
+                end
+            end
+        end
+
+        local res
+        if defaultProxy ~= nil then
+            res = parseProxy(defaultProxy, mod)
+        end
+        for _, proxy in ipairs(candidates) do
+            if res ~= nil then
+                break
+            end
+            res = parseProxy(proxy, mod)
+        end
+
+        if res ~= nil then
+            local file = fetch.file(res, ".lua")
+
+            ---@type module
+            local module = import(pathf(env.yock_tmp, file))
+
+            if type(p) == "string" and #p > 0 then
+                local target = module.name
+                if env.platform.OS == "windows" then
+                    target = target .. ".zip"
+                else
+                    target = target .. ".tar.gz"
+                end
+                p = strf(p, {
+                    ver = module.version,
+                    target = target
+                })
+            end
+            if #p == 0 then
+                ---@diagnostic disable-next-line: cast-local-type
+                p = nil
+            end
+
+            module.load({
+                ver = module.version,
+                url = p
+            })
+
+            local modules_path
+            if g then
+                modules_path = pathf("~/ypm/modules.json")
+            else
+                modules_path = pathf("$/modules.json")
+            end
+            mkdir("yock_modules")
+            local modules_json = json.create(modules_path, [[{"denpend":{}}]])
+            modules_json:set(string.format("denpend.%s", mod), module.version)
+            modules_json:save(true)
+        end
+    end,
+    flags = {
+        {
+            type = flag_type.bool,
+            name = "global",
+            shorthand = "g",
+            default = false,
+            usage = ""
+        },
+        {
+            type = flag_type.str,
+            name = "proxy",
+            shorthand = "p",
+            default = "",
+            usage = ""
+        }
+    }
+}
