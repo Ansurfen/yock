@@ -15,12 +15,10 @@ job("default", function(cenv)
     rm({
         safe = false
     }, "tmp.txt")
-    return true
 end)
 
 job("whoami", function(cenv)
     print(whoami())
-    return true
 end)
 
 job("ls", function(cenv)
@@ -29,7 +27,6 @@ job("ls", function(cenv)
         str = true
     }))
     table.dump(ls("."))
-    return true
 end)
 
 job("awk", function(cenv)
@@ -46,7 +43,6 @@ job("awk", function(cenv)
             age = 20
         }
     })
-    return true
 end)
 
 job("sed", function(cenv)
@@ -56,7 +52,6 @@ job("sed", function(cenv)
         file = { "t.txt" },
     })
     print(out, err)
-    return true
 end)
 
 job("grep", function(cenv)
@@ -66,7 +61,6 @@ job("grep", function(cenv)
         pattern = "get",
         file = { "awk_test.txt" }
     })
-    return true
 end)
 
 job("alias", function(cenv)
@@ -74,12 +68,10 @@ job("alias", function(cenv)
     sh("$CC -v")
     unalias("CC")
     sh("$CC -v")
-    return true
 end)
 
 job("sudo", function(cenv)
     sudo("go -v")
-    return true
 end)
 
 job("find", function(cenv)
@@ -90,7 +82,6 @@ job("find", function(cenv)
     }, "../../bin")
     yassert(err)
     table.dump(tbl)
-    return true
 end)
 
 job("echo", function(cenv)
@@ -98,7 +89,6 @@ job("echo", function(cenv)
     print(echo("$GOPATH not auto print"))
     write("file.txt", "hello world")
     echo({ fd = { "file.txt" }, mode = "a" }, "Hello World")
-    return true
 end)
 
 job("ps", function(cenv)
@@ -120,24 +110,20 @@ job("ps", function(cenv)
     for i = 1, #procs, 1 do
         print(procs[i].Pid, procs[i].Name)
     end
-    return true
 end)
 
 job("whereis", function(cenv)
     print(whereis("go"))
-    return true
 end)
 
 job("export", function(cenv)
     export("a", "b")
     export("a:c")
     unset("a")
-    return true
 end)
 
 job("net", function(cenv)
     ifconfig()
-    return true
 end)
 
 job("sys-test", function(cenv)
@@ -162,7 +148,6 @@ job("sys-test", function(cenv)
     if s == nil then
         print("删了")
     end
-    return true
 end)
 
 job("sys-ls", function(cenv)
@@ -170,14 +155,12 @@ job("sys-ls", function(cenv)
     for _, srv in ipairs(services) do
         print(srv:PID(), srv:Name(), srv:Status())
     end
-    return true
 end)
 
 job("curl", function(cenv)
     local data, err = curl({}, "")
     yassert(err)
     print(data)
-    return true
 end)
 
 job("iptables-ls", function(cenv)
@@ -189,7 +172,6 @@ job("iptables-ls", function(cenv)
     for _, v in ipairs(data) do
         print(v:Name(), v:Proto(), v:Action())
     end
-    return true
 end)
 
 job("iptables-test", function(cenv)
@@ -232,5 +214,4 @@ job("iptables-test", function(cenv)
             print(v:Name(), v:Proto(), v:Action())
         end
     end
-    return true
 end)

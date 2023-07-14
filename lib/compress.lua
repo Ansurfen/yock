@@ -93,10 +93,12 @@ untar = function(src, dst)
         if header.Typeflag == tar.TypeDir then
             mkdir(targetPath)
         elseif header.Typeflag == tar.TypeReg then
-            file, err = os.OpenFile(targetPath, bit.Or(os.O_CREATE, os.O_WRONLY), header:FileInfo():Mode())
+            mkdir(filepath.Dir(targetPath))
+            local fp, err = os.OpenFile(targetPath, bit.Or(os.O_CREATE, os.O_WRONLY), header:FileInfo():Mode())
             yassert(err)
-            _, err = io.Copy(file, tarReader)
+            _, err = io.Copy(fp, tarReader)
             yassert(err)
+            fp:Close()
         else
             print("invalid file type")
         end

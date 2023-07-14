@@ -7,5 +7,4 @@ job("path", function(cenv)
     print(pathf("$"))
     print(pathf("~"))
     print(pathf("#1"))
-    return true
 end)

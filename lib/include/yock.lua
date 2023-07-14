@@ -11,19 +11,51 @@
 function yassert(e, msg)
 end
 
-ycache = {}
+cachetable = {}
+
+---@param name string
+---@param level integer
+---@param expire timeTime
+---@param lock string
+---@param attr integer
+---@return ycache
+function cachetable:create(name, level, expire, lock, attr)
+end
+
+---@param name string
+---@param lock string
+---@return ycache|nil
+function cachetable:get(name, lock)
+end
+
+---@param level integer
+---@param expire? boolean
+function cachetable:free(level, expire)
+end
+
+---@class ycache
+local ycache = {}
+
+---@param index string
+---@param dir string
+---@return ycache
+function ycache:new(index, dir)
+end
 
 ---@param k string
----@param v string
+---@param v any
 function ycache:put(k, v)
 end
 
 ---@param k string
----@return string|nil
+---@return any
 function ycache:get(k)
 end
 
 function ycache:free()
+end
+
+function ycache:save()
 end
 
 ---@alias charset "UTF-8" | "GB18030"
@@ -66,6 +98,39 @@ end
 ---@return string
 ---
 function pathf(...)
+end
+
+---@param opt table
+---@param handles table<fun(): string>
+function loadbalance(opt, handles)
+end
+
+---@param fileType string
+---@param want table<string, string>
+---@param opt table<string, string>
+---@return string
+function multi_fetch(fileType, want, opt)
+end
+
+---@param todo table
+---@param handle function
+---@return table
+function multi_bind(todo, handle)
+end
+
+---@param s string
+---@return string
+function wrapzip(s)
+end
+
+---@param s string
+---@return string
+function wrapexf(s)
+end
+
+---@param s string
+---@return string
+function wrapscript(s)
 end
 
 ---@param path string

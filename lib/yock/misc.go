@@ -5,6 +5,7 @@
 package liby
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -35,10 +36,58 @@ func LoadMisc(yocks yocki.YockScheduler) {
 		"pathf":        pathf,
 		"open_conf":    openConf,
 		"eval":         eval,
+		"loadbalance":  loadbalance,
 	})
 	yocks.RegYocksFn(yocki.YocksFuncs{
 		"curl": netCurl,
 	})
+}
+
+type loadbalanceOpt struct {
+	MaxRetry int
+}
+
+type handle func() error
+
+func loadbalance(s yocki.YockState) int {
+	elements := []handle{}
+	opt := loadbalanceOpt{}
+	if err := s.CheckTable(1).Bind(&opt); err != nil {
+		s.Throw(err)
+		return 1
+	}
+	s.CheckTable(2).Value().ForEach(func(_, l2 lua.LValue) {
+		elements = append(elements, func() error {
+			err := s.Call(yocki.YockFuncInfo{
+				Fn:   l2,
+				NRet: 1,
+			})
+			if err != nil {
+				return err
+			}
+			if msg := s.CheckString(1); len(msg) > 0 {
+				err = errors.New(msg)
+			}
+			s.PopTop()
+			return err
+		})
+	})
+	s.PopTop()
+	s.PopTop()
+	if opt.MaxRetry == 0 {
+		opt.MaxRetry = len(elements)/2 + 1
+	}
+	ld := util.NewWeightedRandom(elements)
+	for i := 0; i < opt.MaxRetry; i++ {
+		call, idx := ld.Next()
+		if err := call(); err != nil {
+			ld.Down(idx)
+		} else {
+			break
+		}
+	}
+	s.PushNil()
+	return 1
 }
 
 func eval(s yocki.YockState) int {
@@ -95,7 +144,11 @@ func osStrf(s yocki.YockState) int {
  */
 func osSh(s yocki.YockState) int {
 	cmds := []string{}
-	opt := yockc.ExecOpt{Quiet: true}
+	opt := yockc.ExecOpt{Quiet: true, Info: func(cmd, args string) {
+		if yocki.Y_MODE.Debug() {
+			ycho.Infof("%s%s %s", s.Stacktrace(), cmd, args)
+		}
+	}}
 	if s.IsTable(1) {
 		tbl := s.CheckTable(1)
 		if err := tbl.Bind(&opt); err != nil {
@@ -191,11 +244,17 @@ func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
 			urls = append(urls, s.CheckString(i))
 		}
 	} else {
-		for i := 1; i < s.Argc(); i++ {
+		for i := 1; i <= s.Argc(); i++ {
 			urls = append(urls, s.CheckString(i))
 		}
 	}
 	str, err := yockc.Curl(opt, urls)
+	if opt.Debug {
+		dbg, ok := s.Stack(1)
+		if ok {
+			ycho.Debugf("%s:%d\t%s %s", dbg.Source, dbg.CurrentLine, opt.Method, urls[0])
+		}
+	}
 	s.PushString(string(str)).PushError(err)
 	return s.Exit()
 }

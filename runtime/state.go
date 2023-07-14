@@ -75,6 +75,14 @@ func (s *YockState) CheckAny(n int) any {
 	return s.ls.CheckAny(n)
 }
 
+func (s *YockState) CheckLValue(n int) lua.LValue {
+	return s.ls.CheckAny(n)
+}
+
+func (s *YockState) CheckLTable(n int) *lua.LTable {
+	return s.ls.CheckTable(n)
+}
+
 func (s *YockState) IsNil(n int) bool {
 	return s.ls.CheckAny(n).Type() == lua.LTNil
 }

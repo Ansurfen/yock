@@ -142,18 +142,21 @@ RET:
 		header, err := tarReader.Next()
 		switch err {
 		case nil:
-			targetPath := filepath.Join(dst, header.Name)
+			targetPath := strings.ReplaceAll(filepath.Join(dst, header.Name), "\\", "/")
 			if header.Typeflag == tar.TypeDir {
 				if err := util.Mkdirs(targetPath); err != nil {
 					return err
 				}
 			} else if header.Typeflag == tar.TypeReg {
+				if err := util.Mkdirs(filepath.Dir(targetPath)); err != nil {
+					return err
+				}
 				fp, err := os.OpenFile(targetPath, os.O_CREATE|os.O_WRONLY, header.FileInfo().Mode())
 				if err != nil {
 					return err
 				}
 				defer fp.Close()
-				_, err = io.Copy(file, tarReader)
+				_, err = io.Copy(fp, tarReader)
 				if err != nil {
 					return err
 				}

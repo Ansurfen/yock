@@ -33,7 +33,7 @@ func (pool *ChannelPool) Run() {
 		timer := time.NewTimer(sleeping)
 		select {
 		case f := <-pool.goroutines:
-			f()
+			go f()
 		default:
 			// time.Sleep(1 * time.Second)
 			<-timer.C

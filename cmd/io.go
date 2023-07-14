@@ -10,7 +10,6 @@ import (
 	"regexp"
 
 	"github.com/ansurfen/yock/util"
-	"github.com/ansurfen/yock/ycho"
 )
 
 // RmOpt indicates configuration of rm
@@ -26,6 +25,10 @@ type RmOpt struct {
 	Strict bool
 	// Pattern delete file to be matched
 	Pattern string
+
+	Info func(path string)
+
+	Error func(err error) error
 }
 
 func Rm(opt RmOpt, targets []string) error {
@@ -38,17 +41,13 @@ func Rm(opt RmOpt, targets []string) error {
 				if !info.IsDir() {
 					matched, _ := regexp.MatchString(opt.Pattern, info.Name())
 					if matched {
+						if opt.Info != nil {
+							opt.Info(path)
+						}
 						err := os.Remove(path)
-						if err != nil {
-							if opt.Debug {
-								ycho.Warn(err)
-							}
-							if opt.Strict {
+						if err != nil && opt.Error != nil {
+							if err = opt.Error(err); err != nil {
 								return err
-							}
-						} else {
-							if opt.Debug {
-								ycho.Infof("delete %s", path)
 							}
 						}
 					}
@@ -59,14 +58,20 @@ func Rm(opt RmOpt, targets []string) error {
 	} else {
 		if opt.Safe {
 			for _, t := range targets {
-				if err := os.Remove(t); err != nil && opt.Debug {
-					ycho.Warnf("%s\t%s", opt.Caller, err.Error())
+				if opt.Info != nil {
+					opt.Info(t)
+				}
+				if err := os.Remove(t); err != nil && opt.Error != nil {
+					opt.Error(err)
 				}
 			}
 		} else {
 			for _, t := range targets {
-				if err := os.RemoveAll(t); err != nil && opt.Debug {
-					ycho.Warnf("%s\t%s", opt.Caller, err.Error())
+				if opt.Info != nil {
+					opt.Info(t)
+				}
+				if err := os.RemoveAll(t); err != nil && opt.Error != nil {
+					opt.Error(err)
 				}
 			}
 		}
@@ -85,7 +90,7 @@ type CpOpt struct {
 	Caller string
 	Force  bool
 
-	Strict bool
+	Info func(name, args string)
 }
 
 func Cp(opt CpOpt, src, dst string) error {
@@ -117,6 +122,7 @@ func Cp(opt CpOpt, src, dst string) error {
 		Debug:  opt.Debug,
 		Caller: opt.Caller,
 		Quiet:  true,
+		Info:   opt.Info,
 	})
 	return err
 }
@@ -129,6 +135,8 @@ type MvOpt struct {
 	//
 	// It'll printed on console when debug is true
 	Caller string
+
+	Info func(name, args string)
 }
 
 func Mv(opt MvOpt, src, dst string) error {
@@ -148,6 +156,7 @@ func Mv(opt MvOpt, src, dst string) error {
 		Debug:  opt.Debug,
 		Caller: opt.Caller,
 		Quiet:  true,
+		Info:   opt.Info,
 	})
 	return err
 }

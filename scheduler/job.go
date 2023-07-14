@@ -82,6 +82,13 @@ func taskJobs(ys yocki.YockScheduler, l yocki.YockState) int {
 //
 // @param opt table
 func taskJobOption(yocks yocki.YockScheduler, l yocki.YockState) int {
-	yocks.SetOpt(l.CheckTable(1))
+	opt := l.CheckTable(1)
+	yocks.SetOpt(opt)
+	if m, ok := opt.GetBool("strict"); ok && m {
+		yocki.Y_MODE.SetMode(Y_STRICT)
+	}
+	if m, ok := opt.GetBool("debug"); ok && m {
+		yocki.Y_MODE.SetMode(Y_DEBUG)
+	}
 	return 0
 }

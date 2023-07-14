@@ -318,10 +318,11 @@ func gnuFind(s yocki.YockState) int {
 }
 
 func gnuSudo(s yocki.YockState) int {
+	sudo := "sudo"
 	if util.CurPlatform.OS == "windows" {
-		sudo := filepath.Join(util.YockPath, "bin", "sudo.bat")
-		yockc.Exec(yockc.ExecOpt{}, sudo+" "+s.CheckString(1))
+		sudo = filepath.Join(util.YockPath, "bin", "sudo.bat")
 	}
+	yockc.Exec(yockc.ExecOpt{Quiet: true}, sudo+" "+s.CheckString(1))
 	return 0
 }
 
@@ -502,7 +503,11 @@ func gnuMv(s yocki.YockState) int {
 * @return err
  */
 func gnuCp(s yocki.YockState) int {
-	opt := yockc.CpOpt{Recurse: true}
+	opt := yockc.CpOpt{Recurse: true, Info: func(name, args string) {
+		if yocki.Y_MODE.Debug() {
+			ycho.Infof("%s%s %s", s.Stacktrace(), name, args)
+		}
+	}}
 	paths := []string{}
 	var g_err error
 	if s.IsTable(1) {
@@ -511,15 +516,15 @@ func gnuCp(s yocki.YockState) int {
 			return 1
 		}
 		if s.IsTable(2) {
-			s.CheckTable(2).Value().ForEach(func(src, dst lua.LValue) {
+			s.CheckLTable(2).ForEach(func(src, dst lua.LValue) {
 				err := yockc.Cp(opt, src.String(), dst.String())
 				if err != nil {
-					if opt.Strict {
-						// TODO
+					if yocki.Y_MODE.Strict() {
+						s.Throw(err)
 					} else {
 						g_err = util.ErrGeneral
 					}
-					if opt.Debug {
+					if yocki.Y_MODE.Debug() {
 						ycho.Warnf(s.Stacktrace() + err.Error())
 					}
 				}
@@ -540,10 +545,10 @@ func gnuCp(s yocki.YockState) int {
 		err := yockc.Cp(opt, paths[0], paths[1])
 		if err != nil {
 			g_err = err
-			if opt.Debug {
+			if yocki.Y_MODE.Debug() {
 				ycho.Warnf(s.Stacktrace() + err.Error())
 			}
-			if opt.Strict {
+			if yocki.Y_MODE.Strict() {
 				// TODO
 			} else {
 				g_err = util.ErrGeneral
@@ -560,10 +565,10 @@ func gnuCp(s yocki.YockState) int {
 				err := yockc.Cp(opt, kv[0], kv[1])
 				if err != nil {
 					g_err = err
-					if opt.Debug {
+					if yocki.Y_MODE.Debug() {
 						ycho.Warn(err)
 					}
-					if opt.Strict {
+					if yocki.Y_MODE.Strict() {
 						// TODO
 					} else {
 						g_err = util.ErrGeneral
@@ -584,7 +589,11 @@ func gnuCp(s yocki.YockState) int {
 func gnuMkdir(s yocki.YockState) int {
 	var g_err error
 	for i := 1; i <= s.Argc(); i++ {
-		err := util.SafeMkdirs(s.CheckString(i))
+		path := s.CheckString(i)
+		if yocki.Y_MODE.Debug() {
+			ycho.Infof("%smkdir %s", s.Stacktrace(), path)
+		}
+		err := util.SafeMkdirs(path)
 		if err != nil {
 			ycho.Warn(err)
 			g_err = err
@@ -600,7 +609,16 @@ func gnuMkdir(s yocki.YockState) int {
 //
 // @return err
 func gnuRm(s yocki.YockState) int {
-	opt := yockc.RmOpt{Safe: true}
+	opt := yockc.RmOpt{Safe: true, Info: func(path string) {
+		if yocki.Y_MODE.Debug() {
+			ycho.Infof("%s%s", s.Stacktrace(), path)
+		}
+	}, Error: func(err error) error {
+		if yocki.Y_MODE.Debug() {
+			ycho.Warnf("%s%s", s.Stacktrace(), err)
+		}
+		return nil
+	}}
 	targets := []string{}
 	if s.IsTable(1) {
 		if err := s.CheckTable(1).Bind(&opt); err != nil {

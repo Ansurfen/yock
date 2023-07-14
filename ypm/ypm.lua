@@ -80,7 +80,7 @@ function import(target)
     end
 
     if #version == 0 and modules_json.buf ~= nil then
-        version = modules_json.buf["dependency"][module]
+        version = modules_json.buf["depend"][module]
     end
     local idx = strings.IndexAny(module, "/")
     if idx ~= -1 then
@@ -92,7 +92,10 @@ function import(target)
     if string.sub(module, 1, 1) == string.char(path.Separator) then
         module = string.sub(module, 2, #module)
     end
-    return require(module)
+    if find(module) then
+        return require(module)
+    end
+    return require(target)
 end
 
 function cur_dir()
@@ -100,9 +103,6 @@ function cur_dir()
 end
 
 -- load_module layer
-
----@type YPM
-ypm = {}
 
 function yock_todo_completion()
     local file = fetch.file([[https://raw.githubusercontent.com/Ansurfen/yock-todo/main/release/release.json]],
@@ -135,99 +135,19 @@ function yock_todo_loader(opt)
     return import(path.join(env.yock_modules, opt["name"], opt["version"], "index"))
 end
 
-function github_completion(url, version)
-    -- fetch.file(string.format(url, version))
-end
+mkdir(pathf("~/ypm"))
+config = json.create(pathf("~/ypm/config.json"), [[{"defaultSource": "github"}]])
+modules = json.create(pathf("~/ypm/modules.json"), [[{"depend": {}}]])
 
-function github_loader(url)
-    return function(opt)
-        github_completion(url, opt["version"])
-        return import(path.join(env.yock_modules, opt["name"], opt["version"], "index"))
-    end
-end
-
-function ypm:open()
-    local ypm_path = path.join(env.yock_path, "ypm")
-    local ypm_env = path.join(ypm_path, "env.json")
-    local ypm_modules = path.join(ypm_path, "modules.json")
-    mkdir(ypm_path)
-    safe_write(ypm_env, [[{
-        "source": [
-            "github",
-            "gitlab",
-            "gitee"
-        ]
-    }]])
-    safe_write(ypm_modules, [[{
-        "dependency": {}
-    }]])
-    self.env = jsonfile:open(ypm_env)
-    self.sources = {}
-    for _, source in ipairs(self.env.buf["source"]) do
-        local repo_json = path.join(ypm_path, source .. ".json")
-        safe_write(repo_json, "{}")
-        local repo = jsonfile:open(repo_json)
-        table.insert(self.sources, repo)
-    end
-    self.modules = jsonfile:open(ypm_modules)
-end
-
-function ypm:tidy()
-    local files = ls({
-        dir = pathf("~/yock_modules"),
-        str = false
-    })
-    if type(files) == "table" then
-        for _, file in ipairs(files) do
-            local name = file[4]
-            local boot = import(pathf("~/yock_modules/" .. name .. "/boot"))
-            local todo = { info = true }
-            boot(todo)
-            ypm:new_module(name, todo["version"])
-        end
-    end
-end
-
-function ypm:get(k)
-    local res
-    for _, repo in ipairs(self.sources) do
-        res = repo.buf[k]
-        if res ~= nil and type(res) == "string" and #res > 0 then
-            return res
-        end
-    end
-    return res
-end
-
-function ypm:close()
-    self.env:close()
-    self.modules:close()
-    for _, source in ipairs(self.sources) do
-        source:close()
-    end
-end
-
-function ypm:new_module(module, version)
-    ypm.modules.buf["dependency"][module] = version
-    ypm.modules:write()
-end
-
-function ypm:rm_module(module)
-    ypm.modules.buf["dependency"][module] = nil
-    local modules_path = path.join(env.yock_path, "yock_modules")
-    rm({
-        safe = false,
-        debug = true
-    }, path.join(modules_path, module))
-    ypm.modules:write()
-end
+config:save(true)
+modules:save(true)
 
 ---@param target string
 ---@return any
 function load_module(target)
     mkdir(env.yock_tmp, env.yock_modules)
 
-    local module = ""
+    local module = target
     local version = ""
     -- module@version
     if strings.Contains(target, "@") then
@@ -240,7 +160,7 @@ function load_module(target)
     end
 
     -- check local modules
-    if find(pathf("~/yock_modules", module)) then
+    if find(pathf("$/yock_modules", module)) then
         if #version == 0 then
             ---@diagnostic disable-next-line: redundant-return-value
             return import(target)
@@ -251,9 +171,9 @@ function load_module(target)
     end
 
     -- check global modules
-    if find(path.join(env.yock_modules, module)) then
+    if find(pathf("~/yock_modules", module)) then
         if #version == 0 then
-            version = ypm.modules.buf["dependency"][module]
+            version = modules:get(string.format("depend.%s", module))
         end
         if version == nil or #version == 0 then
             ---@diagnostic disable-next-line: redundant-return-value
@@ -262,17 +182,36 @@ function load_module(target)
         ---@diagnostic disable-next-line: redundant-return-value
         return import(path.join(env.yock_modules, module, version, "index"))
     else
-        local remote_path = ypm:get(module)
-        local file = fetch.script(remote_path)
-        local mod = import(path.join(env.yock_tmp, file))
-        if mod.load ~= nil then
-            return mod.load({
-                name = module,
-                version = version,
-            })
+        local parse = import(pathf("~/ypm/util/parse"))
+        local lib, ok
+
+        parse(module, function(url)
+            local file, err = fetch.file(url, ".lua")
+            if err == nil then
+                ---@type module
+                local mod = import(file)
+                if mod.load ~= nil then
+                    modules:set(string.format("depend.%s", module), mod.version)
+                    modules:save(true)
+                    lib = mod.load({
+                        name = module,
+                        version = version,
+                    })
+                    ok = true
+                    return
+                end
+            end
+            return err
+        end)
+
+        if lib ~= nil then
+            return lib
         end
+
+        if ok then
+            return
+        end
+
         yassert("invalid mod loader")
     end
 end
-
-ypm:open()

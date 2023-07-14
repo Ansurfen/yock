@@ -11,7 +11,10 @@ deploy in develop:
     ./build.bat/sh dev
 ]]
 
-print("start to build")
+job_option({
+    debug = true,
+    strict = true
+})
 
 local zip_name = "yock"
 local wd, err = pwd()
@@ -19,18 +22,14 @@ yassert(err)
 local yock_path = pathf(wd, "../yock")
 mkdir(yock_path)
 
-job_option({
-
-})
-
-job("build", function(cenv)
-    argsparse(cenv, {
+job("build", function(ctx)
+    argsparse(ctx, {
         o = flag_type.str,   -- release name (output)
         os = flag_type.str,
         ver = flag_type.str, -- release version
     })
     local os = env.platform.OS
-    os = assign.string(os, cenv.flags["os"])
+    os = assign.string(os, ctx.flags["os"])
 
     if os == "windows" then
         alias("yock", "../yock/yock.exe")
@@ -55,14 +54,20 @@ go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'
     local yock_lib_path = pathf(yock_path, "lib")
     cp(pathf(wd, "../lib"), yock_lib_path)
     cp("install.lua", yock_path)
-    mkdir(pathf(yock_path, "ypm"), pathf(yock_lib_path, "boot"))
+    cp("uninstall.lua", yock_path)
+    mkdir(pathf(yock_path, "ypm"),
+        pathf(yock_lib_path, "boot"),
+        pathf(yock_path, "bin"),
+        pathf(yock_path, "tmp"))
     cp({ recurse = true, debug = true }, {
-        [pathf(wd, "../ypm/ypm.lua")]          = pathf(yock_lib_path, "boot"),
-        [pathf(wd, "../ypm/include/ypm.lua")]  = pathf(yock_lib_path, "include"),
-        [pathf(wd, "../ypm/boot.tpl")]         = pathf(yock_path, "ypm"),
-        [pathf(wd, "../ypm/cmd")]              = pathf(yock_path, "ypm"),
-        [pathf(wd, "../ypm/proxy")]            = pathf(yock_path, "ypm"),
-        [pathf(wd, "../ypm/ctl.lua")]          = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/ypm.lua")]         = pathf(yock_lib_path, "boot"),
+        [pathf(wd, "../ypm/include/ypm.lua")] = pathf(yock_lib_path, "include"),
+        [pathf(wd, "../ypm/template")]        = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/cmd")]             = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/proxy")]           = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/ctl.lua")]         = pathf(yock_path, "ypm"),
+        [pathf(wd, "../ypm/util")]            = pathf(yock_path, "ypm"),
+        [pathf(wd, "../auto/sudo.bat")]       = pathf(yock_path, "bin")
     })
     rm({ safe = false },
         pathf(yock_lib_path, "test"),
@@ -71,17 +76,16 @@ go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'
         pathf(yock_lib_path, "yock"))
     -- sh("$yock run ../auto/bin-tidy.lua")
     -- mv(path.join(wd, "../bin"), path.join(yock_path, "bin"))
-    zip_name = assign.string(zip_name, cenv.flags.o)
+    zip_name = assign.string(zip_name, ctx.flags.o)
     if os == "windows" then
         zip_name = zip_name .. ".zip"
     else
         zip_name = zip_name .. ".tar.gz"
     end
     compress(yock_path, pathf("..", zip_name))
-    return true
 end)
 
-job("depoly-dev", function(cenv)
+job("depoly-dev", function(ctx)
     local conf, err = open_conf("secret.ini")
     if err ~= nil then
         write_file("secret.ini", "path = ")
@@ -94,17 +98,15 @@ job("depoly-dev", function(cenv)
     end
     cp({ force = true, debug = true, redirect = true },
         string.format([[%s %s]], pathf(wd, "../yock/*"), conf:GetString("default.path")))
-    return true
 end)
 
-job("clean", function(cenv)
+job("clean", function(ctx)
     rm({
         safe = false
     }, yock_path)
-    return true
 end)
 
-job("remote", function(cenv)
+job("remote", function(ctx)
     ssh({
         user = "ubuntu",
         pwd = "root",
@@ -121,9 +123,8 @@ job("remote", function(cenv)
     --     mkdir("/")
     --     tarc("yock.tar", ".")
     -- end)
-    return true
 end)
 
-jobs("all", "build", "clean", "remote")
-jobs("all-dev", "build", "depoly-dev", "clean")
+jobs("all", "build", "clean")
+jobs("all-dev", "build", "depoly-dev", "remote", "clean")
 jobs("dist", "build")

@@ -5,6 +5,12 @@
 return {
     desc = { use = "tidy" },
     run = function(cmd, args)
-
+        local proxies, err = find({
+            dir = false,
+            pattern = "\\.lua"
+        }, pathf("#1", "../../proxy"))
+        if err ~= nil or #proxies == 0 then
+            cp(cat(pathf("#1", "../../template/defaultSource.tpl")), pathf("#1", "../../proxy"))
+        end
     end
 }

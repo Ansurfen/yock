@@ -85,8 +85,9 @@ func (lib *Lib) LuaString() string {
 	}
 	head := fmt.Sprintf(luaStringHead, author, license, libType.String(), lib.name)
 	buf := bytes.Buffer{}
-	for name, fn := range lib.functions {
-		buf.WriteString("\n" + fmt.Sprintf(fn.LuaString(), lib.name+name, lib.name+".") + "\n")
+	for _, fn := range lib.functions {
+		// buf.WriteString("\n" + commentf(fn.Comments) + "\n" + fmt.Sprintf(fn.LuaString(), lib.name+name, lib.name+".") + "\n")
+		buf.WriteString("\n" + commentf(fn.Comments) + "\n" + fmt.Sprintf(fn.LuaString(), lib.name+".") + "\n")
 	}
 	for _, stu := range lib.structs {
 		buf.WriteString("\n" + stu.luaTypeString() + "\n")

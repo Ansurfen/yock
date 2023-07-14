@@ -150,6 +150,12 @@ end
 
 ---@param k string
 ---@return any
+function jsonobject:rawget(k)
+    return self.buf[k]
+end
+
+---@param k string
+---@return any
 function jsonobject:get(k)
     local keys = strings.Split(k, ".")
     local x = self.buf
@@ -160,6 +166,12 @@ function jsonobject:get(k)
         x = x[key]
     end
     return x
+end
+
+---@param k string
+---@param v any
+function jsonobject:rawset(k, v)
+    self.buf[k] = v
 end
 
 ---@param k string

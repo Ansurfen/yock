@@ -119,9 +119,10 @@ end
 ---
 local rmOpt = {}
 
----
---- {{.rm}}
----
+---Example:
+-- ```lua
+-- rm({ safe = true }, "/a", "/b")
+-- ```
 ---@param opt rmOpt
 ---@vararg string
 ---@return err
@@ -129,6 +130,10 @@ local rmOpt = {}
 function rm(opt, ...)
 end
 
+---Example:
+-- ```lua
+-- rm("/a", "/b")
+-- ```
 ---@vararg string
 ---@return err
 function rm(...)

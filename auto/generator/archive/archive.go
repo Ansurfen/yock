@@ -45,7 +45,11 @@ type TypeArchive struct {
 	records map[string]*TypeRecord
 }
 
-var archive *TypeArchive
+var (
+	archive       *TypeArchive
+	exportJSONDoc = false
+	exportGoFile  = false
+)
 
 func Put(lib, name, ident string) {
 	if _, ok := archive.records[name]; !ok {
@@ -109,6 +113,14 @@ func GetWithReg(ident string) string {
 func EnableYockComment() {
 	archive.records["byte"] = &TypeRecord{luaType: "byte"}
 	archive.records["[]byte"] = &TypeRecord{luaType: "byte[]"}
+}
+
+func ExportJSONDoc() {
+	exportJSONDoc = true
+}
+
+func ExportGoFile() {
+	exportGoFile = true
 }
 
 func LoadFile(libn, path string) {
@@ -175,26 +187,30 @@ func Export(path string) {
 		mod := filepath.Join(path, name)
 		util.Mkdirs(mod)
 		util.WriteFile(filepath.Join(mod, name+".lua"), []byte(lib.LuaString()))
-		util.WriteFile(filepath.Join(mod, name+".go"), []byte(lib.GoString()))
-		doc := make(map[string]string)
-		for name, fn := range lib.functions {
-			doc[lib.name+name] = commentf(fn.Comments)
+		if exportGoFile {
+			util.WriteFile(filepath.Join(mod, name+".go"), []byte(lib.GoString()))
 		}
-		for stuName, stu := range lib.structs {
-			for name, fn := range stu.Methods {
-				doc[Get(stuName)+name] = commentf(fn.Comments)
+		if exportJSONDoc {
+			doc := make(map[string]string)
+			for name, fn := range lib.functions {
+				doc[lib.name+name] = commentf(fn.Comments)
 			}
+			for stuName, stu := range lib.structs {
+				for name, fn := range stu.Methods {
+					doc[Get(stuName)+name] = commentf(fn.Comments)
+				}
+			}
+			raw, err := json.Marshal(doc)
+			if err != nil {
+				panic(err)
+			}
+			var out bytes.Buffer
+			err = json.Indent(&out, raw, "", "\t")
+			if err != nil {
+				panic(err)
+			}
+			util.WriteFile(filepath.Join(mod, name+".json"), out.Bytes())
 		}
-		raw, err := json.Marshal(doc)
-		if err != nil {
-			panic(err)
-		}
-		var out bytes.Buffer
-		err = json.Indent(&out, raw, "", "\t")
-		if err != nil {
-			panic(err)
-		}
-		util.WriteFile(filepath.Join(mod, name+".json"), out.Bytes())
 	}
 }
 

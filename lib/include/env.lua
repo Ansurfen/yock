@@ -95,6 +95,16 @@ end
 ---@field Ver string
 ---@field Arch string
 ---
----{{.platform}}
----
 local platform = {}
+
+---@return string
+function platform:Exf()
+end
+
+---@return string
+function platform:Script()
+end
+
+---@return string
+function platform:Zip()
+end

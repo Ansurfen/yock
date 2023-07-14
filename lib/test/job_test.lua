@@ -11,7 +11,6 @@ job("_proto_go", function()
     })
     print("编译protoc文件")
     notify("job._proto_go")
-    return true
 end)
 
 job("c", function()
@@ -30,7 +29,6 @@ job("c", function()
     end
     waits("job._proto_go", "curl finish")
     notify("c fine")
-    return true
 end)
 
 job("go", function()
@@ -42,7 +40,6 @@ job("go", function()
         i = i + 1
     end
     notify("go fine")
-    return true
 end)
 
 job("clean", function()
@@ -50,7 +47,6 @@ job("clean", function()
     rm({
         safe = true
     }, "cJSON.h", "cJSON.c")
-    return true
 end)
 
 jobs("cgo", "c", "go")

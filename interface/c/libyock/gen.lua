@@ -24,7 +24,6 @@ job("build", function(cenv)
         "ar rcs libyock.a libyock.o",
         "go build -o libyock.dll -buildmode=c-shared",
         "go build -o libyock.a -buildmode=c-archive")
-    return true
 end)
 
 job("clean_all", function(cenv)
@@ -33,7 +32,6 @@ job("clean_all", function(cenv)
             debug = true
         }, "libyock.o", "cJSON.c", "cJSON.h",
         "libyock.dll", "libyock.a")
-    return true
 end)
 
 job("clean", function(cenv)
@@ -41,7 +39,6 @@ job("clean", function(cenv)
         redirect = true,
         debug = true
     }, "libyock.o", "libyock.dll", "libyock.a")
-    return true
 end)
 
 job("recover", function(cenv)
@@ -52,7 +49,6 @@ job("recover", function(cenv)
         yassert(err)
         write_file("cJSON.h", out)
     end
-    return true
 end)
 
 jobs("all", "build", "clean")

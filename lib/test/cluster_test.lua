@@ -12,22 +12,22 @@ job_option({
     }
 })
 
-job("host1", function(cenv)
+job("host1", function(ctx)
     print("host1\n")
-    argsparse(cenv, {
+    argsparse(ctx, {
         ip = flag_type.str,
     })
-    table.dump(cenv)
+    table.dump(ctx)
     optional({
         case(Windows(), function()
             optional({
-                case(is_localhost(cenv.flags["ip"]), function()
+                case(is_localhost(ctx.flags["ip"]), function()
                     print("localhost")
                     -- exec({
                     --     redirect = true
                     -- }, "go run . run .\\test\\goroutine_test.lua multi ")
                 end),
-                case(not is_localhost(cenv.flags["ip"]), function()
+                case(not is_localhost(ctx.flags["ip"]), function()
                     print("ssh")
                 end)
             })
@@ -36,19 +36,16 @@ job("host1", function(cenv)
             print(777)
         end)
     })
-    return true
 end)
 
-job("host2", function(cenv)
+job("host2", function(ctx)
     print("host2\n")
-    argsparse(cenv, {
+    argsparse(ctx, {
         ip = flag_type.arr,
     })
     -- table.dump(cenv)
-    return true
 end)
 
-job("host3", function(cenv)
+job("host3", function(ctx)
     print("host3")
-    return true
 end)

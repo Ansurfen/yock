@@ -5,7 +5,6 @@
 package yockc
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -53,25 +52,10 @@ type CurlOpt struct {
 	err error
 }
 
-// curlExceptionHandle controls return of HTTP function when value of return is true
-func curlExceptionHandle(err error, opt *CurlOpt, exception error) bool {
-	if err != nil {
-		if opt.Debug {
-			ycho.Warnf("%s\t%s", opt.Caller, exception.Error())
-		}
-		if opt.Strict {
-			return true
-		} else {
-			opt.err = util.ErrGeneral
-		}
-	}
-	return false
-}
-
 // Curl is similar with curl, which is used to send Curl request according to opt and urls.
 func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 	for _, url := range urls {
-		if !util.IsURL(url) && curlExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidURL) {
+		if !util.IsURL(url) {
 			return nil, util.ErrInvalidURL
 		}
 		req, err := http.NewRequest("GET", url, nil)
@@ -81,12 +65,10 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 		case "GET", "HEAD", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH":
 			req.Method = opt.Method
 		default:
-			if curlExceptionHandle(util.ErrGeneral, &opt, util.ErrInvalidMethod) {
-				return nil, util.ErrInvalidMethod
-			}
+			return nil, util.ErrInvalidMethod
 		}
 
-		if curlExceptionHandle(err, &opt, util.ErrBadCreateFile) {
+		if err != nil {
 			return nil, util.ErrBadCreateRequest
 		}
 
@@ -99,10 +81,6 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 
 		if len(opt.Data) != 0 {
 			req.Body = ioutil.NopCloser(strings.NewReader(opt.Data))
-		}
-
-		if opt.Debug {
-			ycho.Infof("%s\t%s", opt.Caller, fmt.Sprintf("%s %s", req.Method, url))
 		}
 
 		if opt.Async {
@@ -120,7 +98,7 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 
 				res, err := http.DefaultClient.Do(req)
 
-				if curlExceptionHandle(err, &opt, util.ErrBadSendRequest) {
+				if err != nil {
 					return
 				}
 
@@ -130,7 +108,7 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 					dst := path.Join(opt.Dir, opt.FilenameHandle(u))
 					dir := filepath.Dir(dst)
 
-					if curlExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
+					if err := util.SafeMkdirs(dir); err != nil {
 						return
 					}
 
@@ -146,7 +124,7 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 		} else {
 			res, err := http.DefaultClient.Do(req)
 
-			if curlExceptionHandle(err, &opt, util.ErrBadSendRequest) {
+			if err != nil {
 				return nil, err
 			}
 
@@ -160,13 +138,13 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 				dst := path.Join(opt.Dir, opt.FilenameHandle(url))
 				dir := filepath.Dir(dst)
 
-				if curlExceptionHandle(util.SafeMkdirs(dir), &opt, util.ErrBadCreateDir) {
-					return nil, util.ErrBadCreateDir
+				if util.SafeMkdirs(dir); err != nil {
+					return nil, err
 				}
 
 				file, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0666)
-				if curlExceptionHandle(err, &opt, util.ErrBadCreateFile) {
-					return nil, util.ErrBadCreateFile
+				if err != nil {
+					return nil, err
 				}
 				defer file.Close()
 				_, err = io.Copy(file, ycho.Progress(res.ContentLength, res.Body))

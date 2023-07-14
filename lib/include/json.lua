@@ -56,8 +56,16 @@ function jsonobject:gettable(k) end
 function jsonobject:get(k) end
 
 ---@param k string
+---@return any
+function jsonobject:rawget(k) end
+
+---@param k string
 ---@param v any
 function jsonobject:set(k, v) end
+
+---@param k string
+---@param v any
+function jsonobject:rawset(k, v) end
 
 ---@return string
 function jsonobject:string() end

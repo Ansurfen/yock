@@ -26,19 +26,32 @@ End If
 env("%s") = old`
 
 	exportOverridePosix = `#!/bin/bash
-sed -i '/^export %s/d' ~/.bashrc
+sed -i '/^export %s=%s/d' ~/.bashrc
 echo 'export %s=%s' >> ~/.bashrc
 . ~/.bashrc`
 	exportExpandPosix = `#!/bin/bash
-sed -i '/^export %s/d' ~/.bashrc
+sed -i '/^export %s=%s/d' ~/.bashrc
 echo 'export %s=$%s:%s' >> ~/.bashrc
 . ~/.bashrc`
 
 	unsetWindows = `
 Set objShell = CreateObject("WScript.Shell")
 objShell.Environment("User").Remove("%s")`
-	unsetPosix = `unset %s`
+	unsetPosix = `#!/bin/bash
+sed -i '/^export %s=/d' ~/.bashrc
+. ~/.bashrc`
 )
+
+var envPath = "User"
+
+func SetPath(path string) {
+	switch strings.ToLower(path) {
+	case "user":
+		envPath = "User"
+	case "sys":
+		envPath = "Sys"
+	}
+}
 
 type ExportOpt struct {
 	Expand bool
@@ -61,9 +74,9 @@ func Export(opt ExportOpt, k, v string) error {
 		}
 	} else {
 		if opt.Expand {
-			script = fmt.Sprintf(exportExpandPosix, k, k, k, v)
+			script = fmt.Sprintf(exportExpandPosix, k, v, k, k, v)
 		} else {
-			script = fmt.Sprintf(exportOverridePosix, k, k, v)
+			script = fmt.Sprintf(exportOverridePosix, k, v, k, v)
 		}
 	}
 	_, err := OnceScript(script)
@@ -72,6 +85,13 @@ func Export(opt ExportOpt, k, v string) error {
 
 func Unset(k string) error {
 	script := ""
+	if strings.ToUpper(k) == "PATH" {
+		if util.CurPlatform.OS == "windows" {
+			k = "Path"
+		} else {
+			k = "PATH"
+		}
+	}
 	if util.CurPlatform.OS == "windows" {
 		script = fmt.Sprintf(unsetWindows, k)
 	} else {

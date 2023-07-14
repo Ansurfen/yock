@@ -56,7 +56,7 @@ func (fn *Function) LuaString() string {
 		commentParams bytes.Buffer
 		res           string
 	)
-	commentParams.WriteString(commentDoc)
+	// commentParams.WriteString(commentDoc)
 	for _, param := range fn.Params {
 		record := GetRecordWithReg(param.Ident)
 		if record != nil && record.vargs {
@@ -74,7 +74,7 @@ func (fn *Function) LuaString() string {
 	if len(results) > 0 {
 		res = fmt.Sprintf(commentResult, strings.Join(results, ", "))
 	}
-	return fmt.Sprintf("%sfunction %s%s(%s)\nend",
+	return fmt.Sprintf("%sfunction %s%s(%s) end",
 		commentParams.String()+res, "%s", fn.Name, strings.Join(params, ", "))
 }
 
@@ -93,7 +93,7 @@ func (stu *Struct) luaTypeString() string {
 				fmt.Sprintf(commentField, field.Name, Get(field.Ident)))
 		}
 	}
-	return fmt.Sprintf(defineStruct,
+	return commentf(stu.Comments) + "\n" + fmt.Sprintf(defineStruct,
 		Get(stu.Name), commentFields.String(), Get(stu.Name))
 }
 
@@ -101,7 +101,8 @@ func (stu *Struct) luaMethodString() string {
 	methods := bytes.Buffer{}
 	for name, method := range stu.Methods {
 		if canExport(name) {
-			methods.WriteString("\n" + fmt.Sprintf(method.LuaString(), Get(stu.Name)+name, Get(stu.Name)+":") + "\n")
+			methods.WriteString("\n" + commentf(method.Comments) + "\n" + fmt.Sprintf(method.LuaString(), Get(stu.Name)+":") + "\n")
+			// methods.WriteString("\n" + fmt.Sprintf(method.LuaString(), Get(stu.Name)+name, Get(stu.Name)+":") + "\n")
 		}
 	}
 	return methods.String()

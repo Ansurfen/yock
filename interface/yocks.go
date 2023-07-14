@@ -22,12 +22,23 @@ type YockScheduler interface {
 	Signal() SignalStream
 	Opt() Table
 	SetOpt(o Table)
+	Env() YockLib
 
 	// yocks goroutines
 	Do(f func())
 
 	GetTask(name string) bool
 	AppendTask(name string, job YockJob)
+}
+
+var Y_MODE YockMode
+
+type YockMode interface {
+	Mode() int32
+	SetMode(m int32)
+
+	Debug() bool
+	Strict() bool
 }
 
 type YockJob interface {

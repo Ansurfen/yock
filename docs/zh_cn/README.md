@@ -18,8 +18,8 @@ Yock 是一个跨平台的分布式构建流编排解决方案。它能够作为
 
 ## 安装
 
-你能够在这里下载二进制版本，或者尝试以下两种方式。
-`注意`: 下载完后还需要将yock挂载到本地环境中，你需要手动运行压缩包内的depoly脚本去完成这个过程。
+你能够在[这里](https://github.com/Ansurfen/yock/releases)下载二进制版本，或者尝试以下两种方式。
+`注意`: 下载完后还需要将yock挂载到本地环境中。在解压压缩包后，进入可执行文件的目录运行`yock run install.lua`完成这个过程。
 
 #### 使用yock构建
 
@@ -33,7 +33,12 @@ git clone https://github.com/Ansurfen/yock.git
 执行go命令，调度yock构建脚本去构建yock
 ```cmd
 cd ctl
-./build.bat ffi 
+<!-- windows -->
+./build.bat ffi //构建支持libffi的版本
+./build.bat dev //构建测试版本
+./build.bat oslinux//构建linux版本，默认为windows版本
+<!-- 其他平台 -->
+go run . run ../auto/build.lua all -- --all-os linux
 ```
 
 #### 嵌入Go语言
@@ -69,12 +74,12 @@ func main() {
 }
 ```
 
-yockc: 为yock提供了一系列简单的GNU命令，例如echo, rm, ls, curl等等。你能够直接调用它们，具体的Opt字段可以前往`/docs/yockc`查看详情。
+yockc: 为yock提供了一系列简单的GNU命令，例如iptabls, curl, crontab等等。你能够直接调用它们，具体的Opt字段可以前往`/docs/yockc`查看详情。
 ```go
 import yockc "github.com/ansurfen/yock/cmd"
 
 func main() {
-	yockc.Curl(yockc.HttpOpt{
+	yockc.Curl(yockc.CurlOpt{
 		Method: "GET",
 		Save:   true,
 		Debug:  true,
@@ -220,13 +225,93 @@ func main() {
 }
 ```
 
+## 快速开始
+下面是一些简单的例子，你也能够在`lib/test`中查看测试内容以了解函数的使用。
+
+GNU命令: yock首要的目标就是实现跨平台的构建方案以代替bat和bash脚本。因此，你能够在脚本中以函数的形式使用gnu命令。除了这个例子外，你也可以参考`auto/build.lua`（yock的构建文件）以及上文所说的`lib/test/gnu_test.lua`。
+```lua
+mkdir("a")
+cd("a")
+write("test.txt", "Hello World!")
+local data = cat("test.txt")
+print(data)
+cd("..")
+rm({safe = false}, "/a")
+```
+
+任务调度: yock能够并发执行异步命令，你能够使用`yock run test.lua echo echo2`或者`yock run test.lua all`的形式调用。
+```lua
+-- test.lua
+job_option({
+    strict = true,
+    debug = true,
+})
+
+job("echo", function(ctx)
+	print("echo")
+end)
+
+job("echo2", function(ctx)
+	print("echo2")
+end)
+
+jobs("all", "echo", "echo2")
+```
+
+协程与信号量: 得益于go语言的特性，yock也继承了go协程的能力，也就意味着lua不再是单线程的语言，它能够实现真正的异步任务。同时，yock还提供了notify和wait函数应对异步转同步的需求。
+```lua
+go(function()
+    local i = 0
+    while true do
+        time.Sleep(1 * time.Second)
+        if i > 3 then
+            notify("x")
+        end
+        print("do task1")
+        i = i + 1
+    end
+end)
+
+go(function()
+    local i = 0
+    while true do
+        if i == 5 then
+            wait("x")
+        end
+        print("do task2")
+        i = i + 1
+    end
+end)
+
+time.Sleep(8 * time.Second)
+```
+
+HTTP服务: yock继承了go语言大部分标准库，因此你能够用类似go的语法快速开始。
+```lua
+http.HandleFunc("/", function(w, req)
+    fmt.Fprintf(w, "Hello World!\n")
+end)
+http.ListenAndServe(":8080", nil)
+```
+
+YPM: 当执行完`yock run install.lua`后，便会全局注册包管理工具。你能够用他安装yock的模块。
+```cmd
+<!-- 列出全部命令 -->
+ypm	// windows
+ypm.sh // linux
+
+<!-- 全局安装模块 -->
+ypm install ark -g // windows
+ypm.sh install ark -g // linux
+```
+
 ## 文档
 
 你可以在[这里](/docs/)查看关于模块开发以及yock开发相关的信息。
 
 ## 中央仓库
 
-如果你想要将模块登记到yock，以便他能够使用标识符索引取代url，可以看这里。
+如果你想要将模块登记到yock，以便他能够使用标识符索引取代url，可以看[这里](https://github.com/Ansurfen/yock-todo)。
 
 ## 未来计划
 

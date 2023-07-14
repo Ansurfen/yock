@@ -83,3 +83,7 @@ func TestExport(t *testing.T) {
 func TestUnset(t *testing.T) {
 	Unset("a")
 }
+
+func TestUntar(t *testing.T) {
+	fmt.Println(Untar("yock.tar.gz", "aaa"))
+}

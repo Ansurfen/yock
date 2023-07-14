@@ -30,6 +30,14 @@ type YchoOpt struct {
 	MaxAge         int    `yaml:"maxAge"`
 	Compress       bool   `yaml:"compress"`
 	Stdout         bool   `yaml:"stdout"`
+	Caller         bool   `yaml:"caller"`
+	TimeFormat     string `yaml:"timeFormat"`
+}
+
+func (opt *YchoOpt) Standardf() {
+	if len(opt.TimeFormat) == 0 {
+		opt.TimeFormat = defaultTimeFormat
+	}
 }
 
 func (opt YchoOpt) String() string {
@@ -42,10 +50,6 @@ type zlog struct {
 }
 
 var _ yocki.Ycho = (*zlog)(nil)
-
-func (z *zlog) Write(p []byte) (int, error) {
-	return len(p), nil
-}
 
 func (z *zlog) Info(msg string) {
 	z.log.Info(msg)
@@ -104,7 +108,11 @@ func NewZLog(conf YchoOpt) (*zlog, error) {
 		level = logLevel["info"]
 	}
 	core := zapcore.NewCore(encoder, writeSyncer, level)
-	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(2))
+	opts := []zap.Option{}
+	if conf.Caller {
+		opts = append(opts, zap.AddCaller(), zap.AddCallerSkip(2))
+	}
+	logger := zap.New(core, opts...)
 	return &zlog{log: logger}, nil
 }
 
@@ -117,7 +125,7 @@ func getEncoder(conf YchoOpt) zapcore.Encoder {
 		MessageKey:    "msg",
 		StacktraceKey: "stacktrace",
 		EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-			enc.AppendString(t.Format(defaultTimeFormat))
+			enc.AppendString(t.Format(conf.TimeFormat))
 		},
 		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,

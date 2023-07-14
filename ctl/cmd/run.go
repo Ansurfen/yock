@@ -51,7 +51,7 @@ var (
 				opts = append(opts, yocks.OptionEnableYockDriverMode())
 			}
 
-			yocks := yocks.New(opts...)
+			yocks := yocks.Default(opts...)
 			go yocks.EventLoop()
 
 			yockp := yockpack.New()

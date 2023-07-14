@@ -123,6 +123,46 @@ func (t *Table) GetTable(key string) (yocki.Table, bool) {
 	return nil, false
 }
 
+func (t *Table) GetBool(key string) (bool, bool) {
+	v := t.RawGetString(key)
+	if v.Type() == lua.LTBool {
+		return bool(v.(lua.LBool)), true
+	}
+	return false, false
+}
+
+func (t *Table) GetString(key string) (string, bool) {
+	v := t.RawGetString(key)
+	if v.Type() == lua.LTString {
+		return v.String(), true
+	}
+	return "", false
+}
+
+func (t *Table) GetInt(key string) (int, bool) {
+	v := t.RawGetString(key)
+	if v.Type() == lua.LTNumber {
+		return int(v.(lua.LNumber)), true
+	}
+	return 0, false
+}
+
+func (t *Table) GetFloat(key string) (float64, bool) {
+	v := t.RawGetString(key)
+	if v.Type() == lua.LTNumber {
+		return float64(v.(lua.LNumber)), true
+	}
+	return 0, false
+}
+
+func (t *Table) GetLTable(key string) (*lua.LTable, bool) {
+	v := t.RawGetString(key)
+	if v.Type() == lua.LTTable {
+		return v.(*lua.LTable), true
+	}
+	return &lua.LTable{}, false
+}
+
 func (tbl *Table) Clone(l *lua.LState) yocki.Table {
 	netTable := &lua.LTable{}
 	copyTable(l, tbl.LTable, netTable)

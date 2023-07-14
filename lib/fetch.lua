@@ -8,25 +8,34 @@ fetch = {}
 
 ---@param url string
 ---@param file_type string
+---@return string, err
 function fetch.file(url, file_type)
     if file_type == nil then
         yassert("invalid file type")
     end
-    local file = ycache:get(url)
+    local cache = cachetable:get("public", "")
+    if cache ~= nil then
+        cache = cachetable:create("public", 2, 0 * time.Second, "", 0)
+    end
+    local file = cache:get(url)
     if not (type(file) == "string" and #file > 0) then
         file = random.str(32) .. file_type
-        yassert(curl({
+        local _, err = curl({
             debug = true,
             save = true,
             strict = true,
-            dir = pathf(env.yock_path, "tmp"),
+            dir = cache.dir,
             filename = function(s)
                 return file
             end
-        }, url))
-        ycache:put(url, file)
+        }, url)
+        if err ~= nil then
+            return "", err
+        end
+        cache:put(url, file)
+        cache:save()
     end
-    return file
+    return pathf(cache.dir, file), nil
 end
 
 function fetch.zip(url)

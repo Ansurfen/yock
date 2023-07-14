@@ -8,7 +8,6 @@ import (
 	"time"
 
 	yocki "github.com/ansurfen/yock/interface"
-	lua "github.com/yuin/gopher-lua"
 )
 
 func LoadTime(yocks yocki.YockScheduler) {
@@ -83,15 +82,4 @@ func LoadTime(yocks yocki.YockScheduler) {
 		"UTC":   time.UTC,
 		"Local": time.Local,
 	})
-	lib.SetFunctions(map[string]lua.LGFunction{
-		"sleep": timeSleep,
-	})
-}
-
-// Sleep pauses the current goroutine for at least the duration d. A negative or zero duration causes Sleep to return immediately.
-//
-// @param d number
-func timeSleep(l *lua.LState) int {
-	time.Sleep(time.Duration(l.CheckNumber(1)))
-	return 0
 }

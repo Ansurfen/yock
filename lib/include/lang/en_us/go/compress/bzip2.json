@@ -1,4 +1,0 @@
-{
-	"bzip2NewReader": "--- NewReader returns an io.Reader which decompresses bzip2 data from r.\n--- If r does not also implement io.ByteReader,\n--- the decompressor may read more data than necessary from r.",
-	"bzip2StructuralErrorError": ""
-}

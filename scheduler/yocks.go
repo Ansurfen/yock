@@ -19,9 +19,7 @@ import (
 	luar "layeh.com/gopher-luar"
 )
 
-var (
-	_ yocki.YockScheduler = (*YockScheduler)(nil)
-)
+var _ yocki.YockScheduler = (*YockScheduler)(nil)
 
 type loader func(yocki.YockScheduler)
 
@@ -103,8 +101,13 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 	yocks.env = yocks.CreateLib("env")
 
 	yocks.parseFlags()
-	yocks.loadLibs()
 
+	return yocks
+}
+
+func Default(opts ...YockSchedulerOption) *YockScheduler {
+	yocks := New(opts...)
+	yocks.LoadLibs()
 	return yocks
 }
 
@@ -140,18 +143,18 @@ func (yocks *YockScheduler) Signal() yocki.SignalStream {
 	return yocks.signals
 }
 
-func (yocks *YockScheduler) getPlugins() *lua.LTable {
+func (yocks *YockScheduler) getPlugins() yocki.Table {
 	if yocks.driverManager != nil {
 		return yocks.driverManager.plugins
 	}
-	return &lua.LTable{}
+	return &yockr.Table{}
 }
 
-func (yocks *YockScheduler) getDrivers() *lua.LTable {
+func (yocks *YockScheduler) getDrivers() yocki.Table {
 	if yocks.driverManager != nil {
 		return yocks.driverManager.drivers
 	}
-	return &lua.LTable{}
+	return &yockr.Table{}
 }
 
 // parseFlags parses -- the following parameters serve as the flags of script
@@ -198,31 +201,24 @@ type yockLib struct {
 
 type YGFunction func(*YockScheduler, *yockr.YockState) int
 
-type luaFuncs map[string]lua.LGFunction
-
 var yockLibs = []yockLib{
 	{yockLibYcho, func(yocks *YockScheduler) lua.LValue {
 		return luar.New(yocks.State().LState(), ycho.Get())
 	}},
 }
 
-type yockFunc func(*YockScheduler) luaFuncs
-
-var yockFuncs = []yockFunc{
-	loadPlugin,
-	loadDriver,
-}
-
 func (yocks *YockScheduler) Do(f func()) {
 	yocks.goroutines.Go(f)
 }
 
-// loadLibs loads the libraries that go provides to Lua
-func (yocks *YockScheduler) loadLibs() {
-	for _, fn := range yockFuncs {
-		yocks.SetGlobalFn(fn(yocks))
-	}
+// deprecated
+func (yocks *YockScheduler) LoadLibsV1() {
+	loadDriver(yocks)
+	loadPlugin(yocks)
+}
 
+// LoadLibs loads the libraries that go provides to Lua
+func (yocks *YockScheduler) LoadLibs() {
 	for _, load := range libgo {
 		load(yocks)
 	}
@@ -236,7 +232,7 @@ func (yocks *YockScheduler) loadLibs() {
 	}
 
 	if yocks.driverManager != nil {
-		yockGlobalVars["plugins"] = yocks.driverManager.plugins
+		yockGlobalVars["plugins"] = yocks.driverManager.plugins.Value()
 		yockGlobalVars["ldns"] = luar.New(yocks.State().LState(), yocks.driverManager.localDNS)
 		yockGlobalVars["gdns"] = luar.New(yocks.State().LState(), yocks.driverManager.globalDNS)
 	}
@@ -288,6 +284,10 @@ func (yocks *YockScheduler) Opt() yocki.Table {
 
 func (yocks *YockScheduler) SetOpt(o yocki.Table) {
 	yocks.opt = o
+}
+
+func (yocks *YockScheduler) Env() yocki.YockLib {
+	return yocks.env
 }
 
 // LaunchTask executes the corresponding task based on the task name

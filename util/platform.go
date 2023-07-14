@@ -22,12 +22,30 @@ type Platform struct {
 	Lang   string
 }
 
-func (pf Platform) Ext() string {
+func (pf Platform) Exf() string {
 	switch pf.OS {
 	case "windows":
 		return ".exe"
 	default:
 		return ""
+	}
+}
+
+func (pf Platform) Script() string {
+	switch pf.OS {
+	case "windows":
+		return ".bat"
+	default:
+		return ".sh"
+	}
+}
+
+func (pf Platform) Zip() string {
+	switch pf.OS {
+	case "windows":
+		return ".zip"
+	default:
+		return ".tar.gz"
 	}
 }
 

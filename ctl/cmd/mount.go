@@ -97,9 +97,9 @@ const (
 	wrapYockBatch = `@echo off
 yock run %s -- %s %%*`
 	wrapYockBash = `#/bin/bash
-yock run %s -- %s %%*`
+yock run %s -- %s $*`
 	wrapPlainBatch = `@echo off
 %s %%*`
 	wrapPlainBash = `#/bin/bash
-%s %%*`
+%s $*`
 )

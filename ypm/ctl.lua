@@ -14,6 +14,7 @@ prompt({
         import("cmd/proxy"),
         import("cmd/install"),
         import("cmd/uninstall"),
+        import("cmd/cache"),
         import("cmd/version")
     },
 })

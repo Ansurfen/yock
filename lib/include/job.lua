@@ -19,12 +19,9 @@ end
 function context.throw(error)
 end
 
----
----{{.job}}
----
+
 ---@param name string
----@param callback fun(cenv: table):boolean
----
+---@param callback fun(ctx: table)
 function job(name, callback)
 end
 

@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/ansurfen/yock/util"
-	"github.com/ansurfen/yock/ycho"
 )
 
 const (
@@ -45,12 +44,8 @@ func (term *Terminal) Exec(opt *ExecOpt) ([]byte, error) {
 	args = append(args, term.cmd...)
 	cmd := exec.Command(name, args...)
 
-	if opt.Debug {
-		if len(opt.Caller) > 0 {
-			ycho.Infof("%s\t%s", opt.Caller, fmt.Sprintf("%s %s", name, strings.Join(args, " ")))
-		} else {
-			ycho.Infof("%s %s", name, strings.Join(args, " "))
-		}
+	if opt.Info != nil {
+		opt.Info(name, strings.Join(args, " "))
 	}
 
 	if opt.Redirect {

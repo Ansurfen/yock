@@ -1,9 +1,9 @@
-job("multi", function(cenv)
+job("multi", function(ctx)
     go(function()
         local idx = 0
         while idx ~= 5 do
             print("task 1")
-            time.sleep(1 * time.second)
+            time.Sleep(1 * time.Second)
             idx = idx + 1
         end
         notify("x")
@@ -22,11 +22,10 @@ job("multi", function(cenv)
     end)
 
     go(function()
-        time.sleep(20 * time.second)
+        time.Sleep(20 * time.Second)
         notify("a")
         print("push a")
     end)
 
     waits("x", "a", "b")
-    return true
 end)

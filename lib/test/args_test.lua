@@ -9,21 +9,18 @@ job("c", function(cenv)
     cenv.c = 6
     table.dump(cenv)
     a = 10
-    return true
 end)
 
 job("b", function(cenv)
-    time.sleep(1 * time.second)
+    time.sleep(1 * time.Second)
     print("b")
     table.dump(cenv)
     cenv.b = "aaa"
     table.dump(cenv)
-    return true
 end)
 
 job("d", function(cenv)
-    time.sleep(3 * time.second)
+    time.sleep(3 * time.Second)
     print("d")
     table.dump(cenv)
-    return true
 end)

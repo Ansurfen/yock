@@ -21,6 +21,8 @@ type ExecOpt struct {
 	Strict bool
 
 	Terminal uint8
+
+	Info func(cmd, args string)
 }
 
 func Exec(opt ExecOpt, cmd string) (string, error) {

@@ -12,7 +12,6 @@ job("dart", function(cenv)
         proto_path = root,
         proto = target
     })
-    return true
 end)
 
 job("py", function(cenv)
@@ -27,7 +26,6 @@ job("py", function(cenv)
             pyi = root .. workspace
         }
     })
-    return true
 end)
 
 job("java", function(cenv)
@@ -41,7 +39,6 @@ job("java", function(cenv)
         proto_path = root,
         proto = target
     })
-    return true
 end)
 
 job("go", function(cenv)
@@ -56,7 +53,6 @@ job("go", function(cenv)
         },
         proto = target
     })
-    return true
 end)
 
 job("c", function(cenv)
@@ -78,10 +74,7 @@ job("c", function(cenv)
         }, [[./sd.exe 'package \w+' 'package main' .\yock_grpc.pb.go]],
         [[./sd.exe 'package \w+' 'package main' .\yock.pb.go]],
         "yock run gen.lua all")
-
-    return true
 end)
 
 job("csharp", function(cenv)
-    return true
 end)

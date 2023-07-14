@@ -28,10 +28,12 @@ go.work
 
 **/*.zip
 **/*.tar
+**/*.tar.gz
 
 tutorial
 
-interface/c/libyock/cJSON.*
+interface/c/libyock/cJSON.h
+interface/c/libyock/cJSON.c
 
 **/sys.ini
 **/user.ini
