@@ -74,6 +74,8 @@ type YockScheduler struct {
 	// yockd on each computer can be regarded as a node, and
 	// different nodes can form clusters to complete parallel build, deployment and etc.
 	daemon yockd.YockDaemonClient
+
+	libPath string
 }
 
 func New(opts ...YockSchedulerOption) *YockScheduler {
@@ -242,7 +244,7 @@ func (yocks *YockScheduler) LoadLibs() {
 		yocks.SetGlobalVar(lib.name, lib.handle(yocks))
 	}
 
-	lib_path := util.Pathf("~/lib")
+	lib_path := yocks.libPath
 	files, err := os.ReadDir(lib_path)
 	if err != nil {
 		ycho.Fatal(err)

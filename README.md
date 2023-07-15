@@ -18,8 +18,12 @@ Yock is a solution of cross platform to compose distributed build stream. It's a
 
 ## Installation
 
-You can download the binary version [here](https://github.com/Ansurfen/yock/releases), or try the following two methods.
+You can download the binary version [here](https://github.com/Ansurfen/yock/releases), or try the following methods.
 `NOTE`: After downloading, you must mount yock to the local environment. Enter directory of executable fileto run `yock run install.lua` command to make it after uncompress.
+
+#### Package manager
+npm: npm install @ansurfen/yock -g
+pip: pip install yock
 
 #### Build by yock
 

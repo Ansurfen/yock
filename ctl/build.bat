@@ -47,9 +47,9 @@ if %dev% equ 0 (
     go run . run ../auto/build.lua all-dev -- --all-os %os%
 )
 
-if %ffi% equ 0 (
+if %ffi% equ 1 (
     @REM echo recovery ffi file
     cd ../scheduler
-    ren yockf.go.txt yockf.go
+    ren yockf.go yockf.go.txt
     cd %script_path%
 )

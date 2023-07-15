@@ -21,4 +21,3 @@
 
 # yock
 /yock_modules
-/include

@@ -15,6 +15,8 @@ prompt({
         import("cmd/install"),
         import("cmd/uninstall"),
         import("cmd/cache"),
+        import("cmd/tidy"),
+        import("cmd/build"),
         import("cmd/version")
     },
 })

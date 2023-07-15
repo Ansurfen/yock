@@ -1,7 +1,13 @@
 {
-    "name": "yock",
-    "version": "1.0.0",
+    "name": "@ansurfen/yock",
+    "version": "0.0.18",
     "description": "Yock is a solution of cross platform to compose distributed build stream.",
     "author": "ansurfen",
-    "license": "MIT"
+    "license": "MIT",
+    "keywords": [
+        "package-manager",
+        "distributed-systems",
+        "build-tool",
+        "lua"
+    ]
 }

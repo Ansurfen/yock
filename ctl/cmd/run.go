@@ -43,7 +43,9 @@ var (
 				runParameter.modes = append(runParameter.modes, arg)
 			}
 
-			opts := []yocks.YockSchedulerOption{}
+			opts := []yocks.YockSchedulerOption{
+				yocks.OptionLibPath(util.Pathf("~/lib/yock")),
+			}
 			if runParameter.cooperate {
 				opts = append(opts, yocks.OptionUpgradeSingalStream())
 			}

@@ -45,6 +45,7 @@ return {
         rm({ safe = false }, pathf("$/include/lang"), pathf("$/include/misc"))
         write("README.md", string.format("# %s", name))
         write(".gitignore", cat(pathf("#1", "../../template/gitignore.tpl")))
+        write(".yockignore", "include\\**")
     end,
     flags = {
         {

@@ -4,14 +4,20 @@
 
 ---@meta _
 
----{{.sh}}
+-- Example:
+-- ```lua
+-- sh({redirect = true}, "echo Hello World")
+-- ```
 ---@param opt table
 ---@vararg string
 ---@return table, err
 function sh(opt, ...)
 end
 
----{{.sh}}
+-- Example:
+-- ```lua
+-- sh("echo a", "echo b")
+-- ```
 ---@vararg string
 ---@return table, err
 function sh(...)

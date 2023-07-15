@@ -52,16 +52,21 @@ go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'
     end)
     yassert(err)
     local yock_lib_path = pathf(yock_path, "lib")
-    cp(pathf(wd, "../lib"), yock_lib_path)
-    cp("install.lua", yock_path)
-    cp("uninstall.lua", yock_path)
     mkdir(pathf(yock_path, "ypm"),
         pathf(yock_lib_path, "boot"),
+        pathf(yock_lib_path, "yock"),
+        pathf(yock_lib_path, "include"),
         pathf(yock_path, "bin"),
-        pathf(yock_path, "tmp"))
-    cp({ recurse = true, debug = true }, {
+        pathf(yock_path, "tmp"),
+        pathf(yock_lib_path, "include/ypm"))
+    cp({ recurse = true }, {
+        ["install.lua"]                       = yock_path,
+        ["uninstall.lua"]                     = yock_path,
+        [pathf(wd, "../lib/yock")]            = yock_lib_path,
+        [pathf(wd, "../lib/include")]         = yock_lib_path,
+        [pathf(wd, "../lib/boot/*")]          = pathf(yock_lib_path, "boot"),
         [pathf(wd, "../ypm/ypm.lua")]         = pathf(yock_lib_path, "boot"),
-        [pathf(wd, "../ypm/include/ypm.lua")] = pathf(yock_lib_path, "include"),
+        [pathf(wd, "../ypm/include/ypm.lua")] = pathf(yock_lib_path, "include/ypm"),
         [pathf(wd, "../ypm/template")]        = pathf(yock_path, "ypm"),
         [pathf(wd, "../ypm/cmd")]             = pathf(yock_path, "ypm"),
         [pathf(wd, "../ypm/proxy")]           = pathf(yock_path, "ypm"),
@@ -72,10 +77,10 @@ go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'
     rm({ safe = false },
         pathf(yock_lib_path, "test"),
         pathf(yock_lib_path, "bash"),
-        pathf(yock_lib_path, "go"),
-        pathf(yock_lib_path, "yock"))
+        pathf(yock_lib_path, "go"))
     -- sh("$yock run ../auto/bin-tidy.lua")
     -- mv(path.join(wd, "../bin"), path.join(yock_path, "bin"))
+
     zip_name = assign.string(zip_name, ctx.flags.o)
     if os == "windows" then
         zip_name = zip_name .. ".zip"
@@ -125,6 +130,6 @@ job("remote", function(ctx)
     -- end)
 end)
 
-jobs("all", "build", "clean")
-jobs("all-dev", "build", "depoly-dev", "remote", "clean")
+jobs("all", "build", "remote", "clean")
+jobs("all-dev", "build", "depoly-dev", "clean")
 jobs("dist", "build")

@@ -21,9 +21,6 @@ local yockConf = {}
 ---@field Stdout boolean
 local ychoOpt = {}
 
----
----{{.env}}
----
 ---@class env
 ---@field args table<string>
 ---@field platform platform

@@ -49,6 +49,9 @@ type CurlOpt struct {
 	maxRequestCount chan struct{}
 	wg              *sync.WaitGroup
 
+	Info  func(req *http.Request)
+	Error func(err error)
+
 	err error
 }
 
@@ -96,9 +99,16 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 			go func() {
 				defer opt.wg.Done()
 
+				if opt.Info != nil {
+					opt.Info(req)
+				}
+
 				res, err := http.DefaultClient.Do(req)
 
 				if err != nil {
+					if opt.Error != nil {
+						opt.Error(err)
+					}
 					return
 				}
 
@@ -122,9 +132,15 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 				<-opt.maxRequestCount
 			}()
 		} else {
+			if opt.Info != nil {
+				opt.Info(req)
+			}
 			res, err := http.DefaultClient.Do(req)
 
 			if err != nil {
+				if opt.Error != nil {
+					opt.Error(err)
+				}
 				return nil, err
 			}
 

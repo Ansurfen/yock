@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -218,7 +219,15 @@ func osNewCommand(l yocki.YockState) int {
 * @retrun err
  */
 func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
-	opt := yockc.CurlOpt{Method: "GET"}
+	opt := yockc.CurlOpt{Method: "GET", Info: func(req *http.Request) {
+		if yocki.Y_MODE.Debug() {
+			ycho.Infof("%s %s", req.Method, req.URL.String())
+		}
+	}, Error: func(err error) {
+		if yocki.Y_MODE.Debug() {
+			ycho.Warn(err)
+		}
+	}}
 	urls := []string{}
 	if s.IsTable(1) {
 		tbl := s.CheckTable(1)
@@ -249,12 +258,6 @@ func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
 		}
 	}
 	str, err := yockc.Curl(opt, urls)
-	if opt.Debug {
-		dbg, ok := s.Stack(1)
-		if ok {
-			ycho.Debugf("%s:%d\t%s %s", dbg.Source, dbg.CurrentLine, opt.Method, urls[0])
-		}
-	}
 	s.PushString(string(str)).PushError(err)
 	return s.Exit()
 }

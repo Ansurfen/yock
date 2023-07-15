@@ -36,3 +36,10 @@ func OptionEnableEnvVar() YockSchedulerOption {
 		return nil
 	}
 }
+
+func OptionLibPath(path string) YockSchedulerOption {
+	return func(ys *YockScheduler) error {
+		ys.libPath = path
+		return nil
+	}
+}

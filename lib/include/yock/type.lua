@@ -4,9 +4,9 @@
 
 ---@meta _
 
------@alias err string | nil
+---@alias err string | nil | userdata
 
----@class err: string
+-----@class err: string
 
 ---@alias starType
 ---| BooleanType

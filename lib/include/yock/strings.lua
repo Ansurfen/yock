@@ -112,10 +112,8 @@ end
 
 ---@param str string
 ---@param sep string
----@return table
-function strings.Split(str, sep)
-    return {}
-end
+---@return table<string>
+function strings.Split(str, sep) end
 
 ---@param s string
 ---@return userdata

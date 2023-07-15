@@ -12,5 +12,8 @@ return {
         if err ~= nil or #proxies == 0 then
             cp(cat(pathf("#1", "../../template/defaultSource.tpl")), pathf("#1", "../../proxy"))
         end
+        if find("boot.lua") then
+            cp(pathf("~/lib/include"), pathf("$"))
+        end
     end
 }

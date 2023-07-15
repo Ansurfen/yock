@@ -18,8 +18,12 @@ Yock 是一个跨平台的分布式构建流编排解决方案。它能够作为
 
 ## 安装
 
-你能够在[这里](https://github.com/Ansurfen/yock/releases)下载二进制版本，或者尝试以下两种方式。
+你能够在[这里](https://github.com/Ansurfen/yock/releases)下载二进制版本，或者尝试以下几种方式。
 `注意`: 下载完后还需要将yock挂载到本地环境中。在解压压缩包后，进入可执行文件的目录运行`yock run install.lua`完成这个过程。
+
+#### 包管理
+npm: npm install @ansurfen/yock -g
+pip: pip install yock
 
 #### 使用yock构建
 

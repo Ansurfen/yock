@@ -4,7 +4,7 @@
 
 package yocks
 
-import liby "github.com/ansurfen/yock/lib/yock"
+import liby "github.com/ansurfen/yock/lib/go/yock"
 
 var libyock = []loader{
 	liby.LoadCheck,

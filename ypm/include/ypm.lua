@@ -4,6 +4,10 @@
 
 ---@meta _
 
+---@class env
+---@field yock_modules string
+env = {}
+
 ---@param opt table
 ---@return function
 function ymodule(opt)
