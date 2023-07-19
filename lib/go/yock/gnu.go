@@ -17,7 +17,6 @@ import (
 	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ycho"
 	lua "github.com/yuin/gopher-lua"
-	luar "layeh.com/gopher-luar"
 )
 
 func LoadGNU(yocks yocki.YockScheduler) {
@@ -51,6 +50,7 @@ func LoadGNU(yocks yocki.YockScheduler) {
 		"kill":     gnuKill,
 		"pgrep":    gnuPGrep,
 		"ifconfig": gnuIfconfig,
+		"lsof":     gnuLsof,
 	})
 	systemCtl := yocks.CreateLib("systemctl")
 	systemCtl.SetYFunction(map[string]yocki.YGFunction{
@@ -69,6 +69,43 @@ func LoadGNU(yocks yocki.YockScheduler) {
 		"add":  gnuIPTablesAdd,
 		"del":  gnuIPTablesDel,
 	})
+}
+
+func gnuLsof(s yocki.YockState) int {
+	infos, err := yockc.Lsof()
+	if err != nil {
+		s.PushNilTable()
+		return 1
+	}
+	port := ""
+	if s.Argc() >= 1 {
+		port = strconv.Itoa(int(s.CheckNumber(1)))
+	}
+	tbl := &lua.LTable{}
+	if n := len(infos); n == 1 {
+		tbl.RawSetString("pid", lua.LNumber(infos[0].Pid))
+		tbl.RawSetString("state", lua.LString(infos[0].State))
+		tbl.RawSetString("proto", lua.LString(infos[0].Protocal))
+		tbl.RawSetString("Local", lua.LString(infos[0].Local))
+		tbl.RawSetString("foreign", lua.LString(infos[0].Foreign))
+	} else if n > 1 {
+		for _, info := range infos {
+			if len(port) != 0 {
+				if !strings.HasSuffix(info.Local, port) {
+					continue
+				}
+			}
+			linfo := &lua.LTable{}
+			tbl.Append(linfo)
+			linfo.RawSetString("pid", lua.LNumber(info.Pid))
+			linfo.RawSetString("state", lua.LString(info.State))
+			linfo.RawSetString("proto", lua.LString(info.Protocal))
+			linfo.RawSetString("Local", lua.LString(info.Local))
+			linfo.RawSetString("foreign", lua.LString(info.Foreign))
+		}
+	}
+	s.Push(tbl)
+	return 1
 }
 
 // @param opt table
@@ -105,10 +142,29 @@ func gnuIPTablesList(s yocki.YockState) int {
 		s.PushNilTable().Throw(err)
 		return 2
 	}
+
 	rules, err := yockc.IPTablesList(opt)
+	if err != nil {
+		s.PushNilTable().Throw(err)
+		return 2
+	}
 	tbl := &lua.LTable{}
-	for _, rule := range rules {
-		tbl.Append(luar.New(s.LState(), rule))
+	if len(rules) > 1 {
+		for _, rule := range rules {
+			r := &lua.LTable{}
+			r.RawSetString("name", lua.LString(rule.Name()))
+			r.RawSetString("proto", lua.LString(rule.Proto()))
+			r.RawSetString("src", lua.LString(rule.Src()))
+			r.RawSetString("dst", lua.LString(rule.Dst()))
+			r.RawSetString("action", lua.LString(rule.Action()))
+			tbl.Append(r)
+		}
+	} else {
+		tbl.RawSetString("name", lua.LString(rules[0].Name()))
+		tbl.RawSetString("proto", lua.LString(rules[0].Proto()))
+		tbl.RawSetString("src", lua.LString(rules[0].Src()))
+		tbl.RawSetString("dst", lua.LString(rules[0].Dst()))
+		tbl.RawSetString("action", lua.LString(rules[0].Action()))
 	}
 	s.Push(tbl).PushError(err)
 	return 2
@@ -117,26 +173,34 @@ func gnuIPTablesList(s yocki.YockState) int {
 func gnuIPTablesAdd(s yocki.YockState) int {
 	opt := yockc.IPTablesOpOpt{Op: yockc.IPTablesAdd}
 	if err := s.CheckTable(1).Bind(&opt); err != nil {
+		ychoLogger(err, "%siptables add", s.Stacktrace())
 		s.Throw(err)
 		return 1
 	}
-	if err := yockc.IPTablesOp(opt); err != nil {
+	err := yockc.IPTablesOp(opt)
+	ychoLogger(err, "%siptables add", s.Stacktrace())
+	if err != nil {
 		s.Throw(err)
+	} else {
+		s.PushNil()
 	}
-	s.PushNil()
 	return 1
 }
 
 func gnuIPTablesDel(s yocki.YockState) int {
 	opt := yockc.IPTablesOpOpt{Op: yockc.IPTablesDel}
 	if err := s.CheckTable(1).Bind(&opt); err != nil {
+		ychoLogger(err, "%siptables delete", s.Stacktrace())
 		s.Throw(err)
 		return 1
 	}
-	if err := yockc.IPTablesOp(opt); err != nil {
+	err := yockc.IPTablesOp(opt)
+	ychoLogger(err, "%siptables delete", s.Stacktrace())
+	if err != nil {
 		s.Throw(err)
+	} else {
+		s.PushNil()
 	}
-	s.PushNil()
 	return 1
 }
 
@@ -171,7 +235,11 @@ func gnuSystemCtlList(s yocki.YockState) int {
 	})
 	tbl := &lua.LTable{}
 	for _, info := range infos {
-		tbl.Append(luar.New(s.LState(), info))
+		sinfo := &lua.LTable{}
+		sinfo.RawSetString("pid", lua.LNumber(info.PID()))
+		sinfo.RawSetString("name", lua.LString(info.Name()))
+		sinfo.RawSetString("status", lua.LString(info.Status()))
+		tbl.Append(sinfo)
 	}
 	s.Push(tbl).PushError(err)
 	return 2
@@ -184,7 +252,11 @@ func gnuSystemCtlStatus(s yocki.YockState) int {
 	if len(infos) == 0 {
 		s.PushNil().PushError(err)
 	} else {
-		s.Pusha(infos[0]).PushError(err)
+		tbl := &lua.LTable{}
+		tbl.RawSetString("pid", lua.LNumber(infos[0].PID()))
+		tbl.RawSetString("name", lua.LString(infos[0].Name()))
+		tbl.RawSetString("status", lua.LString(infos[0].Status()))
+		s.Push(tbl).PushError(err)
 	}
 	return 2
 }
@@ -229,34 +301,56 @@ func gnuIfconfig(s yocki.YockState) int {
 }
 
 func gnuPGrep(s yocki.YockState) int {
-	s.Pusha(yockc.PGrep(s.CheckString(1)))
+	process := yockc.PGrep(s.CheckString(1))
+	tbl := &lua.LTable{}
+	for i := 0; i < len(process); i++ {
+		pinfo := &lua.LTable{}
+		pinfo.RawSetString("pid", lua.LNumber(process[i].Pid))
+		pinfo.RawSetString("name", lua.LString(process[i].Name))
+		tbl.Append(pinfo)
+	}
+	s.Push(tbl)
 	return 1
 }
 
 func gnuKill(s yocki.YockState) int {
 	if s.IsString(1) {
-		yockc.KillByName(s.CheckString(1))
+		name := s.CheckString(1)
+		err := yockc.KillByName(name)
+		ychoLogger(err, "%skill %s", s.Stacktrace(), name)
+		s.PushError(err)
 	} else {
-		yockc.KillByPid(int32(s.CheckInt(1)))
+		id := s.CheckInt(1)
+		err := yockc.KillByPid(int32(id))
+		ychoLogger(err, "%skill %d", s.Stacktrace(), id)
+		s.PushError(err)
 	}
 	return 1
 }
 
 func gnuUnset(s yocki.YockState) int {
-	err := yockc.Unset(s.CheckString(1))
+	name := s.CheckString(1)
+	err := yockc.Unset(name)
+	ychoLogger(err, "%sunset %s", s.Stacktrace(), name)
 	s.PushError(err)
 	return 1
 }
 
 func gnuExport(s yocki.YockState) int {
 	if s.Argc() > 1 {
-		yockc.Export(yockc.ExportOpt{}, s.CheckString(1), s.CheckString(2))
+		k := s.CheckString(1)
+		v := s.CheckString(2)
+		err := yockc.Export(yockc.ExportOpt{}, k, v)
+		ychoLogger(err, "%sexport %s=%s", s.Stacktrace(), k, v)
 	} else {
 		kv := strings.SplitN(s.CheckString(1), ":", 2)
 		if len(kv) == 2 {
-			yockc.Export(yockc.ExportOpt{Expand: true}, kv[0], kv[1])
+			err := yockc.Export(yockc.ExportOpt{Expand: true}, kv[0], kv[1])
+			ychoLogger(err, "%sexport %s=$%s:%s", s.Stacktrace(), kv[0], kv[0], kv[1])
 		} else {
-			s.PushError(fmt.Errorf("invalid command"))
+			err := fmt.Errorf("invalid command")
+			ychoLogger(err, "export")
+			s.PushError(err)
 			return 1
 		}
 	}
@@ -273,17 +367,52 @@ func gnuWhereis(s yocki.YockState) int {
 
 func gnuPS(s yocki.YockState) int {
 	opt := yockc.PSOpt{}
-	if err := s.CheckTable(1).Bind(&opt); err != nil {
-		s.PushNil().Throw(err)
-		return 2
+	p := -1
+	cmd := ""
+	if s.Argc() >= 1 {
+		if s.IsTable(1) {
+			if err := s.CheckTable(1).Bind(&opt); err != nil {
+				s.PushNil().Throw(err)
+				return 2
+			}
+		} else if s.IsNumber(1) {
+			p = int(s.CheckNumber(1))
+		} else if s.IsString(1) {
+			cmd = s.CheckString(1)
+		}
 	}
-	info, err := yockc.PS(opt)
-	s.Pusha(info).PushError(err)
+	infos, err := yockc.PS(opt)
+	tbl := &lua.LTable{}
+	for pid, info := range infos {
+		if p != -1 && p != int(pid) {
+			continue
+		}
+		if len(cmd) != 0 && !strings.Contains(info.Cmd, cmd) {
+			continue
+		}
+		pinfo := &lua.LTable{}
+		pinfo.RawSetString("cmd", lua.LString(info.Cmd))
+		pinfo.RawSetString("name", lua.LString(info.Name))
+		if opt.User {
+			pinfo.RawSetString("user", lua.LString(info.User))
+		}
+		if opt.CPU {
+			pinfo.RawSetString("cpu", lua.LNumber(info.CPU))
+		}
+		if opt.Time {
+			pinfo.RawSetString("start", lua.LNumber(info.Start))
+		}
+		tbl.RawSet(lua.LNumber(pid), pinfo)
+	}
+	s.Push(tbl).PushError(err)
 	return 2
 }
 
 func gnuNohup(s yocki.YockState) int {
-	s.PushError(yockc.Nohup(s.CheckString(1)))
+	cmd := s.CheckString(1)
+	err := yockc.Nohup(cmd)
+	ychoLogger(err, "%snohup %s", s.Stacktrace(), cmd)
+	s.PushError(err)
 	return 1
 }
 
@@ -322,7 +451,9 @@ func gnuSudo(s yocki.YockState) int {
 	if util.CurPlatform.OS == "windows" {
 		sudo = filepath.Join(util.YockPath, "bin", "sudo.bat")
 	}
-	yockc.Exec(yockc.ExecOpt{Quiet: true}, sudo+" "+s.CheckString(1))
+	cmd := s.CheckString(1)
+	_, err := yockc.Exec(yockc.ExecOpt{Quiet: true}, sudo+" "+cmd)
+	ychoLogger(err, "%ssudo %s", s.Stacktrace(), cmd)
 	return 0
 }
 
@@ -367,16 +498,18 @@ func gnuWhoami(s yocki.YockState) int {
 // @return string
 func gnuEcho(s yocki.YockState) int {
 	opt := yockc.EchoOpt{}
+	start := 1
 	if s.IsTable(1) {
 		if err := s.CheckTable(1).Bind(&opt); err != nil {
 			s.PushNil().Throw(err)
 			return 2
 		}
+		start++
 	} else {
 		opt.Fd = []string{"stdout"}
 	}
 	tbl := &lua.LTable{}
-	for i := 2; i <= s.Argc(); i++ {
+	for i := start; i <= s.Argc(); i++ {
 		out, err := yockc.Echo(opt, s.CheckString(i))
 		tbl.Append(lua.LString(out))
 		if err != nil {
@@ -456,21 +589,36 @@ func gnuChown(s yocki.YockState) int {
 	return 1
 }
 
-/*
-* @param dir string
-* @return err
- */
+// @param dir string
+//
+// @return err
 func gnuCd(s yocki.YockState) int {
-	err := yockc.Cd(s.CheckString(1))
+	wd := s.CheckString(1)
+	err := yockc.Cd(wd)
+	ychoLogger(err, "%scd %s", s.Stacktrace(), wd)
 	s.PushError(err)
 	return 1
+}
+
+func ychoLogger(err error, format string, a ...any) {
+	msg := fmt.Sprintf(format, a...)
+	if yocki.Y_MODE.Strict() && err != nil {
+		ycho.Errorf(msg)
+		panic(err)
+	} else if err != nil {
+		ycho.Warnf("%s\n%s", msg, err.Error())
+	} else {
+		ycho.Info(msg)
+	}
 }
 
 // @param file string
 //
 // @return err
 func gnuTouch(s yocki.YockState) int {
-	err := util.SafeWriteFile(s.CheckString(1), nil)
+	file := s.CheckString(1)
+	err := util.SafeWriteFile(file, nil)
+	ychoLogger(err, "%stouch %s", s.Stacktrace(), file)
 	s.PushError(err)
 	return 1
 }
@@ -491,7 +639,10 @@ func gnuCat(s yocki.YockState) int {
 * @return err
  */
 func gnuMv(s yocki.YockState) int {
-	err := yockc.Mv(yockc.MvOpt{}, s.CheckString(1), s.CheckString(2))
+	src := s.CheckString(1)
+	dst := s.CheckString(2)
+	err := yockc.Mv(yockc.MvOpt{}, src, dst)
+	ychoLogger(err, "%smv %s %s", s.Stacktrace(), src, dst)
 	s.PushError(err)
 	return 1
 }
@@ -503,11 +654,7 @@ func gnuMv(s yocki.YockState) int {
 * @return err
  */
 func gnuCp(s yocki.YockState) int {
-	opt := yockc.CpOpt{Recurse: true, Info: func(name, args string) {
-		if yocki.Y_MODE.Debug() {
-			ycho.Infof("%s%s %s", s.Stacktrace(), name, args)
-		}
-	}}
+	opt := yockc.CpOpt{Recurse: true}
 	paths := []string{}
 	var g_err error
 	if s.IsTable(1) {
@@ -518,15 +665,9 @@ func gnuCp(s yocki.YockState) int {
 		if s.IsTable(2) {
 			s.CheckLTable(2).ForEach(func(src, dst lua.LValue) {
 				err := yockc.Cp(opt, src.String(), dst.String())
+				ychoLogger(err, fmt.Sprintf("%scp %s %s", s.Stacktrace(), src.String(), dst.String()))
 				if err != nil {
-					if yocki.Y_MODE.Strict() {
-						s.Throw(err)
-					} else {
-						g_err = util.ErrGeneral
-					}
-					if yocki.Y_MODE.Debug() {
-						ycho.Warnf(s.Stacktrace() + err.Error())
-					}
+					g_err = err
 				}
 			})
 			s.PushError(g_err)
@@ -542,42 +683,23 @@ func gnuCp(s yocki.YockState) int {
 		}
 	}
 	if len(paths) >= 2 {
-		err := yockc.Cp(opt, paths[0], paths[1])
-		if err != nil {
-			g_err = err
-			if yocki.Y_MODE.Debug() {
-				ycho.Warnf(s.Stacktrace() + err.Error())
-			}
-			if yocki.Y_MODE.Strict() {
-				// TODO
-			} else {
-				g_err = util.ErrGeneral
-			}
-		}
-		s.PushError(g_err)
+		g_err = yockc.Cp(opt, paths[0], paths[1])
+		ychoLogger(g_err, fmt.Sprintf("%scp %s %s", s.Stacktrace(), paths[0], paths[1]))
 	} else {
-		util.ReadLineFromString(paths[0], func(s string) string {
-			if len(s) == 0 {
+		util.ReadLineFromString(paths[0], func(str string) string {
+			if len(str) == 0 {
 				return ""
 			}
-			kv := strings.Split(s, " ")
+			kv := strings.Split(str, " ")
 			if len(kv) == 2 {
 				err := yockc.Cp(opt, kv[0], kv[1])
+				ychoLogger(err, fmt.Sprintf("%scp %s %s", s.Stacktrace(), kv[0], kv[1]))
 				if err != nil {
 					g_err = err
-					if yocki.Y_MODE.Debug() {
-						ycho.Warn(err)
-					}
-					if yocki.Y_MODE.Strict() {
-						// TODO
-					} else {
-						g_err = util.ErrGeneral
-					}
 				}
 			}
 			return ""
 		})
-
 	}
 	s.PushError(g_err)
 	return 1
@@ -587,19 +709,13 @@ func gnuCp(s yocki.YockState) int {
 //
 // @return err
 func gnuMkdir(s yocki.YockState) int {
-	var g_err error
+	var err error
 	for i := 1; i <= s.Argc(); i++ {
 		path := s.CheckString(i)
-		if yocki.Y_MODE.Debug() {
-			ycho.Infof("%smkdir %s", s.Stacktrace(), path)
-		}
-		err := util.SafeMkdirs(path)
-		if err != nil {
-			ycho.Warn(err)
-			g_err = err
-		}
+		err = util.SafeMkdirs(path)
+		ychoLogger(err, "%smkdir %s", s.Stacktrace(), path)
 	}
-	s.PushError(g_err)
+	s.PushError(err)
 	return 1
 }
 
@@ -609,16 +725,7 @@ func gnuMkdir(s yocki.YockState) int {
 //
 // @return err
 func gnuRm(s yocki.YockState) int {
-	opt := yockc.RmOpt{Safe: true, Info: func(path string) {
-		if yocki.Y_MODE.Debug() {
-			ycho.Infof("%s%s", s.Stacktrace(), path)
-		}
-	}, Error: func(err error) error {
-		if yocki.Y_MODE.Debug() {
-			ycho.Warnf("%s%s", s.Stacktrace(), err)
-		}
-		return nil
-	}}
+	opt := yockc.RmOpt{Safe: true}
 	targets := []string{}
 	if s.IsTable(1) {
 		if err := s.CheckTable(1).Bind(&opt); err != nil {
@@ -633,6 +740,11 @@ func gnuRm(s yocki.YockState) int {
 			targets = append(targets, s.CheckString(i))
 		}
 	}
-	s.PushError(yockc.Rm(opt, targets))
+	var err error
+	for _, t := range targets {
+		err = yockc.Rm(opt, t)
+		ychoLogger(err, "%srm %s", s.Stacktrace(), t)
+	}
+	s.PushError(err)
 	return 1
 }

@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -32,16 +31,63 @@ func LoadMisc(yocks yocki.YockScheduler) {
 		"is_localhost": netIsLocalhost,
 		"safe_write":   safe_write,
 		"write_file":   write_file,
-		"is_exist":     is_exist,
 		"printf":       printf,
 		"pathf":        pathf,
 		"open_conf":    openConf,
 		"eval":         eval,
 		"loadbalance":  loadbalance,
+		"yassert":      yassert,
 	})
 	yocks.RegYocksFn(yocki.YocksFuncs{
 		"curl": netCurl,
 	})
+	lib := yocks.CreateLib("ycho")
+	lib.SetYFunction(map[string]yocki.YGFunction{
+		"info": ychoInfo,
+		"warn": ychoWarn,
+	})
+	yocks.SetGlobalFn(map[string]lua.LGFunction{
+		"print": func(l *lua.LState) int {
+			top := l.GetTop()
+			for i := 1; i <= top; i++ {
+				ycho.Print(l.ToStringMeta(l.Get(i)).String())
+				if i != top {
+					ycho.Print("\t")
+				}
+			}
+			ycho.Println("")
+			return 0
+		},
+	})
+}
+
+func ychoInfo(s yocki.YockState) int {
+	ycho.Infof("%s%s", s.Stacktrace(), s.CheckString(1))
+	return 0
+}
+
+func ychoWarn(s yocki.YockState) int {
+	ycho.Warnf("%s%s", s.Stacktrace(), s.CheckString(1))
+	return 0
+}
+
+func yassert(s yocki.YockState) int {
+	if s.IsBool(1) {
+		ok := s.CheckBool(1)
+		if !ok {
+			s.LState().RaiseError(s.LState().OptString(2, "assertion failed!"))
+		}
+	} else if s.IsString(1) {
+		s.LState().RaiseError(s.CheckString(1))
+	} else if s.IsUserData(1) {
+		s.LState().RaiseError(s.LState().OptString(2, "assertion failed!"))
+	}
+	if s.Argc() > 1 && s.IsFunction(2) {
+		s.Call(yocki.YockFuncInfo{
+			Fn: s.CheckFunction(2),
+		})
+	}
+	return 0
 }
 
 type loadbalanceOpt struct {
@@ -138,18 +184,14 @@ func osStrf(s yocki.YockState) int {
 	return 1
 }
 
-/*
-* @param opt? table
-* @param cmds string
-* @return table, err
- */
+// @param opt? table
+//
+// @param cmds string
+//
+// @return table, err
 func osSh(s yocki.YockState) int {
 	cmds := []string{}
-	opt := yockc.ExecOpt{Quiet: true, Info: func(cmd, args string) {
-		if yocki.Y_MODE.Debug() {
-			ycho.Infof("%s%s %s", s.Stacktrace(), cmd, args)
-		}
-	}}
+	opt := yockc.ExecOpt{Quiet: true}
 	if s.IsTable(1) {
 		tbl := s.CheckTable(1)
 		if err := tbl.Bind(&opt); err != nil {
@@ -167,25 +209,18 @@ func osSh(s yocki.YockState) int {
 	outs := &lua.LTable{}
 	var g_err error
 	for _, cmd := range cmds {
-		util.ReadLineFromString(cmd, func(s string) string {
-			if len(s) > 0 {
-				out, err := yockc.Exec(opt, s)
+		util.ReadLineFromString(cmd, func(str string) string {
+			if len(str) > 0 {
+				out, err := yockc.Exec(opt, str)
+				ychoLogger(err, "%ssh %s", s.Stacktrace(), str)
 				outs.Append(lua.LString(out))
 				if err != nil {
-					if opt.Debug {
-						ycho.Warn(err)
-					}
-					if opt.Strict {
-						return ""
-					} else {
-						g_err = util.ErrGeneral
-					}
+					g_err = err
 				}
 			}
 			return ""
 		})
 	}
-
 	return s.Push(outs).PushError(g_err).Exit()
 }
 
@@ -219,15 +254,7 @@ func osNewCommand(l yocki.YockState) int {
 * @retrun err
  */
 func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
-	opt := yockc.CurlOpt{Method: "GET", Info: func(req *http.Request) {
-		if yocki.Y_MODE.Debug() {
-			ycho.Infof("%s %s", req.Method, req.URL.String())
-		}
-	}, Error: func(err error) {
-		if yocki.Y_MODE.Debug() {
-			ycho.Warn(err)
-		}
-	}}
+	opt := yockc.CurlOpt{Method: "GET"}
 	urls := []string{}
 	if s.IsTable(1) {
 		tbl := s.CheckTable(1)
@@ -258,6 +285,7 @@ func netCurl(yocks yocki.YockScheduler, s yocki.YockState) int {
 		}
 	}
 	str, err := yockc.Curl(opt, urls)
+	ychoLogger(err, "%scurl %s", s.Stacktrace(), strings.Join(urls, ","))
 	s.PushString(string(str)).PushError(err)
 	return s.Exit()
 }
@@ -304,15 +332,6 @@ func safe_write(s yocki.YockState) int {
 func write_file(s yocki.YockState) int {
 	err := util.WriteFile(s.CheckString(1), []byte(s.CheckString(2)))
 	s.PushError(err)
-	return 1
-}
-
-// @param path string
-//
-// @return bool
-func is_exist(s yocki.YockState) int {
-	ok := util.IsExist(s.CheckString(1))
-	s.PushBool(ok)
 	return 1
 }
 

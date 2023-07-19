@@ -7,7 +7,6 @@ package yocks
 import (
 	"os"
 
-	"github.com/ansurfen/yock/ctl/conf"
 	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
@@ -19,22 +18,21 @@ func loadEnv(yocks yocki.YockScheduler) {
 		"platform":  util.CurPlatform,
 		"workdir":   util.WorkSpace,
 		"yock_path": util.YockPath,
-		"conf":      conf.Instance(),
 	})
 	lib.SetFunctions(map[string]lua.LGFunction{
 		"environ":  envEnviron,
 		"set_args": envSetArgs,
 	})
-	yocks.MntYocksFn(lib, yocki.YocksFuncs{
-		"set_path":  envSetPath,
-		"safe_set":  envSafeSet,
-		"set":       envSet,
-		"unset":     envUnset,
-		"setl":      envSetL,
-		"safe_setl": envSafeSetL,
-		"export":    envExport,
-		"print":     envPrint,
-	})
+	// yocks.MntYocksFn(lib, yocki.YocksFuncs{
+	// 	"set_path":  envSetPath,
+	// 	"safe_set":  envSafeSet,
+	// 	"set":       envSet,
+	// 	"unset":     envUnset,
+	// 	"setl":      envSetL,
+	// 	"safe_setl": envSafeSetL,
+	// 	"export":    envExport,
+	// 	"print":     envPrint,
+	// })
 }
 
 // @param path string

@@ -75,7 +75,7 @@ func (rm *RmCmd) Exec(args string) ([]byte, error) {
 	})
 	return NilByte, yockc.Rm(yockc.RmOpt{
 		Safe: !rm.r,
-	}, []string{rm.Path})
+	}, rm.Path)
 }
 
 type RmdirCmd struct {

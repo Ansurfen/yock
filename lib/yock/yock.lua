@@ -13,16 +13,12 @@ package.path = "?.lua"
 env.yock_tmp = path.join(env.yock_path, "tmp")
 env.yock_bin = path.join(env.yock_path, "bin")
 
----@param e err|string|nil
----@param msg? any
-function yassert(e, msg)
-    if e ~= nil then
-        if msg ~= nil then
-            ycho:Fatal(msg)
-        else
-            ycho:Fatal(e)
-        end
-    end
+---@param var string
+---@return string
+read = function(var)
+    local line = io.read("*l")
+    alias(var, line)
+    return line
 end
 
 ---@param file string

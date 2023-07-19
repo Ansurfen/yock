@@ -10,19 +10,9 @@ import "github.com/ansurfen/yock/util"
 type ExecOpt struct {
 	// Redirect set stdout, stderr, stdin stream
 	Redirect bool
-	// Debug prints output when it's true
-	Debug bool
-	// Caller is used to mark parent caller of HTTP function
-	//
-	// It'll printed on console when debug is true
-	Caller string
 	Quiet  bool
-	// Strict will exit at once when error occur
-	Strict bool
 
 	Terminal uint8
-
-	Info func(cmd, args string)
 }
 
 func Exec(opt ExecOpt, cmd string) (string, error) {

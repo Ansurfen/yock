@@ -36,7 +36,7 @@ var rmCmd = &cobra.Command{
 		default:
 			ycho.Fatalf("invalid area")
 		}
-		if err := yockc.Rm(yockc.RmOpt{Safe: false}, []string{pattern}); err != nil {
+		if err := yockc.Rm(yockc.RmOpt{Safe: false}, pattern); err != nil {
 			ycho.Fatal(err)
 		}
 	},

@@ -5,6 +5,8 @@
 package yocks
 
 import (
+	"github.com/ansurfen/yock/ctl/conf"
+	yocke "github.com/ansurfen/yock/env"
 	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ycho"
@@ -14,7 +16,12 @@ import (
 // yockJob (Job) is the smallest component of a task,
 // and each task is freely combined through a job.
 type yockJob struct {
-	fn *lua.LFunction
+	name string
+	fn   *lua.LFunction
+}
+
+func (job *yockJob) Name() string {
+	return job.name
 }
 
 func (job *yockJob) Func() *lua.LFunction {
@@ -23,9 +30,9 @@ func (job *yockJob) Func() *lua.LFunction {
 
 func loadTask(yocks yocki.YockScheduler) {
 	yocks.RegYocksFn(yocki.YocksFuncs{
-		"job":        taskJob,
-		"jobs":       taskJobs,
-		"job_option": taskJobOption,
+		"job":    taskJob,
+		"jobs":   taskJobs,
+		"option": yocksOption,
 	})
 }
 
@@ -43,7 +50,8 @@ func taskJob(yocks yocki.YockScheduler, l yocki.YockState) int {
 		ycho.Fatal(util.ErrDumplicateJobName)
 	} else {
 		yocks.AppendTask(jobName, &yockJob{
-			fn: jobFn,
+			name: jobName,
+			fn:   jobFn,
 		})
 	}
 	return 0
@@ -77,18 +85,32 @@ func taskJobs(ys yocki.YockScheduler, l yocki.YockState) int {
 	return 0
 }
 
-// taskJobOption gets local environment declared in the script
+// yocksOption gets local environment declared in the script
 // and stores them in the scheduler's opt field.
 //
 // @param opt table
-func taskJobOption(yocks yocki.YockScheduler, l yocki.YockState) int {
+func yocksOption(yocks yocki.YockScheduler, l yocki.YockState) int {
 	opt := l.CheckTable(1)
 	yocks.SetOpt(opt)
-	if m, ok := opt.GetBool("strict"); ok && m {
-		yocki.Y_MODE.SetMode(Y_STRICT)
+	cfg := conf.YockConf{}
+	if err := opt.Bind(&cfg); err != nil {
+		return 0
 	}
-	if m, ok := opt.GetBool("debug"); ok && m {
-		yocki.Y_MODE.SetMode(Y_DEBUG)
+	env := yocke.GetEnv[conf.YockConf]()
+	if m, ok := opt.GetBool("sync"); ok && m {
+		env.SetValue("strict", cfg.Strict)
+		env.SetValue("ycho.stdout", cfg.Ycho.Stdout)
+		env.Save()
+	}
+	if cfg.Strict {
+		yocki.Y_MODE.SetMode(yocki.Y_STRICT)
+	} else {
+		yocki.Y_MODE.UnsetMode(yocki.Y_STRICT)
+	}
+	if cfg.Ycho.Stdout {
+		yocki.Y_MODE.SetMode(yocki.Y_DEBUG)
+	} else {
+		yocki.Y_MODE.UnsetMode(yocki.Y_DEBUG)
 	}
 	return 0
 }

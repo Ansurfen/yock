@@ -73,8 +73,10 @@ func init() {
 		if ok {
 			langLocRaw := strings.Split(strings.TrimSpace(envlang), ".")[0]
 			langLoc := strings.Split(langLocRaw, "_")
-			CurPlatform.Lang = langLoc[0]
-			CurPlatform.Locale = langLoc[1]
+			if len(langLoc) >= 2 {
+				CurPlatform.Lang = langLoc[0]
+				CurPlatform.Locale = langLoc[1]
+			}
 		}
 	case "darwin":
 		cmd := exec.Command("sh", "osascript -e 'user locale of (get system info)'")
@@ -82,8 +84,10 @@ func init() {
 		if err == nil {
 			langLocRaw := strings.TrimSpace(string(output))
 			langLoc := strings.Split(langLocRaw, "_")
-			CurPlatform.Lang = langLoc[0]
-			CurPlatform.Locale = langLoc[1]
+			if len(langLoc) >= 2 {
+				CurPlatform.Lang = langLoc[0]
+				CurPlatform.Locale = langLoc[1]
+			}
 		}
 	}
 }

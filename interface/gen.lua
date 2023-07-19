@@ -4,7 +4,7 @@ local protoc = proto.protoc
 local root = "."
 local target = "yocki.proto"
 
-job("dart", function(cenv)
+job("dart", function(ctx)
     local workspace = "/dart"
     protoc({
         plugin = "dart",
@@ -14,7 +14,7 @@ job("dart", function(cenv)
     })
 end)
 
-job("py", function(cenv)
+job("py", function(ctx)
     local workspace = "/python/yocki"
     protoc({
         plugin = "python",
@@ -28,7 +28,7 @@ job("py", function(cenv)
     })
 end)
 
-job("java", function(cenv)
+job("java", function(ctx)
     local workspace = "/java/src/main/java/"
     local plugin_path = ""
     protoc({
@@ -41,7 +41,7 @@ job("java", function(cenv)
     })
 end)
 
-job("go", function(cenv)
+job("go", function(ctx)
     local workspace = "/go"
     protoc({
         plugin = "golang",
@@ -55,7 +55,7 @@ job("go", function(cenv)
     })
 end)
 
-job("c", function(cenv)
+job("c", function(ctx)
     local workspace = "/c/libyock"
     protoc({
         plugin = "golang",
@@ -76,5 +76,5 @@ job("c", function(cenv)
         "yock run gen.lua all")
 end)
 
-job("csharp", function(cenv)
+job("csharp", function(ctx)
 end)

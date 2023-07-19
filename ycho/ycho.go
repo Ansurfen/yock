@@ -5,6 +5,7 @@
 package ycho
 
 import (
+	"fmt"
 	"io"
 
 	yocki "github.com/ansurfen/yock/interface"
@@ -35,41 +36,73 @@ func Eventloop() {
 }
 
 func Info(msg string) {
-	ycho.Info(msg)
+	if yocki.Y_MODE.Debug() {
+		ycho.Info(msg)
+	}
 }
 
 func Infof(msg string, v ...any) {
-	ycho.Infof(msg, v...)
+	if yocki.Y_MODE.Debug() {
+		ycho.Infof(msg, v...)
+	}
 }
 
 func Fatal(msg error) {
-	ycho.Fatal(msg.Error())
+	if yocki.Y_MODE.Debug() {
+		ycho.Fatal(msg.Error())
+	}
 }
 
 func Fatalf(msg string, v ...any) {
-	ycho.Fatalf(msg, v...)
+	if yocki.Y_MODE.Debug() {
+		ycho.Fatalf(msg, v...)
+	}
 }
 
 func Debug(msg string) {
-	ycho.Debug(msg)
+	if yocki.Y_MODE.Debug() {
+		ycho.Debug(msg)
+	}
 }
 
 func Debugf(msg string, v ...any) {
-	ycho.Debugf(msg, v...)
+	if yocki.Y_MODE.Debug() {
+		ycho.Debugf(msg, v...)
+	}
 }
 
 func Warn(msg error) {
-	ycho.Warn(msg.Error())
+	if yocki.Y_MODE.Debug() {
+		ycho.Warn(msg.Error())
+	}
 }
 
 func Warnf(msg string, v ...any) {
-	ycho.Warnf(msg, v...)
+	if yocki.Y_MODE.Debug() {
+		ycho.Warnf(msg, v...)
+	}
 }
 
 func Error(msg error) {
-	ycho.Error(msg.Error())
+	if yocki.Y_MODE.Debug() {
+		ycho.Error(msg.Error())
+	}
 }
 
 func Errorf(msg string, v ...any) {
-	ycho.Errorf(msg, v...)
+	if yocki.Y_MODE.Debug() {
+		ycho.Errorf(msg, v...)
+	}
+}
+
+func Print(msg string) {
+	ycho.Print(msg)
+}
+
+func Printf(format string, a ...any) {
+	ycho.Print(fmt.Sprintf(format, a...))
+}
+
+func Println(msg string) {
+	ycho.Print(msg + "\n")
 }

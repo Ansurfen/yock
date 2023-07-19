@@ -41,8 +41,7 @@ func systemCtlCreateWindows(name string, opt SCCreateOpt) error {
 		AddString(`binPath=""%s""`, opt.Service.ExecStart)
 	str, err := OnceScript(fmt.Sprintf(`Dim objShell
 Set objShell = WScript.CreateObject("WScript.Shell")
-objShell.Run "%s"
-Set objShell = Nothing`, args.Build()))
+objShell.Run "%s"`, args.Build()))
 	if err != nil {
 		return fmt.Errorf("%s%s", str, err)
 	}

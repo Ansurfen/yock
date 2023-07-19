@@ -29,7 +29,9 @@ type TableSetter interface {
 	SetNil(k string)
 	SetInt(k string, v int)
 	SetTable(k string, v Table)
-	SetField(l *lua.LState, v map[string]any)
+	SetLTable(k string, v *lua.LTable)
+	SetField(l *lua.LState, k string, v any)
+	SetFields(l *lua.LState, v map[string]any)
 }
 
 type TableGetter interface {
@@ -72,6 +74,7 @@ type YockState interface {
 	LState() *lua.LState
 	Argc() int
 	PopTop()
+	Clone() YockState
 }
 
 type YockStateIs interface {

@@ -23,6 +23,7 @@ You can download the binary version [here](https://github.com/Ansurfen/yock/rele
 
 #### Package manager
 npm: npm install @ansurfen/yock -g
+
 pip: pip install yock
 
 #### Build by yock
@@ -311,7 +312,7 @@ ypm.sh install ark -g // linux
 
 ## Document
 
-You can find information about module development and yock development [here](/docs/).
+You can find information about module development and yock development [here](https://ansurfen.github.io/YockNav/).
 
 ## Center Repository
 

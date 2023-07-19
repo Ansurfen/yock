@@ -53,7 +53,7 @@ func (lib *YockLib) Value() lua.LValue {
 }
 
 func (lib *YockLib) SetField(v map[string]any) {
-	lib.tbl.SetField(lib.state.LState(), v)
+	lib.tbl.SetFields(lib.state.LState(), v)
 }
 
 func (lib *YockLib) SetFunction(name string, fn lua.LGFunction) {

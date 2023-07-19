@@ -48,7 +48,15 @@ func (t *Table) SetTable(k string, v yocki.Table) {
 	t.RawSetString(k, v.Value())
 }
 
-func (t *Table) SetField(l *lua.LState, v map[string]any) {
+func (t *Table) SetLTable(k string, v *lua.LTable) {
+	t.RawSetString(k, v)
+}
+
+func (t *Table) SetField(l *lua.LState, k string, v any) {
+	t.RawSetString(k, luar.New(l, v))
+}
+
+func (t *Table) SetFields(l *lua.LState, v map[string]any) {
 	for name, field := range v {
 		t.RawSetString(name, luar.New(l, field))
 	}

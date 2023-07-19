@@ -11,21 +11,16 @@ import (
 
 func TestRm(t *testing.T) {
 	Rm(RmOpt{
-		Safe:   true,
-		Caller: "TestRm",
-	}, []string{"test"})
+		Safe: true,
+	}, "test")
 }
 
 func TestMv(t *testing.T) {
-	Mv(MvOpt{
-		Caller: "TestMv",
-	}, "a", "b")
+	Mv(MvOpt{}, "a", "b")
 }
 
 func TestCp(t *testing.T) {
-	Cp(CpOpt{
-		Caller: "TestCp",
-	}, "a", "b")
+	Cp(CpOpt{}, "a", "b")
 }
 
 func TestEchoConsole(t *testing.T) {
@@ -39,7 +34,6 @@ func TestEchoFile(t *testing.T) {
 func TestExec(t *testing.T) {
 	Exec(ExecOpt{
 		Redirect: true,
-		Caller:   "TestExec",
 		Quiet:    false,
 	}, "echo a")
 }
@@ -48,12 +42,10 @@ func TestCurl(t *testing.T) {
 	Curl(CurlOpt{
 		Method: "GET",
 		Save:   true,
-		Debug:  true,
 		Dir:    ".",
 		FilenameHandle: func(s string) string {
 			return s
 		},
-		Caller: "TestHTTP",
 	}, []string{"https://github.com"})
 }
 

@@ -10,7 +10,7 @@ import (
 
 	yockpack "github.com/ansurfen/yock/pack"
 	yockr "github.com/ansurfen/yock/runtime"
-	"github.com/ansurfen/yock/scheduler"
+	yocks "github.com/ansurfen/yock/scheduler"
 	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ycho"
 	"github.com/spf13/cobra"
@@ -40,6 +40,9 @@ var (
 					runParameter.file = arg
 					continue
 				}
+				if len(arg) > 0 && arg[0] == '-' && arg[1] == '-' {
+					break
+				}
 				runParameter.modes = append(runParameter.modes, arg)
 			}
 
@@ -55,6 +58,7 @@ var (
 
 			yocks := yocks.Default(opts...)
 			go yocks.EventLoop()
+			go ycho.Eventloop()
 
 			yockp := yockpack.New()
 			fn := yockp.Compile(yockpack.CompileOpt{

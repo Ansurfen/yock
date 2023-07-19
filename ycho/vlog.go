@@ -48,3 +48,5 @@ func (v *Vlog) Warnf(msg string, a ...any) {}
 func (v *Vlog) Error(msg string) {}
 
 func (v *Vlog) Errorf(msg string, a ...any) {}
+
+func (v *Vlog) Print(msg string) {}

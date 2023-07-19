@@ -5,7 +5,6 @@
 package yocks
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -68,7 +67,7 @@ type YockScheduler struct {
 
 	// yocki is a third-party module extension interface provided by Yock.
 	// It is used to enhance yock's scripts, just like yockf.
-	yocki yockInterfaces
+	yocki *yockInterfaces
 
 	// daemon manages and schedules Yock's background tasks.
 	// yockd on each computer can be regarded as a node, and
@@ -76,6 +75,8 @@ type YockScheduler struct {
 	daemon yockd.YockDaemonClient
 
 	libPath string
+
+	*yocksDB
 }
 
 func New(opts ...YockSchedulerOption) *YockScheduler {
@@ -84,6 +85,8 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 		signals:     NewSingleSignalStream(),
 		task:        make(map[string][]*yockJob),
 		goroutines:  newChannelPool(10),
+		yocksDB:     newYocksDB(),
+		yocki:       newYockInterface(),
 		// daemon:      *yockd.New(&yockd.DaemonOption{}),
 	}
 
@@ -110,6 +113,7 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 func Default(opts ...YockSchedulerOption) *YockScheduler {
 	yocks := New(opts...)
 	yocks.LoadLibs()
+	yocks.LoadYocki()
 	return yocks
 }
 
@@ -189,25 +193,10 @@ func (yocks *YockScheduler) GetTask(name string) bool {
 }
 
 func (yocks *YockScheduler) AppendTask(name string, job yocki.YockJob) {
-	yocks.task[name] = append(yocks.task[name], &yockJob{job.Func()})
-}
-
-const (
-	yockLibYcho = "ycho"
-)
-
-type yockLib struct {
-	name   string
-	handle func(*YockScheduler) lua.LValue
+	yocks.task[name] = append(yocks.task[name], &yockJob{fn: job.Func(), name: job.Name()})
 }
 
 type YGFunction func(*YockScheduler, *yockr.YockState) int
-
-var yockLibs = []yockLib{
-	{yockLibYcho, func(yocks *YockScheduler) lua.LValue {
-		return luar.New(yocks.State().LState(), ycho.Get())
-	}},
-}
 
 func (yocks *YockScheduler) Do(f func()) {
 	yocks.goroutines.Go(f)
@@ -217,6 +206,32 @@ func (yocks *YockScheduler) Do(f func()) {
 func (yocks *YockScheduler) LoadLibsV1() {
 	loadDriver(yocks)
 	loadPlugin(yocks)
+}
+
+func (yocks *YockScheduler) LoadYocki() {
+	lib := yocks.CreateLib("yocki")
+	lib.SetField(map[string]any{
+		"connect": func(name, ip string, port int) {
+			yocks.yocki.Connect(name, ip, port)
+		},
+		"close": func(name string) {
+			yocks.yocki.Close(name)
+		},
+		"call": func(name, fn, arg string) (string, string) {
+			res, err := yocks.yocki.Call(name, fn, arg)
+			if err != nil {
+				return res, err.Error()
+			}
+			return res, ""
+		},
+		"list": func() *lua.LTable {
+			tbl := &lua.LTable{}
+			for name := range yocks.yocki.clients {
+				tbl.Append(lua.LString(name))
+			}
+			return tbl
+		},
+	})
 }
 
 // LoadLibs loads the libraries that go provides to Lua
@@ -240,18 +255,13 @@ func (yocks *YockScheduler) LoadLibs() {
 	}
 	yocks.setGlobalVars(yockGlobalVars)
 
-	for _, lib := range yockLibs {
-		yocks.SetGlobalVar(lib.name, lib.handle(yocks))
-	}
-
-	lib_path := yocks.libPath
-	files, err := os.ReadDir(lib_path)
+	files, err := os.ReadDir(yocks.libPath)
 	if err != nil {
 		ycho.Fatal(err)
 	}
 	for _, file := range files {
 		if fn := file.Name(); filepath.Ext(fn) == ".lua" {
-			if err := yocks.EvalFile(path.Join(lib_path, fn)); err != nil {
+			if err := yocks.EvalFile(path.Join(yocks.libPath, fn)); err != nil {
 				ycho.Fatal(err)
 			}
 		}
@@ -294,38 +304,46 @@ func (yocks *YockScheduler) Env() yocki.YockLib {
 
 // LaunchTask executes the corresponding task based on the task name
 func (yocks *YockScheduler) LaunchTask(name string) {
+	defer func() {
+		msg := recover()
+		switch msg.(type) {
+		case error:
+
+		}
+	}()
 	var flags yocki.Table
 	if yocks.opt != nil {
 		if tmp, ok := yocks.opt.GetTable("flags"); ok {
 			flags = tmp
 		}
 	}
+	var (
+		inherit bool
+		super    *Context
+	)
 	for _, job := range yocks.task[name] {
-		tmp, cancel := yocks.NewState()
-		tbl := yocks.env.Meta().Clone(tmp.LState())
-		tbl.SetString("job", name)
-		tbl.SetField(tmp.LState(), map[string]any{
-			"info": func(msg string) {
-				dbg, ok := tmp.Stack(1)
-				if ok {
-					ycho.Info(fmt.Sprintf("%s:%d %s", dbg.Source, dbg.CurrentLine, msg))
-				}
-			},
-		})
-		if flags != nil {
-			if tmp, ok := flags.Value().RawGetString(name).(*lua.LTable); ok {
-				tbl.Value().RawSetString("flags", tmp)
-			}
+		ctx := newContext(name, job, flags, yocks)
+		defer ctx.Close()
+		if inherit {
+			ctx.Extends(super)
+			inherit = false
+			super = nil
 		}
-		if err := tmp.Call(yocki.YockFuncInfo{
-			Fn: job.fn,
-		}, tbl.Value()); err != nil {
-			ycho.Warn(err)
-		}
-		if cancel != nil {
-			cancel()
+		code := ctx.Call(job.fn)
+		ycho.Infof("[%s] exit, %s", ctx.source, code)
+		switch code {
+		case 0:
+			return
+		case 1:
+			// continue
+		case 2:
+			inherit = true
+			super = ctx
+		default:
+			ycho.Warnf("unkown status for context")
 		}
 	}
+	ycho.Infof("[%s] exit", name)
 }
 
 // EventLoop periodically takes fn from goroutines and assigns goroutine execution

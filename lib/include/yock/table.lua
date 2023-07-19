@@ -4,11 +4,11 @@
 
 ---@meta _
 
----
----{{.table_dump}}
----
+-- present data between table
+-- 
+-- Example:
+-- ```lua
+--  table.dump({1, 2, 3})
+-- ```
 ---@param tbl table
----
-function table.dump(tbl)
-
-end
+function table.dump(tbl) end

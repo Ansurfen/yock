@@ -4,35 +4,16 @@
 
 ---@meta _
 
----
----{{.go}}
----
 ---@param callback fun()
 ---@async
----
-function go(callback)
-end
+function go(callback) end
 
----
----{{.wait}}
----
 ---@param sig string
----
-function wait(sig)
-end
+---@param timeout? time
+function wait(sig, timeout) end
 
----
----{{.waits}}
----
----@vararg string
----
-function waits(...)
-end
+---@param ... string|time
+function waits(...) end
 
----
----{{.notify}}
----
 ---@param sig string
----
-function notify(sig)
-end
+function notify(sig) end

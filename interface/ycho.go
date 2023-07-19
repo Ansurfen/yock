@@ -19,4 +19,5 @@ type Ycho interface {
 	Fatalf(msg string, v ...any)
 	Error(msg string)
 	Errorf(msg string, v ...any)
+	Print(msg string)
 }

@@ -20,6 +20,7 @@ type PSOpt struct {
 }
 
 type ProcessInfo struct {
+	Name  string
 	User  string
 	CPU   float64
 	Cmd   string
@@ -33,8 +34,10 @@ func PS(opt PSOpt) (info map[int32]*ProcessInfo, err error) {
 	for _, p := range processes {
 		pid := p.Pid
 		cmd, _ := p.Cmdline()
+		name, _ := p.Name()
 		pi := &ProcessInfo{
-			Cmd: cmd,
+			Name: name,
+			Cmd:  cmd,
 		}
 		info[pid] = pi
 		if opt.CPU {

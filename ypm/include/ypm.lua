@@ -30,8 +30,7 @@ end
 
 ---@param target string
 ---@return any
-function load_module(target)
-end
+function load_module(target) end
 
 ---@param opt table
 function yock_todo_loader(opt)
@@ -47,3 +46,14 @@ end
 ---@field version string
 ---@field load fun(opt: table)
 local module = {}
+
+---@param name string
+---@param cmd fun(port: integer): string
+---@return integer
+function register_service(name, cmd) end
+
+---@param name string
+function unregister_service(name) end
+
+---@param target string
+function init(target) end

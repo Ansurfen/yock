@@ -2,14 +2,113 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
 	"math/rand"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
+	"github.com/ansurfen/yock/ctl/conf"
+	yocke "github.com/ansurfen/yock/env"
+	"github.com/ansurfen/yock/util"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type infoEntry struct {
+	Time   string `json:"time"`
+	Level  string `json:"level"`
+	Caller string `json:"caller"`
+	Msg    string `json:"msg"`
+}
+
+var extract = regexp.MustCompile(`(.*:\d+)`)
+
+func (entry *infoEntry) trim() {
+	if extract.MatchString(entry.Msg) {
+		if loc := extract.FindStringIndex(entry.Msg); len(loc) > 1 {
+			entry.Caller = strings.TrimSpace(entry.Msg[:loc[1]])
+			entry.Msg = strings.TrimSpace(entry.Msg[loc[1]:])
+		}
+	} else {
+		entry.Msg = strings.TrimSpace(entry.Msg)
+	}
+}
+
+func find(file, time, level, caller, msg string) {
+	for name, entries := range infos {
+		if file != "*" && !strings.Contains(name, file) {
+			continue
+		}
+		for _, entry := range entries {
+			if time != "*" && !strings.Contains(entry.Time, time) {
+				continue
+			}
+			if level != "*" && !strings.Contains(entry.Level, level) {
+				continue
+			}
+			if caller != "*" && !strings.Contains(entry.Caller, caller) {
+				continue
+			}
+			if msg != "*" && !strings.Contains(entry.Msg, msg) {
+				continue
+			}
+			fmt.Println(entry)
+		}
+	}
+}
+
+var infos map[string][]*infoEntry
+
 func main() {
+	env := yocke.InitEnv(&yocke.EnvOpt[conf.YockConf]{
+		Workdir: ".yock",
+		Subdirs: []string{"log", "mnt", "unmnt"},
+		Conf:    conf.YockConf{},
+	})
+	util.WorkSpace = filepath.ToSlash(filepath.Join(env.User().HomeDir, ".yock"))
+	logPath := util.Pathf(env.Conf().Ycho.Path)
+	infos = make(map[string][]*infoEntry)
+	filepath.Walk(logPath, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		re := regexp.MustCompile("(.*)(\033\\[\\d+m)+(INFO|DEBUG|FATAL|WARN|PANIC|ERROR)(\033\\[0m)+(.*)")
+		if filepath.Ext(path) == ".log" {
+			infos[path] = []*infoEntry{}
+			util.ReadLineFromFile(path, func(s string) string {
+				s = strings.TrimSpace(s)
+				if len(s) == 0 {
+					return ""
+				}
+				if re.MatchString(s) {
+					res := re.FindStringSubmatch(s)
+					infos[path] = append(infos[path], &infoEntry{
+						Time:  strings.TrimSpace(res[1]),
+						Level: strings.TrimSpace(res[3]),
+						Msg:   strings.TrimLeft(res[5], " "),
+					})
+				} else {
+					n := len(infos[path]) - 1
+					infos[path][n].Msg += "\n" + s
+				}
+				return ""
+			})
+		}
+		return nil
+	})
+	for _, entries := range infos {
+		for _, e := range entries {
+			e.trim()
+		}
+	}
+	find("*", "11:21:40", "*", "*", "*")
+	os.Exit(1)
 	p := tea.NewProgram(initialModel())
 
 	go p.Run()

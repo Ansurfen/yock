@@ -33,12 +33,6 @@ type CurlOpt struct {
 	Dir string
 	// FilenameHandle returns filename that will be saved according to url
 	FilenameHandle func(string) string
-	// Debug prints output when it's true
-	Debug bool
-	// Caller is used to mark parent caller of HTTP function
-	//
-	// It'll printed on console when debug is true
-	Caller string
 	// Strict will exit at once when error occur
 	Strict bool
 
@@ -48,9 +42,6 @@ type CurlOpt struct {
 	Async           bool
 	maxRequestCount chan struct{}
 	wg              *sync.WaitGroup
-
-	Info  func(req *http.Request)
-	Error func(err error)
 
 	err error
 }
@@ -99,16 +90,9 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 			go func() {
 				defer opt.wg.Done()
 
-				if opt.Info != nil {
-					opt.Info(req)
-				}
-
 				res, err := http.DefaultClient.Do(req)
 
 				if err != nil {
-					if opt.Error != nil {
-						opt.Error(err)
-					}
 					return
 				}
 
@@ -132,15 +116,10 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 				<-opt.maxRequestCount
 			}()
 		} else {
-			if opt.Info != nil {
-				opt.Info(req)
-			}
-			res, err := http.DefaultClient.Do(req)
+			cli := &http.Client{}
+			res, err := cli.Do(req)
 
 			if err != nil {
-				if opt.Error != nil {
-					opt.Error(err)
-				}
 				return nil, err
 			}
 

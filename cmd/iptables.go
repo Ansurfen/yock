@@ -43,11 +43,11 @@ func IPTablesList(opt IPTablesListOpt) (rules []FireWareRule, err error) {
 		}
 		str, err := Exec(ExecOpt{Quiet: true, Terminal: TermCmd}, cmd)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%s%s", str, err)
 		}
 		rs, err := IPTablesListWindows(str)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%s%s", str, err)
 		}
 		for _, rule := range rs {
 			rules = append(rules, rule)
@@ -298,6 +298,9 @@ func IPTablesListWindows(str string) (rules []firewareRuleWindows, err error) {
 		}
 		return ""
 	})
+	if len(rule.RuleName) != 0 {
+		rules = append(rules, rule)
+	}
 	return
 }
 

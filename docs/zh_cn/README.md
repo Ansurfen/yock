@@ -311,7 +311,7 @@ ypm.sh install ark -g // linux
 
 ## 文档
 
-你可以在[这里](/docs/)查看关于模块开发以及yock开发相关的信息。
+你可以在[这里](https://ansurfen.github.io/YockNav/)查看关于模块开发以及yock开发相关的信息。
 
 ## 中央仓库
 

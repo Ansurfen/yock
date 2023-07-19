@@ -9,6 +9,7 @@ import (
 
 	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/ycho"
+	lua "github.com/yuin/gopher-lua"
 )
 
 func LoadGoroutine(yocks yocki.YockScheduler) {
@@ -42,11 +43,16 @@ func goroutineGo(yocks yocki.YockScheduler, state yocki.YockState) int {
 // @param sig string
 func goroutineWait(yocks yocki.YockScheduler, state yocki.YockState) int {
 	sig := state.CheckString(1)
+	deadline := int64(state.LState().OptNumber(2, lua.LNumber(-1)))
 	if _, ok := yocks.Signal().Load(sig); !ok {
 		yocks.Signal().Store(sig, false)
 	}
 	cnt := 0
+	die := isTimeout(deadline)
 	for {
+		if die() {
+			return 0
+		}
 		if sig, ok := yocks.Signal().Load(sig); ok && sig.(bool) {
 			break
 		}
@@ -63,11 +69,21 @@ func goroutineWait(yocks yocki.YockScheduler, state yocki.YockState) int {
 // @param sig ...string
 func goroutineWaits(yocks yocki.YockScheduler, state yocki.YockState) int {
 	sigs := []string{}
-	for i := 1; i <= state.Argc(); i++ {
+	n := state.Argc()
+	deadline := int64(-1)
+	if state.IsNumber(n) {
+		deadline = int64(state.CheckNumber(n))
+		n--
+	}
+	for i := 1; i <= n; i++ {
 		sigs = append(sigs, state.CheckString(i))
 	}
 	cnt := 0
+	die := isTimeout(deadline)
 	for {
+		if die() {
+			return 0
+		}
 		flag := true
 		for i := 0; i < len(sigs); i++ {
 			if sig, ok := yocks.Signal().Load(sigs[i]); !ok || (ok && !sig.(bool)) {
@@ -93,4 +109,14 @@ func goroutineNotify(yocks yocki.YockScheduler, state yocki.YockState) int {
 	sig := state.CheckString(1)
 	yocks.Signal().Store(sig, true)
 	return 0
+}
+
+func isTimeout(deadline int64) func() bool {
+	old := time.Now().Add(time.Duration(deadline))
+	return func() bool {
+		if deadline == -1 {
+			return false
+		}
+		return time.Now().Compare(old) == 1
+	}
 }

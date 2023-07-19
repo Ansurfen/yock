@@ -10,7 +10,6 @@ func main() {
 	_, err := yockc.Curl(yockc.CurlOpt{
 		Method: "GET",
 		Save:   false,
-		Debug:  true,
 		Dir:    ".",
 		FilenameHandle: func(s string) string {
 			return s

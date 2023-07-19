@@ -79,6 +79,7 @@ type tlog struct {
 	prog *tea.Program
 	pws  container.DoubleLinkedList[*progressWriter]
 	loop bool
+	opt  YchoOpt
 }
 
 func (t *tlog) Eventloop() {
@@ -112,6 +113,9 @@ func (t *tlog) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return t, nil
 	case progressMsg:
+		if t.pws.Find(msg.id) == nil {
+			break
+		}
 		if msg.ratio >= 1.0 {
 			t.pws.Remove(t.pws.Find(msg.id))
 		}
@@ -127,7 +131,7 @@ func (t *tlog) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return t, tea.Batch(cmds...)
 	case logMsg:
-		return t, tea.Println(msg)
+		return t, tea.Printf(string(msg))
 	}
 	return t, nil
 }
@@ -200,11 +204,25 @@ func (t *tlog) Errorf(msg string, a ...any) {
 	t.logger(textError, msg, a...)
 }
 
+func (t *tlog) Print(msg string) {
+	if t.loop {
+		t.prog.Send(logMsg(msg))
+	} else {
+		fmt.Println(msg)
+	}
+}
+
 func (t *tlog) logger(level, msg string, a ...any) {
-	fr := getTopCaller(4)
-	msg = fmt.Sprintf("%s %s %s:%d %s",
-		time.Now().Format(defaultTimeFormat),
-		level, fr.name, fr.line, fmt.Sprintf(msg, a...))
+	if t.opt.Caller {
+		fr := getTopCaller(4)
+		msg = fmt.Sprintf("%s %s %s:%d %s",
+			time.Now().Format(t.opt.TimeFormat),
+			level, fr.name, fr.line, fmt.Sprintf(msg, a...))
+	} else {
+		msg = fmt.Sprintf("%s %s %s",
+			time.Now().Format(t.opt.TimeFormat),
+			level, fmt.Sprintf(msg, a...))
+	}
 	if t.loop {
 		t.prog.Send(logMsg(msg))
 	} else {
@@ -216,6 +234,7 @@ func NewTLog(conf YchoOpt) (*tlog, error) {
 	t := &tlog{
 		pws:  container.VectorOf[*progressWriter](),
 		loop: false,
+		opt:  conf,
 	}
 	t.prog = tea.NewProgram(t)
 	return t, nil

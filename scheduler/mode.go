@@ -8,11 +8,6 @@ import (
 	yocki "github.com/ansurfen/yock/interface"
 )
 
-const (
-	Y_STRICT = 1
-	Y_DEBUG  = 2
-)
-
 type YockModeManager int32
 
 func (ym *YockModeManager) Mode() int32 {
@@ -21,6 +16,15 @@ func (ym *YockModeManager) Mode() int32 {
 
 func (ym *YockModeManager) SetMode(m int32) {
 	*ym = YockModeManager(m | ym.Mode())
+}
+
+func (ym *YockModeManager) UnsetMode(m int32) {
+	switch m {
+	case yocki.Y_STRICT:
+		*ym = YockModeManager(ym.Mode() &^ (1 << 0))
+	case yocki.Y_DEBUG:
+		*ym = YockModeManager(ym.Mode() & ^(1 << 1))
+	}
 }
 
 func (ym *YockModeManager) Strict() bool {

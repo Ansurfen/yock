@@ -7,9 +7,7 @@
 ycho = {}
 
 ---@param msg string
-function ycho:Info(msg)
-
-end
+function ycho.info(msg) end
 
 ---@param msg string
 function ycho:Fatal(msg)
@@ -17,9 +15,7 @@ function ycho:Fatal(msg)
 end
 
 ---@param msg string
-function ycho:Warn(msg)
-
-end
+function ycho:warn(msg) end
 
 ---@param msg string
 function ycho:Debug(msg)

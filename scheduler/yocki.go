@@ -4,15 +4,44 @@
 
 package yocks
 
-import yocki "github.com/ansurfen/yock/interface/go"
+import (
+	"github.com/ansurfen/yock/interface/go/client"
+)
 
-type yockclient yocki.YockInterfaceClient
+type yockiClient = *client.YockInterface
 
-// TODO implments sdk
 type yockInterfaces struct {
-	clients map[string]yockclient
+	clients map[string]yockiClient
 }
 
-func NewYockInterface() {
+func newYockInterface() *yockInterfaces {
+	return &yockInterfaces{
+		clients: make(map[string]yockiClient),
+	}
+}
 
+func (yi *yockInterfaces) Connect(name, ip string, port int) {
+	if _, ok := yi.clients[name]; !ok {
+		yi.clients[name] = client.New(ip, port)
+	}
+}
+
+func (yi *yockInterfaces) Close(name string) {
+	if client, ok := yi.clients[name]; ok {
+		client.Close()
+		delete(yi.clients, name)
+	}
+}
+
+func (yi *yockInterfaces) Call(name, fn, arg string) (string, error) {
+	if client, ok := yi.clients[name]; ok {
+		return client.Call(fn, arg)
+	}
+	return "", nil
+}
+
+func (yi *yockInterfaces) Shutdown() {
+	for _, client := range yi.clients {
+		client.Close()
+	}
 }

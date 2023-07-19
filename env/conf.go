@@ -117,14 +117,17 @@ func (e *Env[T]) SetValue(k string, v any) {
 	e.conf.Set(k, v)
 }
 
-func (e *Env[T]) Save(files ...string) {
+func (e *Env[T]) Save(files ...string) error {
 	if len(files) == 0 {
-		e.conf.WriteConfig()
-		return
+		return e.conf.WriteConfig()
 	}
 	for _, file := range files {
-		e.conf.WriteConfigAs(file)
+		err := e.conf.WriteConfigAs(file)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func GetEnv[T any]() *Env[T] {

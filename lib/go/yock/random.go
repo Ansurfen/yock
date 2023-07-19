@@ -13,7 +13,8 @@ import (
 func LoadRandom(yocks yocki.YockScheduler) {
 	lib := yocks.CreateLib("random")
 	lib.SetFunctions(map[string]lua.LGFunction{
-		"str": randomStr,
+		"str":  randomStr,
+		"port": randomPort,
 	})
 }
 
@@ -22,5 +23,15 @@ func LoadRandom(yocks yocki.YockScheduler) {
 // @return string
 func randomStr(l *lua.LState) int {
 	l.Push(lua.LString(util.RandString(int(l.CheckNumber(1)))))
+	return 1
+}
+
+func randomPort(l *lua.LState) int {
+	port, err := util.RandomPort()
+	if err != nil {
+		l.Push(lua.LNumber(0))
+	} else {
+		l.Push(lua.LNumber(port))
+	}
 	return 1
 }

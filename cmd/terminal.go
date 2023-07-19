@@ -44,10 +44,6 @@ func (term *Terminal) Exec(opt *ExecOpt) ([]byte, error) {
 	args = append(args, term.cmd...)
 	cmd := exec.Command(name, args...)
 
-	if opt.Info != nil {
-		opt.Info(name, strings.Join(args, " "))
-	}
-
 	if opt.Redirect {
 		var out bytes.Buffer
 		cmd.Stdin = os.Stdin

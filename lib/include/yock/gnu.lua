@@ -20,59 +20,59 @@
 local echoopt = {}
 
 ---@vararg string
-function echo(...)
-end
+function echo(...) end
 
+-- Example:
+--
+-- append write
+-- ```lua
+-- echo({ fd = { "stdout", "test.txt" }, mode = "c|a|rw" }, "Hello World!")
+-- ```
+--
+-- truncate write
+-- ```lua
+-- echo({ fd = { "stdout", "test.txt" }, mode = "c|t|rw" }, "Hello World!")
+-- ```
 ---@param opt echoopt
 ---@vararg string
 ---@return table<string>, err
-function echo(opt, ...)
-end
+function echo(opt, ...) end
 
 ---@return string, err
-function whoami()
-end
+function whoami() end
 
-function clear()
-end
+function clear() end
 
 ---@param dir string
 ---@return err
-function cd(dir)
-end
+function cd(dir) end
 
 ---@param file string
 ---@return err
-function touch(file)
-end
+function touch(file) end
 
 ---@param file string
 ---@return string, err
-function cat(file)
-end
+function cat(file) end
 
 ---@param opt table|string
 ---@return table<string>|string, err
-function ls(opt)
-end
+function ls(opt) end
 
 ---@param name string
 ---@param mode number
 ---@return err
-function chmod(name, mode)
-end
+function chmod(name, mode) end
 
 ---@param name string
 ---@param uid number
 ---@param gid number
 ---@return err
-function chown(name, uid, gid)
-end
+function chown(name, uid, gid) end
 
 ---@vararg string
 ---@return err
-function mkdir(...)
-end
+function mkdir(...) end
 
 -- Example:
 -- ```lua
@@ -80,8 +80,7 @@ end
 -- ```
 ---@param src string
 ---@param dst string
-function cp(src, dst)
-end
+function cp(src, dst) end
 
 ---@class cpopt
 ---@field recurse boolean
@@ -97,29 +96,28 @@ local cpopt = {}
 -- ```
 ---@param opt cpopt
 ---@param path table<string, string>
-function cp(opt, path)
-end
+function cp(opt, path) end
 
 ---@param src string
 ---@param dst string
-function mv(src, dst)
-end
+function mv(src, dst) end
 
 ---@return string, err
-function pwd()
-end
+function pwd() end
 
----
 ---@class rmOpt
 ---@field safe boolean
 ---@field pattern string
----
----{{.rm_opt}}
----
----
 local rmOpt = {}
 
 ---Example:
+--
+-- like rmdir
+-- ```lua
+-- rm("a")
+-- ```
+--
+-- delete file with recuse
 -- ```lua
 -- rm({ safe = true }, "/a", "/b")
 -- ```
@@ -127,8 +125,7 @@ local rmOpt = {}
 ---@vararg string
 ---@return err
 ---
-function rm(opt, ...)
-end
+function rm(opt, ...) end
 
 ---Example:
 -- ```lua
@@ -136,24 +133,19 @@ end
 -- ```
 ---@vararg string
 ---@return err
-function rm(...)
-end
+function rm(...) end
 
 ---@param cmd table|string
-function sudo(cmd)
-end
+function sudo(cmd) end
 
 ---@param opt table
-function grep(opt)
-end
+function grep(opt) end
 
 ---@param opt table
-function awk(opt)
-end
+function awk(opt) end
 
 ---@param opt table
-function sed(opt)
-end
+function sed(opt) end
 
 ---@class findopt
 ---@field pattern string
@@ -164,51 +156,75 @@ local findopt = {}
 ---
 ---Example:
 ---```lua
----find({
----    dir = false,
----    pattern = "\\.lua"
----}, "/script")
+-- find({
+--     dir = false,
+--     pattern = "\\.lua"
+-- }, "/script")
 ---```
 ---
 ---@param opt findopt
 ---@param path string
 ---@return table, err
-function find(opt, path)
-end
+function find(opt, path) end
 
 ---@param path string
 ---@return boolean
-function find(path)
-end
+function find(path) end
 
 ---@param k string
 ---@return string, err
-function whereis(k)
-end
+function whereis(k) end
 
+-- Example:
+-- ```lua
+-- alias("CC", "go")
+-- sh("$CC version")
+-- ```
 ---@param k string
 ---@param v string
-function alias(k, v)
-end
+function alias(k, v) end
 
+-- Example:
+-- ```lua
+-- alias("CC", "go")
+-- unalias("CC")
+-- sh("$CC version")
+-- ```
 ---@vararg string
-function unalias(...)
-end
+function unalias(...) end
 
 ---@param cmd string
 ---@return err
-function nohup(cmd)
-end
+function nohup(cmd) end
+
+---@class pgrepres
+---@field name string
+---@field pid integer
+local pgrepres = {}
 
 ---@param name string
----@return table
-function pgrep(name)
-end
+---@return pgrepres[]
+function pgrep(name) end
 
----@param opt table
----@return table
-function ps(opt)
-end
+---@class psinfo
+---@field name string
+---@field cmd string
+---@field cpu? number
+---@field start? number
+---@field mem? any
+---@field user? string
+local psinfo = {}
+
+---@class psopt
+---@field user boolean
+---@field cpu boolean
+---@field time boolean
+---@field mem boolean
+local psopt = {}
+
+---@param opt psopt|string|integer|nil
+---@return table<integer, psinfo>
+function ps(opt) end
 
 ---@param k integer|string
 ---@return err
@@ -292,9 +308,8 @@ systemctl = {}
 
 ---@param t? systype
 ---@param s? sysstate
----@return table<sysservice>
-function systemctl.list(t, s)
-end
+---@return sysservice[]
+function systemctl.list(t, s) end
 
 ---@param name string
 ---@return err
@@ -361,30 +376,20 @@ local sccreateopt = {}
 function systemctl.create(name, opt)
 end
 
----@class sysservice
-local sysservice = {}
-
----@return integer
-function sysservice:PID()
-end
-
----@return string
-function sysservice:Name()
-end
-
 ---@alias servicestatus integer
 ---|> "running"
 ---| "stopped"
 ---| "unknown"
 
----@return servicestatus
-function sysservice:Status()
-end
+---@class sysservice
+---@field pid integer
+---@field name string
+---@field status servicestatus
+local sysservice = {}
 
 ---@param name string
----@return sysservice
-function systemctl.status(name)
-end
+---@return sysservice, err
+function systemctl.status(name) end
 
 iptables = {}
 
@@ -395,32 +400,19 @@ iptables = {}
 local iptableslistopt = {}
 
 ---@class firewarerule
+---@field name string
+---@field proto string
+---@field src string
+---@field dst string
+---@field action string
 local firewarerule = {}
 
----@return string
-function firewarerule:Name()
-end
-
----@return string
-function firewarerule:Proto()
-end
-
----@return string
-function firewarerule:Src()
-end
-
----@return string
-function firewarerule:Dst()
-end
-
----@return string
-function firewarerule:Action()
-end
-
+-- legacy: determine to use iptables or iptables-legacy (except windows)
+--
+-- name: returns service to be specified and all services when the length of name is empty/zero.
 ---@param opt iptableslistopt
----@return firewarerule[], err
-function iptables.list(opt)
-end
+---@return firewarerule[]|firewarerule, err
+function iptables.list(opt) end
 
 ---@class iptablesopopt
 ---@field chain string
@@ -431,12 +423,47 @@ end
 ---@field legacy boolean
 local iptablesopopt = {}
 
+-- chain: INPUT(linux), in(windows)
+--
+-- action: drop(linux), block(windows)
 ---@param opt iptablesopopt
 ---@return err
-function iptables.add(opt)
-end
+function iptables.add(opt) end
 
 ---@param opt iptablesopopt
 ---@return err
-function iptables.del(opt)
-end
+function iptables.del(opt) end
+
+---@class lsofinfo
+---@field pid string
+---@field state string
+---@field proto string
+---@field Local string
+---@field foreign string
+local lsofinfo = {}
+
+---@param port? integer
+---@return lsofinfo[]|lsofinfo
+function lsof(port) end
+
+---@class curlopt
+---@field header table<string, string>
+---@field method string
+---@field data string
+---@field save boolean
+---@field dir string
+---@field filename fun(s: string): string
+---@field debug boolean
+---@field strict boolean
+---@field caller string
+---@field async boolean
+local curlopt = {}
+
+---@param opt curlopt
+---@vararg string
+---@return string, err
+function curl(opt, ...) end
+
+---@vararg string
+---@return string, err
+function curl(...) end

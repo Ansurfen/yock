@@ -29,19 +29,33 @@ type YockScheduler interface {
 
 	GetTask(name string) bool
 	AppendTask(name string, job YockJob)
+
+	YockDB
+}
+
+type YockDB interface {
+	Get(k string) lua.LValue
+	Put(k string, v lua.LValue)
 }
 
 var Y_MODE YockMode
 
+const (
+	Y_STRICT = 1
+	Y_DEBUG  = 2
+)
+
 type YockMode interface {
 	Mode() int32
 	SetMode(m int32)
+	UnsetMode(m int32)
 
 	Debug() bool
 	Strict() bool
 }
 
 type YockJob interface {
+	Name() string
 	Func() *lua.LFunction
 }
 

@@ -4,19 +4,12 @@
 
 ---@meta _
 
----
 ---@class random
----
----{{.random}}
----
 random = {}
 
----
----{{.random_str}}
----
 ---@param n number
 ---@return string
----
-function random.str(n)
-    return ""
-end
+function random.str(n) end
+
+---@return number
+function random.port() end

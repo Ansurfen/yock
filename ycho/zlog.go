@@ -40,10 +40,6 @@ func (opt *YchoOpt) Standardf() {
 	}
 }
 
-func (opt YchoOpt) String() string {
-	return ""
-}
-
 type zlog struct {
 	log *zap.Logger
 	Vlog

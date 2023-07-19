@@ -10,7 +10,7 @@
 -- ```
 ---@param opt table
 ---@vararg string
----@return table, err
+---@return table<string>, err
 function sh(opt, ...)
 end
 
@@ -19,7 +19,7 @@ end
 -- sh("echo a", "echo b")
 -- ```
 ---@vararg string
----@return table, err
+---@return table<string>, err
 function sh(...)
 end
 
@@ -92,11 +92,17 @@ end
 ---@field bool_type number
 flag_type = {}
 
----{{.argsparse}}
----@param env env
+-- ```lua
+-- local res = {}
+-- argsparse(res, {
+--     a = flag_type.str,
+--     b = flag_type.bool,
+-- })
+-- table.dump(res)
+-- ```
+---@param env table
 ---@param todo table
-function argsparse(env, todo)
-end
+function argsparse(env, todo) end
 
 ---@class argBuilder
 ---@field params table

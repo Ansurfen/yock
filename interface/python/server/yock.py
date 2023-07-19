@@ -3,8 +3,8 @@ import time
 from concurrent import futures
 from typing import Callable
 import grpc
-from yocki.yock_pb2_grpc import YockInterface, add_YockInterfaceServicer_to_server
-from yocki.yock_pb2 import CallRequest, CallResponse
+from yocki.yocki_pb2_grpc import YockInterface, add_YockInterfaceServicer_to_server
+from yocki.yocki_pb2 import CallRequest, CallResponse
 
 parser = argparse.ArgumentParser(
     description='Start a grpc server on the specified port.')
@@ -23,8 +23,8 @@ class YockInterfaceService(YockInterface):
         self.funcs = {}
 
     def Call(self, request: CallRequest, context) -> CallResponse:
-        if request.Func in self.funcs:
-            return self.funcs[request.Func](request)
+        if request.Fn in self.funcs:
+            return self.funcs[request.Fn](request)
         return CallResponse(Ok=False, Buf="unknown")
 
     def run(self) -> None:
@@ -50,6 +50,3 @@ def Call(fn: str):
     def wrapper(func: Callable[[CallRequest], CallResponse]):
         Yocki.registerCallback(fn, func)
     return wrapper
-
-
-

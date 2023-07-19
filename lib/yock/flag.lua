@@ -13,6 +13,8 @@ flag_type = {
     bool = 2
 }
 
+---@param env table
+---@param todo table
 function argsparse(env, todo)
     local idx = 0
     if env.flags == nil then
@@ -24,7 +26,7 @@ function argsparse(env, todo)
         if strings.HasPrefix(arg, "--") then
             arg = string.sub(arg, 3, #arg)
             local job, jobflag, ok = strings.Cut(arg, "-")
-            if ok and job == env.job then
+            if ok and job == env.task then
                 if todo[jobflag] == flag_type.str then
                     idx = idx + 1
                     if idx > #env.args then

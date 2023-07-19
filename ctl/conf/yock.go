@@ -5,13 +5,12 @@
 package conf
 
 import (
-	"fmt"
-
 	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ycho"
 )
 
-const YockConfTmpl = `lang: en_us
+const YockConfTmpl = `strict: false
+lang: en_us
 ycho:
   level: debug
   compress: false
@@ -19,25 +18,21 @@ ycho:
   fileMaxSize: 1024
   fileMaxBackups: 0
   stdout: true
-  path: %s/log
+  path: "@/log"
 `
 
 var conf *YockConf
 
 type YockConf struct {
-	Lang  string        `yaml:"lang"`
-	Ycho  ycho.YchoOpt  `yaml:"ycho"`
-	Yocks yockScheduler `yaml:"yocks"`
-	Yockd yockDaemon    `yaml:"yockd"`
-}
-
-func (c *YockConf) String() string {
-
-	return ""
+	Lang   string        `yaml:"lang"`
+	Strict bool          `yaml:"strict"`
+	Ycho   ycho.YchoOpt  `yaml:"ycho"`
+	Yocks  yockScheduler `yaml:"yocks"`
+	Yockd  yockDaemon    `yaml:"yockd"`
 }
 
 func (c *YockConf) Restore() error {
-	return util.WriteFile(util.Pathf("@/conf.ymal"), []byte(fmt.Sprintf(YockConfTmpl, util.WorkSpace)))
+	return util.WriteFile(util.Pathf("@/conf.ymal"), []byte(YockConfTmpl))
 }
 
 func Instance() *YockConf {

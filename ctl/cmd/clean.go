@@ -13,14 +13,14 @@ import (
 var cleanCmd = &cobra.Command{
 	Use:   "clean [pattern]",
 	Short: `Clean deletes Yock's cache`,
-	Long:  `Clean deletes Yock's cache. You can append the pattern parameter
+	Long: `Clean deletes Yock's cache. You can append the pattern parameter
 to delete the specified file by matching the regular expression.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		pattern := ".*"
 		if len(args) > 0 {
 			pattern = args[0]
 		}
-		yockc.Rm(yockc.RmOpt{Pattern: pattern, Safe: false}, []string{util.Pathf("@/tmp")})
+		yockc.Rm(yockc.RmOpt{Pattern: pattern, Safe: false}, util.Pathf("@/tmp"))
 	},
 }
 

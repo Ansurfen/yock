@@ -11,9 +11,12 @@ deploy in develop:
     ./build.bat/sh dev
 ]]
 
-job_option({
-    debug = true,
-    strict = true
+option({
+    ycho = {
+        stdout = true
+    },
+    strict = false,
+    sync = true
 })
 
 local zip_name = "yock"
@@ -30,36 +33,25 @@ job("build", function(ctx)
     })
     local os = env.platform.OS
     os = assign.string(os, ctx.flags["os"])
+    ctx.set_os(os)
+    alias("os", os)
+    alias("yock", "../yock/yock" .. ctx.platform:Exf())
 
-    if os == "windows" then
-        alias("yock", "../yock/yock.exe")
-    else
-        alias("yock", "../yock/yock")
-    end
-
-    optional({
-        case(os == "windows", function()
-            ---@diagnostic disable-next-line: param-type-mismatch
-            _, err = sh({ debug = true, redirect = true }, [[
-go env -w GOOS=windows
+    _, err = sh({ redirect = true }, [[
+go env -w GOOS=$os
 go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]])
-        end),
-    }, function() -- ? PosixOS: linux, darwin, etc.
-        ---@diagnostic disable-next-line: param-type-mismatch
-        _, err = sh({ debug = true, redirect = true }, string.format([[
-go env -w GOOS=%s
-go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'" .]], os))
-    end)
+
     yassert(err)
     local yock_lib_path = pathf(yock_path, "lib")
     mkdir(pathf(yock_path, "ypm"),
         pathf(yock_lib_path, "boot"),
         pathf(yock_lib_path, "yock"),
+        pathf(yock_lib_path, "sdk"),
         pathf(yock_lib_path, "include"),
         pathf(yock_path, "bin"),
         pathf(yock_path, "tmp"),
         pathf(yock_lib_path, "include/ypm"))
-    cp({ recurse = true }, {
+    cp({ recurse = true, force = true }, {
         ["install.lua"]                       = yock_path,
         ["uninstall.lua"]                     = yock_path,
         [pathf(wd, "../lib/yock")]            = yock_lib_path,
@@ -72,7 +64,8 @@ go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'
         [pathf(wd, "../ypm/proxy")]           = pathf(yock_path, "ypm"),
         [pathf(wd, "../ypm/ctl.lua")]         = pathf(yock_path, "ypm"),
         [pathf(wd, "../ypm/util")]            = pathf(yock_path, "ypm"),
-        [pathf(wd, "../auto/sudo.bat")]       = pathf(yock_path, "bin")
+        [pathf(wd, "../auto/sudo.bat")]       = pathf(yock_path, "bin"),
+        [pathf(wd, "../interface/python")]    = pathf(yock_path, "sdk/python")
     })
     rm({ safe = false },
         pathf(yock_lib_path, "test"),
@@ -82,12 +75,7 @@ go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'
     -- mv(path.join(wd, "../bin"), path.join(yock_path, "bin"))
 
     zip_name = assign.string(zip_name, ctx.flags.o)
-    if os == "windows" then
-        zip_name = zip_name .. ".zip"
-    else
-        zip_name = zip_name .. ".tar.gz"
-    end
-    compress(yock_path, pathf("..", zip_name))
+    compress(yock_path, pathf("..", zip_name .. ctx.platform:Zip()))
 end)
 
 job("depoly-dev", function(ctx)
@@ -130,6 +118,6 @@ job("remote", function(ctx)
     -- end)
 end)
 
-jobs("all", "build", "remote", "clean")
+jobs("all", "build", "clean")
 jobs("all-dev", "build", "depoly-dev", "clean")
 jobs("dist", "build")

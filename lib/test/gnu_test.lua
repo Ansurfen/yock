@@ -91,112 +91,115 @@ job("echo", function(cenv)
     echo({ fd = { "file.txt" }, mode = "a" }, "Hello World")
 end)
 
-job("ps", function(cenv)
-    -- local process = ps({ user = true, mem = true, cpu = true, time = true })
-    -- local mapValue = reflect.ValueOf(process)
-    -- local iter = mapValue:MapRange()
-    -- while iter:Next() do
-    --     local v = iter:Value():Interface()
-    --     print(v.Mem, v.CPU, v.Start, v.Cmd)
-    -- end
-    nohup("test.exe -p 9090")
-    local procs = pgrep("test")
-    for i = 1, #procs, 1 do
-        print(procs[i].Pid, procs[i].Name)
+job("nohup", function(ctx)
+    yassert(nohup("test.exe -p 9090"))
+    for _, info in ipairs(lsof(9090)) do
+        kill(info.pid)
     end
-    kill("test")
-    procs = pgrep("test")
-    print(#procs)
-    for i = 1, #procs, 1 do
-        print(procs[i].Pid, procs[i].Name)
+    table.dump(lsof(9090))
+end)
+
+job("ps", function(ctx)
+    for pid, info in pairs(ps()) do
+        print(pid, info.cmd, info.name)
+    end
+    print("num of cmd with vscode: ", #ps("vscode"))
+    print("num of process of which the pid is 1: ", #ps(1))
+end)
+
+job("pgrep", function(ctx)
+    for _, proc in ipairs(pgrep("vscode")) do
+        print(proc.name, proc.pid)
     end
 end)
 
-job("whereis", function(cenv)
+job("whereis", function(ctx)
     print(whereis("go"))
 end)
 
-job("export", function(cenv)
+job("export", function(ctx)
     export("a", "b")
     export("a:c")
     unset("a")
 end)
 
-job("net", function(cenv)
+job("net", function(ctx)
     ifconfig()
 end)
 
-job("sys-test", function(cenv)
+job("testService", function(ctx)
     local service = "TestService"
     local err = systemctl.create(service, {
         service = {
             execStart = "test.exe -p 9090"
         }
     })
-
     yassert(err)
-
     local s, err = systemctl.status(service)
     yassert(err)
-    print(s:PID(), s:Name(), s:Status())
+    print("PID", "Name", "Status")
+    print(s.pid, s.name, s.status)
     -- systemctl.start(service)
     -- systemctl.status(service)
     -- systemctl.stop(service)
     err = systemctl.delete(service)
     yassert(err)
     s, err = systemctl.status(service)
-    if s == nil then
-        print("删了")
-    end
+    yassert(s == nil, function()
+        print(strf("%s was deleted", service))
+    end)
 end)
 
-job("sys-ls", function(cenv)
+job("services", function(ctx)
     local services = systemctl.list("service", "all")
     for _, srv in ipairs(services) do
-        print(srv:PID(), srv:Name(), srv:Status())
+        print(srv.pid, srv.name, srv.status)
     end
 end)
 
-job("curl", function(cenv)
+job("curl", function(ctx)
     local data, err = curl({}, "")
     yassert(err)
     print(data)
 end)
 
-job("iptables-ls", function(cenv)
-    local data, err = iptables.list({
+job("iptlist", function(ctx)
+    local ruels, err = iptables.list({
         legacy = true,
         name = ""
     })
-    yassert(err)
-    for _, v in ipairs(data) do
-        print(v:Name(), v:Proto(), v:Action())
-    end
+    yassert(err, function()
+        for _, rule in ipairs(ruels) do
+            print(rule.name, rule.proto, rule.action)
+        end
+    end)
 end)
 
-job("iptables-test", function(cenv)
+job("ipttest", function(ctx)
     local data, err = iptables.list({
         legacy = true,
         name = "MyRule"
     })
-    if err ~= nil then
-        print("not found")
-    end
-    err = iptables.add({
-        name = "MyRule",
-        chain = "input",
-        protocol = "tcp",
-        destination = "8080",
-        action = "drop"
-    })
+    yassert(#data == 0, function()
+        print("not found rule")
+        err = iptables.add({
+            name = "MyRule",
+            chain = "input",
+            protocol = "tcp",
+            destination = "8080",
+            action = "drop"
+        })
+        yassert(err, function()
+            print("add rule...")
+        end)
+    end)
     data, err = iptables.list({
         legacy = true,
         name = "MyRule"
     })
-    yassert(err)
-    for _, v in ipairs(data) do
-        print(v:Name(), v:Proto(), v:Action())
-    end
+    yassert(err == nil, function()
+        print("rule:", data.name, data.proto, data.action, data.src, data.dst)
+    end)
     err = iptables.del({
         name = "MyRule",
         chain = "input",
@@ -204,14 +207,29 @@ job("iptables-test", function(cenv)
         destination = "8080",
         action = "drop"
     })
-    yassert(err)
+    yassert(err, function()
+        print("delete rule...")
+    end)
     data, err = iptables.list({
         legacy = true,
         name = "MyRule"
     })
-    if err == nil then
-        for _, v in ipairs(data) do
-            print(v:Name(), v:Proto(), v:Action())
-        end
+    yassert(err ~= nil or #data == 0, function()
+        print("rule was deleted")
+    end)
+end)
+
+job("lsof", function(ctx)
+    print("PID", "Proto", "State", "Local")
+    for _, info in ipairs(lsof(58838)) do
+        print(info.pid, info.proto, info.state, info.Local)
     end
+    table.dump(ps(15764))
+    table.dump(ps("python"))
+    kill(15764)
+end)
+
+job("read", function(ctx)
+    read("name")
+    sh([[echo "Hello $name"]])
 end)

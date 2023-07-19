@@ -15,82 +15,41 @@ import (
 // RmOpt indicates configuration of rm
 type RmOpt struct {
 	Safe bool
-	// Debug prints output when it's true
-	Debug bool
-	// Caller is used to mark parent caller of HTTP function
-	//
-	// It'll printed on console when debug is true
-	Caller string
-	// Strict will exit at once when error occur
-	Strict bool
 	// Pattern delete file to be matched
 	Pattern string
-
-	Info func(path string)
-
-	Error func(err error) error
 }
 
-func Rm(opt RmOpt, targets []string) error {
+func Rm(opt RmOpt, target string) error {
 	if len(opt.Pattern) != 0 {
-		for _, t := range targets {
-			filepath.Walk(t, func(path string, info os.FileInfo, err error) error {
-				if err != nil {
-					return err
-				}
-				if !info.IsDir() {
-					matched, _ := regexp.MatchString(opt.Pattern, info.Name())
-					if matched {
-						if opt.Info != nil {
-							opt.Info(path)
-						}
-						err := os.Remove(path)
-						if err != nil && opt.Error != nil {
-							if err = opt.Error(err); err != nil {
-								return err
-							}
-						}
+		err := filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() {
+				matched, _ := regexp.MatchString(opt.Pattern, info.Name())
+				if matched {
+					err := os.Remove(path)
+					if err != nil {
+						return err
 					}
 				}
-				return nil
-			})
-		}
+			}
+			return nil
+		})
+		return err
 	} else {
 		if opt.Safe {
-			for _, t := range targets {
-				if opt.Info != nil {
-					opt.Info(t)
-				}
-				if err := os.Remove(t); err != nil && opt.Error != nil {
-					opt.Error(err)
-				}
-			}
+			return os.Remove(target)
 		} else {
-			for _, t := range targets {
-				if opt.Info != nil {
-					opt.Info(t)
-				}
-				if err := os.RemoveAll(t); err != nil && opt.Error != nil {
-					opt.Error(err)
-				}
-			}
+			return os.RemoveAll(target)
 		}
 	}
-	return nil
 }
 
 // CpOpt indicates configuration of cp
 type CpOpt struct {
 	Recurse bool
-	// Debug prints output when it's true
-	Debug bool
-	// Caller is used to mark parent caller of HTTP function
-	//
-	// It'll printed on console when debug is true
-	Caller string
-	Force  bool
-
-	Info func(name, args string)
+	Force   bool
 }
 
 func Cp(opt CpOpt, src, dst string) error {
@@ -119,25 +78,13 @@ func Cp(opt CpOpt, src, dst string) error {
 		}
 	}
 	_, err := term.Exec(&ExecOpt{
-		Debug:  opt.Debug,
-		Caller: opt.Caller,
-		Quiet:  true,
-		Info:   opt.Info,
+		Quiet: true,
 	})
 	return err
 }
 
 // MvOpt indicates configuration of mv
-type MvOpt struct {
-	// Debug prints output when it's true
-	Debug bool
-	// Caller is used to mark parent caller of HTTP function
-	//
-	// It'll printed on console when debug is true
-	Caller string
-
-	Info func(name, args string)
-}
+type MvOpt struct {}
 
 func Mv(opt MvOpt, src, dst string) error {
 	var term *Terminal
@@ -153,10 +100,7 @@ func Mv(opt MvOpt, src, dst string) error {
 		term = PosixTerm("mv", src, dst)
 	}
 	_, err := term.Exec(&ExecOpt{
-		Debug:  opt.Debug,
-		Caller: opt.Caller,
-		Quiet:  true,
-		Info:   opt.Info,
+		Quiet: true,
 	})
 	return err
 }

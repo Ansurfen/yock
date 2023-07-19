@@ -14,7 +14,9 @@ ycache = {}
 ---@param dir string
 ---@return ycache
 function ycache:new(index, dir)
-    mkdir(dir)
+    if not find(dir) then
+        mkdir(dir)
+    end
     local obj = {
         dir = dir,
         jf = json.create(index)

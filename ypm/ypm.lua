@@ -92,8 +92,8 @@ function import(target)
     if string.sub(module, 1, 1) == string.char(path.Separator) then
         module = string.sub(module, 2, #module)
     end
-    if find(module) then
-        return require(module)
+    if find(versionf(module) .. ".lua") then
+        return require(versionf(module))
     end
     return require(target)
 end
@@ -135,7 +135,11 @@ function yock_todo_loader(opt)
     return import(path.join(env.yock_modules, opt["name"], opt["version"], "index"))
 end
 
-mkdir(pathf("~/ypm"))
+local ypm_path = pathf("~/ypm")
+if not find(ypm_path) then
+    mkdir(ypm_path)
+end
+
 config = json.create(pathf("~/ypm/config.json"), [[{"defaultSource": "github"}]])
 modules = json.create(pathf("~/ypm/modules.json"), [[{"depend": {}}]])
 
@@ -176,8 +180,8 @@ function load_module(target)
             version = modules:get(string.format("depend.%s", module))
         end
         if version == nil or #version == 0 then
-            ---@diagnostic disable-next-line: redundant-return-value
-            return import(module)
+            local boot = import(pathf(env.yock_modules, module, "boot"))
+            version = boot.version
         end
         ---@diagnostic disable-next-line: redundant-return-value
         return import(path.join(env.yock_modules, module, version, "index"))
@@ -213,5 +217,63 @@ function load_module(target)
         end
 
         yassert("invalid mod loader")
+    end
+end
+
+service = json.create(pathf("~/ypm/service.json"))
+
+---@param name string
+---@param cmd fun(port: integer): string
+---@return integer
+function register_service(name, cmd)
+    if service:rawget(name) == nil then
+        local port = random.port()
+        local c = cmd(port)
+        yassert(nohup(c))
+        service:rawset(name, {
+            port = port,
+            cmd = c
+        })
+        service:save(true)
+        return port
+    end
+    return service:rawget(name).port
+end
+
+---@param name string
+function unregister_service(name)
+    if service:rawget(name) ~= nil then
+        local meta = service:rawget(name)
+        local infos = lsof(meta.port)
+        if #infos > 0 then
+            for _, info in ipairs(infos) do
+                kill(info.pid)
+            end
+        end
+    end
+    service:rawset(name, nil)
+    service:save(true)
+end
+
+---@param target string
+function init(target)
+    local module = target
+    local version = ""
+    -- module@version
+    if strings.Contains(target, "@") then
+        local mod, ver, ok = strings.Cut(target, "@")
+        if not ok then
+            yassert("invalid module")
+        end
+        module = mod
+        version = ver
+    else
+        module = target
+    end
+
+    if find(pathf("$/yock_modules", module, "init.lua")) then
+        dofile(pathf("$/yock_modules", module, "init.lua"))
+    elseif find(pathf("~/yock_modules", module, "init.lua")) then
+        dofile(pathf("~/yock_modules", module, "init.lua"))
     end
 end

@@ -236,6 +236,14 @@ func (s *YockState) Argc() int {
 	return s.ls.GetTop()
 }
 
+func (s *YockState) Clone() yocki.YockState {
+	new := NewYState()
+	s.ls.G.Global.ForEach(func(l1, l2 lua.LValue) {
+		new.ls.SetGlobal(l1.String(), l2)
+	})
+	return new
+}
+
 func LuaDoFunc(lvm *lua.LState, fun *lua.LFunction) error {
 	lfunc := lvm.NewFunctionFromProto(fun.Proto)
 	lvm.Push(lfunc)

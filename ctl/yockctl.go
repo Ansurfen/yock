@@ -34,6 +34,7 @@ import (
 	"github.com/ansurfen/yock/ctl/cmd"
 	"github.com/ansurfen/yock/ctl/conf"
 	yocke "github.com/ansurfen/yock/env"
+	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ycho"
 )
@@ -57,7 +58,7 @@ func init() {
 		Workdir:  ".yock",
 		Subdirs:  []string{"log", "mnt", "unmnt"},
 		Conf:     conf.YockConf{},
-		ConfTmpl: fmt.Sprintf(conf.YockConfTmpl, util.WorkSpace),
+		ConfTmpl: conf.YockConfTmpl,
 	})
 
 	// Initialize each path for the global workspace
@@ -82,10 +83,16 @@ func init() {
 
 	conf := env.Conf()
 	yopt := env.Conf().Ycho
-	yopt.Path = path.Join(util.WorkSpace, conf.Ycho.Path)
+	if yopt.Stdout {
+		yocki.Y_MODE.SetMode(yocki.Y_DEBUG)
+	}
+	if conf.Strict {
+		yocki.Y_MODE.SetMode(yocki.Y_STRICT)
+	}
+	yopt.Path = util.Pathf(yopt.Path)
 	yopt.Standardf()
-	zlog, err := ycho.NewZLog(yopt)
-	ycho.Set(zlog)
+	log, err := ycho.NewZLog(yopt)
+	ycho.Set(log)
 	if err != nil {
 		panic(err)
 	}
