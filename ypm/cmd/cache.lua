@@ -48,18 +48,57 @@ return {
         {
             desc = { use = "ls" },
             run = function(cmd, args)
-                local rows = {}
-                for name, cacheIndex in pairs(cachetable.index.buf) do
-                    table.insert(rows, {
-                        name,
-                        strconv.Itoa(cacheIndex.level),
-                        cacheIndex.dir,
-                        strconv.Itoa(cacheIndex.expire / time.Second) .. "s",
-                        time.Unix(cacheIndex.updateAt, 0):Format("2006-01-02 15:04:05"),
-                    })
+                if #args == 0 then
+                    local rows = {}
+                    for name, cacheIndex in pairs(cachetable.index.buf) do
+                        table.insert(rows, {
+                            name,
+                            strconv.Itoa(cacheIndex.level),
+                            cacheIndex.dir,
+                            strconv.Itoa(cacheIndex.expire / time.Second) .. "s",
+                            time.Unix(cacheIndex.updateAt, 0):Format("2006-01-02 15:04:05"),
+                        })
+                    end
+                    printf({ "Name", "Level", "Dir", "Expire", "UpdateAt" }, rows)
+                else
+                    local name = args[1]
+                    local cache = cachetable:get(name, "")
+                    if cache ~= nil then
+                        for key, value in pairs(cache.jf.buf) do
+                            print(key, value)
+                        end
+                    end
                 end
-                printf({ "Name", "Level", "Dir", "Expire", "UpdateAt" }, rows)
             end,
+            flags = {
+                {
+                    type = flag_type.str,
+                    name = "lock",
+                    shorthand = "l",
+                    default = "",
+                    usage = ""
+                },
+            }
+        },
+        {
+            desc = { use = "rm" },
+            run = function(cmd, args)
+                if #args < 2 then
+                    yassert("arguments too little")
+                end
+                local name = args[1]
+                local k = args[2]
+                local cache = cachetable:get(name, "")
+                if cache ~= nil then
+                    for key, value in pairs(cache.jf.buf) do
+                        if strings.HasPrefix(key, k) then
+                            rm(pathf(cache.dir, value))
+                            cache.jf:rawset(key, nil)
+                        end
+                    end
+                    cache:save()
+                end
+            end
         }
     }
 }

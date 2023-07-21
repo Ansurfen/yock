@@ -13,5 +13,5 @@ var (
 	//
 	// This value will be changed by -ldflag at compile time. Details to see /auto/build.lua.
 	YockBuild   = "dev"
-	YockVersion = "0.0.19"
+	YockVersion = "0.0.21"
 )

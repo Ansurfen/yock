@@ -5,4 +5,4 @@
 export(strf("PATH:%s", pathf("~")))
 export(strf("PATH:%s", pathf("@/mnt")))
 sh("./yock mount ypm ypm/ctl.lua")
-chmod(wrapscript(pathf("@/mnt/ypm")), 0775)
+chmod(pathf("@/mnt/ypm"), 0775)

@@ -118,6 +118,9 @@
 ---@field ErrSkipAltProtocol any
 http = {}
 
+---@return httpClient
+function http.Client() end
+
 --- Handle registers the handler for the given pattern
 --- in the DefaultServeMux.
 --- The documentation for ServeMux explains how patterns are matched.
@@ -204,7 +207,6 @@ function http.TimeoutHandler(h, dt, msg) end
 ---@return any
 function http.ProxyURL(fixedURL) end
 
-
 ---@param w httpResponseWriter
 ---@param req httpRequest
 function http.FlagServer(w, req) end
@@ -267,7 +269,6 @@ function http.ArgServer(w, req) end
 ---@param url string
 ---@return httpResponse, err
 function http.Head(url) end
-
 
 ---@param w httpResponseWriter
 ---@param req httpRequest
@@ -407,10 +408,8 @@ function http.Get(url) end
 ---@return httpHandler
 function http.FileServer(root) end
 
-
 ---@return httpChan
 function http.ChanCreate() end
-
 
 ---@param w httpResponseWriter
 ---@param req httpRequest
@@ -1473,7 +1472,6 @@ local httpCounter = {}
 --- it directly.
 ---@return string
 function httpCounter:String() end
-
 
 ---@param w httpResponseWriter
 ---@param req httpRequest

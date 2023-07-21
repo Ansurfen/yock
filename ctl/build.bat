@@ -10,12 +10,15 @@ cd %script_path%
 set "ffi=0"
 set "dev=0"
 set "os=windows"
+set "remote=0"
 
 for %%A in (%*) do (
     if /I "%%A" == "ffi" (
         set "ffi=1"
     ) else if /I "%%A" == "dev" (
         set "dev=1"
+    ) else if /I "%%A" == "remote" (
+        set "remote=1"
     ) else (
         setlocal enabledelayedexpansion
         set "prefix=%%A"
@@ -41,10 +44,10 @@ cd %script_path%
 go env -w GOOS=windows
 
 if %dev% equ 0 (
-    go run . run ../auto/build.lua all -- --all-os %os%
+    go run . run ../auto/build.lua all -- --all-os %os% --all-r %remote%
 ) else (
     @REM dev environment
-    go run . run ../auto/build.lua all-dev -- --all-os %os%
+    go run . run ../auto/build.lua alldev -- --alldev-os %os% --alldev-r %remote%
 )
 
 if %ffi% equ 1 (

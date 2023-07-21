@@ -61,17 +61,22 @@ function job(name, callback) end
 ---@vararg string
 function jobs(name, ...) end
 
----@class jobopt
----@field debug boolean
+---@class option_todo_ycho
+---@field stdout boolean
+local option_todo_ycho = {}
+
+---@class option_todo
+---@field ycho option_todo_ycho
 ---@field strict boolean
-local jobopt = {}
+---@field sync boolean
+local option_todo = {}
 
 -- Example:
 -- ```lua
 -- option({
---     debug = true,
+--     ycho = { stdout = true },
 --     strict = false,
 -- })
 -- ```
----@param opt jobopt
+---@param opt option_todo
 function option(opt) end

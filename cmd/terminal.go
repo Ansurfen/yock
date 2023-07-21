@@ -42,6 +42,10 @@ func (term *Terminal) Exec(opt *ExecOpt) ([]byte, error) {
 		args = append(args, term.conf[1:]...)
 	}
 	args = append(args, term.cmd...)
+	if term.kind == TermBash {
+		args = []string{args[0], strings.Join(args[1:], " ")}
+	}
+
 	cmd := exec.Command(name, args...)
 
 	if opt.Redirect {

@@ -21,28 +21,24 @@ Yock 是一个跨平台的分布式构建流编排解决方案。它能够作为
 你能够在[这里](https://github.com/Ansurfen/yock/releases)下载二进制版本，或者尝试以下几种方式。
 `注意`: 下载完后还需要将yock挂载到本地环境中。在解压压缩包后，进入可执行文件的目录运行`yock run install.lua`完成这个过程。
 
-#### 包管理
+#### 包管理 (版本更新存在滞后)
 npm: npm install @ansurfen/yock -g
+
 pip: pip install yock
 
 #### 使用yock构建
 
 Yock实现了类似"自举"的操作，这意味着它能够自己构建自己。当然，这一切的前提还需要go语言的编译器。
 
-首先，获取yock的源代码
 ```cmd
 git clone https://github.com/Ansurfen/yock.git
-```
 
-执行go命令，调度yock构建脚本去构建yock
-```cmd
 cd ctl
-<!-- windows -->
-./build.bat ffi //构建支持libffi的版本
-./build.bat dev //构建测试版本
-./build.bat oslinux//构建linux版本，默认为windows版本
-<!-- 其他平台 -->
-go run . run ../auto/build.lua all -- --all-os linux
+
+./build.bat //正常构建
+./build.bat/sh ffi //带 libffi 构建 (需要 gcc 或 mingw)
+./build.bat/sh dev //构建开发版本
+./build.bat/sh oslinux //交叉编译到linux平台
 ```
 
 #### 嵌入Go语言
@@ -301,12 +297,10 @@ http.ListenAndServe(":8080", nil)
 YPM: 当执行完`yock run install.lua`后，便会全局注册包管理工具。你能够用他安装yock的模块。
 ```cmd
 <!-- 列出全部命令 -->
-ypm	// windows
-ypm.sh // linux
+ypm
 
 <!-- 全局安装模块 -->
-ypm install ark -g // windows
-ypm.sh install ark -g // linux
+ypm install ark -g
 ```
 
 ## 文档

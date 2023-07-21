@@ -2,9 +2,11 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
-job_option({
+option({
     strict = true,
-    debug = true,
+    ycho = {
+        stdout = true
+    }
 })
 
 rm({ safe = false }, pathf("@"))

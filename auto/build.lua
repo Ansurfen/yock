@@ -30,6 +30,7 @@ job("build", function(ctx)
         o = flag_type.str,   -- release name (output)
         os = flag_type.str,
         ver = flag_type.str, -- release version
+        r = flag_type.str,
     })
     local os = env.platform.OS
     os = assign.string(os, ctx.flags["os"])
@@ -76,12 +77,13 @@ go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release'
 
     zip_name = assign.string(zip_name, ctx.flags.o)
     compress(yock_path, pathf("..", zip_name .. ctx.platform:Zip()))
+    ctx.exit(2)
 end)
 
 job("depoly-dev", function(ctx)
     local conf, err = open_conf("secret.ini")
     if err ~= nil then
-        write_file("secret.ini", "path = ")
+        write("secret.ini", "path = ")
         print("please set path in secret.ini")
         yassert(err)
     end
@@ -89,8 +91,9 @@ job("depoly-dev", function(ctx)
     if #p == 0 then
         yassert("path not set")
     end
-    cp({ force = true, debug = true, redirect = true },
+    cp({ force = true },
         string.format([[%s %s]], pathf(wd, "../yock/*"), conf:GetString("default.path")))
+    ctx.exit(2)
 end)
 
 job("clean", function(ctx)
@@ -100,6 +103,9 @@ job("clean", function(ctx)
 end)
 
 job("remote", function(ctx)
+    if ctx.flags["r"] ~= "1" then
+        ctx.exit(1)
+    end
     ssh({
         user = "ubuntu",
         pwd = "root",
@@ -118,6 +124,6 @@ job("remote", function(ctx)
     -- end)
 end)
 
-jobs("all", "build", "clean")
-jobs("all-dev", "build", "depoly-dev", "clean")
+jobs("all", "build", "remote", "clean")
+jobs("alldev", "build", "depoly-dev", "remote", "clean")
 jobs("dist", "build")

@@ -93,6 +93,16 @@ return {
                 local name = args[1]
                 rm(pathf("#1", "../../proxy", name .. ".lua"))
             end
+        },
+        {
+            desc = { use = "update" },
+            run = function(cmd, args)
+                if #args == 0 then
+                    yassert("arguments too little")
+                end
+                local file = args[1]
+                
+            end
         }
     }
 }

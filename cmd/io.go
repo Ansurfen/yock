@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/ansurfen/yock/util"
 )
@@ -75,16 +76,20 @@ func Cp(opt CpOpt, src, dst string) error {
 			term.SetCmds("cp", "-r", src, dst)
 		} else {
 			term.SetCmds("cp", src, dst)
+			if strings.HasSuffix(src, "*") || strings.HasSuffix(dst, "*") {
+				term.AppendCmds("-r")
+			}
 		}
 	}
 	_, err := term.Exec(&ExecOpt{
 		Quiet: true,
+		Redirect: true,
 	})
 	return err
 }
 
 // MvOpt indicates configuration of mv
-type MvOpt struct {}
+type MvOpt struct{}
 
 func Mv(opt MvOpt, src, dst string) error {
 	var term *Terminal

@@ -5,6 +5,7 @@
 package cmd
 
 import (
+	"os"
 	"path/filepath"
 	"sync"
 
@@ -35,12 +36,18 @@ var (
 			if len(args) == 0 || filepath.Ext(args[0]) != ".lua" {
 				ycho.Fatal(util.ErrFileNotExist)
 			}
-			for idx, arg := range args {
-				if idx == 0 {
+			skip := 1
+			for i := 1; i < len(os.Args); i++ {
+				arg := os.Args[i]
+				if filepath.Ext(arg) == ".lua" {
 					runParameter.file = arg
-					continue
+					skip++
+					break
 				}
-				if len(arg) > 0 && arg[0] == '-' && arg[1] == '-' {
+				skip++
+			}
+			for _, arg := range os.Args[skip:] {
+				if arg == "--" {
 					break
 				}
 				runParameter.modes = append(runParameter.modes, arg)

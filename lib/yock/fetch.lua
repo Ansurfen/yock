@@ -33,8 +33,10 @@ function fetch.file(url, file_type)
             if err ~= nil then
                 return "", err
             end
-            cache:put(url, file)
-            cache:save()
+            if find(pathf(cache.dir, file)) then
+                cache:put(url, file)
+                cache:save()
+            end
         end
         return pathf(cache.dir, file), nil
     end

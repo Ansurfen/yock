@@ -49,8 +49,8 @@ var (
 					mount_tmpl = wrapYockBatch
 				}
 			default:
-				mount_file += ".sh"
-				unmount_file += ".sh"
+				mount_file += ""
+				unmount_file += ""
 				if mountParameter.plain {
 					mount_tmpl = wrapPlainBash
 				} else {

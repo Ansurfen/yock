@@ -5,14 +5,137 @@
 ---@diagnostic disable: lowercase-global
 ---@diagnostic disable: duplicate-set-field
 
--- Due to the feature of require, all "." will be replaced with "/".
--- In order to solve the problem that
--- the version directory name cannot be taken with "." feature, utilizing "_" replace.
-local versionf = function(v)
-    return strings.ReplaceAll(v, ".", "_")
+env.yock_modules = path.join(env.yock_path, "yock_modules")
+
+
+local ypm_path = pathf("~/ypm")
+if not find(ypm_path) then
+    mkdir(ypm_path)
 end
 
-env.yock_modules = path.join(env.yock_path, "yock_modules")
+config = json.create(pathf("~/ypm/config.json"), [[{"defaultSource": "github"}]])
+modules = json.create(pathf("~/ypm/modules.json"), [[{"depend": {}}]])
+
+config:save(true)
+modules:save(true)
+
+if not find(env.yock_tmp) then
+    mkdir(env.yock_tmp)
+end
+
+if not find(env.yock_modules) then
+    mkdir(env.yock_modules)
+end
+
+---@return unknown
+---@return unknown loaderdata
+function load_file(path)
+    local code_path = filepath.Abs(pathf("#3", ".."))
+    code_path = pathf(code_path, path)
+    if strings.HasSuffix(code_path, ".lua") then
+        code_path = string.sub(code_path, 1, #code_path - 4)
+    end
+    return require(code_path)
+end
+
+---@return string, string|nil
+local resolve_name = function(name, sep)
+    local before, after, ok = strings.Cut(name, sep)
+    if ok then
+        return before, after
+    end
+    return name, nil
+end
+
+---@return string name, string|nil version, string sub
+local resolve_target = function(target)
+    local name, version, sub
+    if strings.Contains(target, "@") then
+        local before, after, ok = strings.Cut(target, "@")
+        if ok then
+            version = after
+            name = before
+        end
+    else
+        name = target
+    end
+    if strings.Contains(name, "/") then
+        name, sub = resolve_name(name, "/")
+    elseif strings.Contains(name, "\\") then
+        name, sub = resolve_name(name, "\\")
+    end
+    if sub == nil then
+        sub = ""
+    end
+    return name, version, sub
+end
+
+local find_module = function(path, name)
+    if find(path) then
+        local jf = json.open(path)
+        return jf:get(string.format("depend.%s.version", name))
+    end
+    return nil
+end
+
+---@param target string
+---@return any, boolean
+function load_module(target)
+    local name, version, sub = resolve_target(target)
+    if name == nil then
+        yassert("invalid name")
+    end
+    local absPath = filepath.Abs(pathf("#3"))
+    if strings.Contains(absPath, env.yock_modules) then
+        if version == nil then
+            local tmp = string.sub(absPath, #env.yock_modules + 2, #absPath)
+            local idx = strings.IndexAny(tmp, string.char(filepath.Separator))
+            if idx > 0 then
+                local subname = string.sub(tmp, 1, idx)
+                tmp = string.sub(tmp, #subname + 2, #tmp)
+                idx = strings.IndexAny(tmp, string.char(filepath.Separator))
+                if idx > 0 then
+                    absPath = pathf(env.yock_modules, subname, string.sub(tmp, 1, idx), "modules.json")
+                end
+            end
+        end
+    else
+        absPath = pathf("$", "modules.json")
+    end
+    local found = true
+    if version == nil then
+        version = find_module(absPath, name)
+        if version == nil then
+            if find(pathf(env.yock_modules, name, "boot.lua")) then
+                local meta = require(pathf(env.yock_modules, name, "boot"))
+                if meta ~= nil and meta.version ~= nil then
+                    version = meta.version
+                else
+                    found = false
+                end
+            else
+                found = false
+            end
+        end
+    end
+    if version ~= nil then
+        -- Due to the feature of require, all "." will be replaced with "/".
+        -- In order to solve the problem that
+        -- the version directory name cannot be taken with "." feature, utilizing "_" replace.
+        version = strings.ReplaceAll(version, ".", "_")
+    else
+        version = ""
+    end
+    if found then
+        target = pathf(env.yock_modules, name, version, sub)
+        if find(target .. ".lua") then
+            return require(target), found
+        else
+            return require(pathf(target, "index"))
+        end
+    end
+    return require(pathf(name, version, sub)), found
+end
 
 -- import layer
 --
@@ -26,198 +149,16 @@ env.yock_modules = path.join(env.yock_path, "yock_modules")
 ---@return unknown
 ---@return unknown loaderdata
 function import(target)
-    -- injects yock_modules when yock_modules isn't exist
-    if not strings.Contains(package.path, "yock_modules") then
-        local wd, err = pwd()
-        yassert(err)
-        package.path = package.path .. string.format([[;%s;%s;%s;%s]],
-            -- local yock_modules
-            path.join(wd, "yock_modules", "?.lua"),
-            path.join(wd, "yock_modules", "?", "index.lua"),
-            -- global yock_modules
-            path.join(env.yock_modules, "?.lua"),
-            path.join(env.yock_modules, "?", "index.lua"))
+    if strings.HasPrefix(target, ".") then
+        return load_file(target)
     end
-
-    -- Preprocessing to adapt to the require layer
-    if strings.HasSuffix(target, ".lua") then
-        target = string.sub(target, 1, #target - 4)
+    if not strings.HasSuffix(target, ".lua") and find(target .. ".lua") then
+        return require(target)
     end
-
-    -- The actual path to the script file, not the path where the script runs.
-    local code_path = pathf("#2", "..")
-
-    -- import file by relative path
-    -- if (strings.Contains(target, "/") or strings.Contains(target, "\\"))
-    --     and string.sub(target, 1, 1) == "." then
-    --     -- todo: pathf("!", code_path, target)
-    --     return require(versionf(path.abs(path.join(code_path, target))))
-    --     -- import file by absolute path
-    -- elseif path.abs(target) == target then
-    --     return require(versionf(target))
-    -- end
-    if find(pathf(code_path, target .. ".lua")) then
-        return require(pathf(code_path, target))
+    if find(target) then
+        return require(string.sub(target, 1, #target - 4))
     end
-
-    local module = target
-    local version = ""
-
-    -- module@version
-    if strings.Contains(target, "@") then
-        local mod, ver, ok = strings.Cut(target, "@")
-        if not ok then
-            yassert("invalid module")
-        end
-        module = mod
-        version = versionf(ver)
-    end
-    -- check local modules
-    local modules_json = jsonfile:open(path.join(code_path, "modules.json"), true)
-    -- check global modules
-    if type(modules_json.fp) == "nil" then
-        modules_json = jsonfile:open(path.join(code_path, "modules.json"), true)
-    end
-
-    if #version == 0 and modules_json.buf ~= nil then
-        version = modules_json.buf["depend"][module]
-    end
-    local idx = strings.IndexAny(module, "/")
-    if idx ~= -1 then
-        module = path.join(string.sub(module, 1, idx), version,
-            string.sub(module, idx + 1, #module))
-    else
-        module = pathf(module, version)
-    end
-    if string.sub(module, 1, 1) == string.char(path.Separator) then
-        module = string.sub(module, 2, #module)
-    end
-    if find(versionf(module) .. ".lua") then
-        return require(versionf(module))
-    end
-    return require(target)
-end
-
-function cur_dir()
-    return path.join(debug.getinfo(2, "S").source, "..")
-end
-
--- load_module layer
-
-function yock_todo_completion()
-    local file = fetch.file([[https://raw.githubusercontent.com/Ansurfen/yock-todo/main/release/release.json]],
-        ".json")
-    local release_json = jsonfile:open(pathf("~/tmp/") .. file)
-    local suffix
-    if env.platform.OS == "windows" then
-        suffix = ".zip"
-    else
-        suffix = ".tar.gz"
-    end
-    file = fetch.file(string.format([[https://github.com/Ansurfen/yock-todo/releases/download/%s/ypm%s]],
-        release_json.buf["ypm"]["tag"], suffix), suffix)
-    mkdir(pathf("~/yock_modules"))
-    if env.platform.OS == "windows" then
-        unzip(pathf("~/tmp/") .. file, pathf("~/yock_modules"))
-        mv(pathf("~/ypm/modules/*"), pathf("~/yock_modules"))
-        rm({ safe = false }, pathf("~/ypm/modules"))
-    else
-        ---@diagnostic disable-next-line: param-type-mismatch
-        sh(string.format([[
-        tar -xvf %s -C %s --strip-components=2
-    ]], pathf("~/tmp/") .. file, pathf("~/yock_modules")))
-    end
-    return true
-end
-
-function yock_todo_loader(opt)
-    yock_todo_completion()
-    return import(path.join(env.yock_modules, opt["name"], opt["version"], "index"))
-end
-
-local ypm_path = pathf("~/ypm")
-if not find(ypm_path) then
-    mkdir(ypm_path)
-end
-
-config = json.create(pathf("~/ypm/config.json"), [[{"defaultSource": "github"}]])
-modules = json.create(pathf("~/ypm/modules.json"), [[{"depend": {}}]])
-
-config:save(true)
-modules:save(true)
-
----@param target string
----@return any
-function load_module(target)
-    mkdir(env.yock_tmp, env.yock_modules)
-
-    local module = target
-    local version = ""
-    -- module@version
-    if strings.Contains(target, "@") then
-        local mod, ver, ok = strings.Cut(target, "@")
-        if not ok then
-            yassert("invalid module")
-        end
-        module = mod
-        version = ver
-    end
-
-    -- check local modules
-    if find(pathf("$/yock_modules", module)) then
-        if #version == 0 then
-            ---@diagnostic disable-next-line: redundant-return-value
-            return import(target)
-        else
-            ---@diagnostic disable-next-line: redundant-return-value
-            return import(pathf("~/yock_modules", module, version, "index"))
-        end
-    end
-
-    -- check global modules
-    if find(pathf("~/yock_modules", module)) then
-        if #version == 0 then
-            version = modules:get(string.format("depend.%s", module))
-        end
-        if version == nil or #version == 0 then
-            local boot = import(pathf(env.yock_modules, module, "boot"))
-            version = boot.version
-        end
-        ---@diagnostic disable-next-line: redundant-return-value
-        return import(path.join(env.yock_modules, module, version, "index"))
-    else
-        local parse = import(pathf("~/ypm/util/parse"))
-        local lib, ok
-
-        parse(module, function(url)
-            local file, err = fetch.file(url, ".lua")
-            if err == nil then
-                ---@type module
-                local mod = import(file)
-                if mod.load ~= nil then
-                    modules:set(string.format("depend.%s", module), mod.version)
-                    modules:save(true)
-                    lib = mod.load({
-                        name = module,
-                        version = version,
-                    })
-                    ok = true
-                    return
-                end
-            end
-            return err
-        end)
-
-        if lib ~= nil then
-            return lib
-        end
-
-        if ok then
-            return
-        end
-
-        yassert("invalid mod loader")
-    end
+    return load_module(target)
 end
 
 service = json.create(pathf("~/ypm/service.json"))

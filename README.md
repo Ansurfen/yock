@@ -21,7 +21,7 @@ Yock is a solution of cross platform to compose distributed build stream. It's a
 You can download the binary version [here](https://github.com/Ansurfen/yock/releases), or try the following methods.
 `NOTE`: After downloading, you must mount yock to the local environment. Enter directory of executable fileto run `yock run install.lua` command to make it after uncompress.
 
-#### Package manager
+#### Package manager (Lag in Version Update)
 npm: npm install @ansurfen/yock -g
 
 pip: pip install yock
@@ -30,20 +30,15 @@ pip: pip install yock
 
 Yock implements something like "bootstrap", meaning it's able to build itself. Of course, the prerequisite for all this also requires go compiler.
 
-The first, to fetch source code of yock
 ```cmd
 git clone https://github.com/Ansurfen/yock.git
-```
 
-Execute the go command and schedule the yock build script to build yock
-```cmd
 cd ctl
-<!-- windows -->
-./build.bat ffi //build with libffi
-./build.bat dev //build developer version
-./build.bat oslinux//cross compile to linux
-<!-- other platform -->
-go run . run ../auto/build.lua all -- --all-os linux
+
+./build.bat // normal build
+./build.bat/sh ffi //build with libffi (gcc or mingw required)
+./build.bat/sh dev //build developer version
+./build.bat/sh oslinux //cross compile to linux
 ```
 
 #### Embed in Go
@@ -302,12 +297,10 @@ http.ListenAndServe(":8080", nil)
 YPM: When `yock run install.lua` is executed, the package management tool is registered globally. You can use it to install yock's modules.
 ```cmd
 <!-- present all command -->
-ypm	// windows
-ypm.sh // linux
+ypm
 
 <!-- install module globally -->
-ypm install ark -g // windows
-ypm.sh install ark -g // linux
+ypm install ark -g
 ```
 
 ## Document

@@ -5,16 +5,25 @@
 return {
     desc = { use = "build" },
     run = function(cmd, args)
-        local meta = import("boot.lua")
+        local meta = import(pathf("$", "boot"))
         local version = meta.version or ""
         local name = meta.name or ""
         local package = name
-        if #name ~= 0 and #version ~= 0 then
-            package = package .. "-" .. version
+        if #version == 0 then
+            yassert("unknown version")
         end
-        local buildPath = pathf("tmp", package)
-        mkdir(buildPath)
-        local data = cat(".yockignore")
+        local buildPath = pathf("tmp", strings.ReplaceAll(version, ".", "_"))
+        if not find(buildPath) then
+            mkdir(buildPath)
+        end
+        local data, err = cat(".yockignore")
+        if err ~= nil then
+            write(".yockignore", [[include\**
+*.tar.gz
+*.zip]])
+            data, err = cat(".yockignore")
+            yassert(err)
+        end
         local rules = { ".git\\**" }
         for _, rule in ipairs(strings.Split(data, "\n")) do
             rule = strings.TrimSpace(rule)

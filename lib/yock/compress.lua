@@ -91,9 +91,14 @@ untar = function(src, dst)
         yassert(err)
         local targetPath = path.join(dst, header.Name)
         if header.Typeflag == tar.TypeDir then
-            mkdir(targetPath)
+            if not find(targetPath) then
+                mkdir(targetPath)
+            end
         elseif header.Typeflag == tar.TypeReg then
-            mkdir(filepath.Dir(targetPath))
+            local targetPathDir = filepath.Dir(targetPath)
+            if not find(targetPathDir) then
+                mkdir(targetPathDir)
+            end
             local fp, err = os.OpenFile(targetPath, bit.Or(os.O_CREATE, os.O_WRONLY), header:FileInfo():Mode())
             yassert(err)
             _, err = io.Copy(fp, tarReader)
@@ -115,10 +120,15 @@ unzip = function(src, dst)
         local file = reader.File[i]
         local filePath = path.join(dst, file.Name)
         if file:FileInfo():IsDir() then
-            mkdir(filePath)
+            if not find(filePath) then
+                mkdir(filePath)
+            end
             goto continue
         end
-        mkdir(path.dir(filePath))
+        local filePathDir = path.dir(filePath)
+        if not find(filePathDir) then
+            mkdir(filePathDir)
+        end
         local rc, err = file:Open()
         yassert(err)
         local w, err = os.Create(filePath)

@@ -30,6 +30,8 @@ func (c contextExitCode) String() string {
 		return "abort all peer jobs"
 	case 1:
 		return "continue to run peer jobs"
+	case 2:
+		return "continue to run peer jobs with inherit"
 	default:
 		return "unknown"
 	}
@@ -129,6 +131,7 @@ func (ctx *Context) Call(fn *lua.LFunction) (c contextExitCode) {
 func (ctx *Context) Extends(super *Context) {
 	platform := super.tbl.Value().RawGetString("platform").(*lua.LUserData).Value.(util.Platform)
 	ctx.tbl.Value().RawSetString("platform", luar.New(ctx.s.LState(), platform))
+	ctx.tbl.Value().RawSetString("flags", super.tbl.Value().RawGetString("flags"))
 }
 
 func (ctx *Context) Close() {
