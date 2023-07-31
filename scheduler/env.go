@@ -7,6 +7,8 @@ package yocks
 import (
 	"os"
 
+	"github.com/ansurfen/yock/ctl/conf"
+	yocke "github.com/ansurfen/yock/env"
 	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
 	lua "github.com/yuin/gopher-lua"
@@ -18,6 +20,7 @@ func loadEnv(yocks yocki.YockScheduler) {
 		"platform":  util.CurPlatform,
 		"workdir":   util.WorkSpace,
 		"yock_path": util.YockPath,
+		"conf":      yocke.GetEnv[*conf.YockConf]().Conf(),
 	})
 	lib.SetFunctions(map[string]lua.LGFunction{
 		"environ":  envEnviron,

@@ -88,3 +88,9 @@ end
 wrapscript = function(s)
     return s .. env.platform:Script()
 end
+
+---@param src string
+---@param dst string
+rename = function(src, dst)
+    mv(src, dst)
+end

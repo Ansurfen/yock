@@ -11,8 +11,7 @@
 ---@param opt table
 ---@vararg string
 ---@return table<string>, err
-function sh(opt, ...)
-end
+function sh(opt, ...) end
 
 -- Example:
 -- ```lua
@@ -20,8 +19,7 @@ end
 -- ```
 ---@vararg string
 ---@return table<string>, err
-function sh(...)
-end
+function sh(...) end
 
 ---@class promptoptdesc
 ---@field use string
@@ -45,8 +43,7 @@ local promptopt = {}
 
 ---{{.prompt}}
 ---@param opt promptopt
-function prompt(opt)
-end
+function prompt(opt) end
 
 ---@class command
 ---@field Use string
@@ -57,33 +54,21 @@ local command = {}
 
 ---{{.new_command}}
 ---@return command
-function new_command()
-    return {}
-end
+function new_command() end
 
 ---{.new_command_AddCommand}
 ---@vararg command
-function command:AddCommand(...)
-end
+function command:AddCommand(...) end
 
 ---@return any
-function command:PersistentFlags()
-    return {}
-end
+function command:PersistentFlags() end
 
 ---@return err
-function command:Execute()
-end
+function command:Execute() end
 
---
----{{.cmdf}}
---
 ---@vararg string
 ---@return string
----
-function cmdf(...)
-    return ""
-end
+function cmdf(...) end
 
 ---@class flag_type
 ---@field str number
@@ -109,29 +94,40 @@ function argsparse(env, todo) end
 argBuilder = {}
 
 ---@return argBuilder
-function argBuilder:new()
-end
+function argBuilder:new() end
 
 ---@param cmd string
 ---@return argBuilder
-function argBuilder:add(cmd)
-end
+function argBuilder:add(cmd) end
 
 ---@param cmd string
 ---@param v boolean|nil
-function argBuilder:add_bool(cmd, v)
-end
+---@return argBuilder
+function argBuilder:add_bool(cmd, v) end
 
 ---@param cmd string
 ---@param v string|nil
-function argBuilder:add_str(cmd, v)
-end
+---@return argBuilder
+function argBuilder:add_str(cmd, v) end
+
+---@param format string
+---@param v string|nil
+---@return argBuilder
+function argBuilder:add_strf(format, v) end
+
+---@param v any[]
+---@return argBuilder
+function argBuilder:add_arr(v) end
+
+---@param ok boolean
+---@param format string
+---@vararg any
+---@return argBuilder
+function argBuilder:add_format(ok, format, ...) end
 
 ---@return string
-function argBuilder:build()
-end
+function argBuilder:build() end
 
 ---@param opt table
 ---@return table, err
-function argBuilder:exec(opt)
-end
+function argBuilder:exec(opt) end

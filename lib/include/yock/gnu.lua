@@ -84,7 +84,7 @@ function cp(src, dst) end
 
 ---@class cpopt
 ---@field recurse boolean
----@field debug boolean
+---@field force boolean
 local cpopt = {}
 
 -- Example:
@@ -134,6 +134,10 @@ function rm(opt, ...) end
 ---@vararg string
 ---@return err
 function rm(...) end
+
+---@param src string
+---@param dst string
+function rename(src, dst) end
 
 ---@param cmd table|string
 function sudo(cmd) end
@@ -228,38 +232,31 @@ function ps(opt) end
 
 ---@param k integer|string
 ---@return err
-function kill(k)
-end
+function kill(k) end
 
 ---@param src string
 ---@param dst string
-function tarc(src, dst)
-end
+function tarc(src, dst) end
 
 ---@param src string
 ---@param dst string
-function zipc(src, dst)
-end
+function zipc(src, dst) end
 
 ---@param src string
 ---@param dst string
-function untar(src, dst)
-end
+function untar(src, dst) end
 
 ---@param src string
 ---@param dst string
-function unzip(src, dst)
-end
+function unzip(src, dst) end
 
 ---@param src string
 ---@param dst string
-function compress(src, dst)
-end
+function compress(src, dst) end
 
 ---@param src string
 ---@param dst string
-function uncompress(src, dst)
-end
+function uncompress(src, dst) end
 
 ---Example:
 ---```lua
@@ -268,8 +265,7 @@ end
 ---@param k string
 ---@param v string
 ---@return err
-function export(k, v)
-end
+function export(k, v) end
 
 ---Example:
 ---```lua
@@ -277,16 +273,28 @@ end
 ---```
 ---@param kv string
 ---@return err
-function export(kv)
-end
+function export(kv) end
 
 ---@param k string
-function unset(k)
-end
+function unset(k) end
 
----@return table
-function ifconfig()
-end
+---@class ifconfig_addr
+---@field addr string
+local ifconfig_addr = {}
+
+---@alias ifconfig_flag string|"up"|"broadcast"|"multicast"|"loopback"
+
+---@class ifconfig_result
+---@field index integer
+---@field mtu integer
+---@field name string
+---@field hardwareAddr string
+---@field flags ifconfig_flag[]
+---@field addrs ifconfig_addr[]
+local ifconfig_result = {}
+
+---@return ifconfig_result[]
+function ifconfig() end
 
 ---@class systemctlopt
 local systemctlopt = {}
@@ -318,28 +326,23 @@ end
 
 ---@param name string
 ---@return err
-function systemctl.start(name)
-end
+function systemctl.start(name) end
 
 ---@param name string
 ---@return err
-function systemctl.stop(name)
-end
+function systemctl.stop(name) end
 
 ---@param name string
 ---@return err
-function systemctl.delete(name)
-end
+function systemctl.delete(name) end
 
 ---@param name string
 ---@return err
-function systemctl.disable(name)
-end
+function systemctl.disable(name) end
 
 ---@param name string
 ---@return err
-function systemctl.enable(name)
-end
+function systemctl.enable(name) end
 
 ---@class sccreateoptunit
 ---@field description string
@@ -373,8 +376,7 @@ local sccreateopt = {}
 ---@param name string
 ---@param opt sccreateopt
 ---@return err
-function systemctl.create(name, opt)
-end
+function systemctl.create(name, opt) end
 
 ---@alias servicestatus integer
 ---|> "running"
@@ -447,16 +449,16 @@ local lsofinfo = {}
 function lsof(port) end
 
 ---@class curlopt
----@field header table<string, string>
----@field method string
----@field data string
----@field save boolean
----@field dir string
----@field filename fun(s: string): string
----@field debug boolean
----@field strict boolean
----@field caller string
----@field async boolean
+---@field header? table<string, string>
+---@field method? string
+---@field data? string
+---@field save? boolean
+---@field dir? string
+---@field filename? fun(s: string): string
+---@field debug? boolean
+---@field strict? boolean
+---@field caller? string
+---@field async? boolean
 local curlopt = {}
 
 ---@param opt curlopt
@@ -467,3 +469,8 @@ function curl(opt, ...) end
 ---@vararg string
 ---@return string, err
 function curl(...) end
+
+---@param file string
+---@param data string
+---@return err
+function write(file, data) end

@@ -50,6 +50,9 @@ var (
 				if arg == "--" {
 					break
 				}
+				if arg == "-c" || arg == "-p" || arg == "-a" || arg == "-d" {
+					continue
+				}
 				runParameter.modes = append(runParameter.modes, arg)
 			}
 

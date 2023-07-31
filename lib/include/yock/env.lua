@@ -7,7 +7,14 @@
 ---@class yockConf
 ---@field Ycho ychoOpt
 ---@field Lang string
+---@field Yockd yockd_opt
+---@field Yockw yockw_opt
 local yockConf = {}
+
+---@class yockw_opt
+---@field SelfBoot boolean
+---@field Port integer
+local yockwOpt = {}
 
 ---@class ychoOpt
 ---@field Level string
@@ -21,6 +28,13 @@ local yockConf = {}
 ---@field Stdout boolean
 local ychoOpt = {}
 
+---@class yockd_opt
+---@field IP string
+---@field Port integer
+---@field Name string
+---@field SelfBoot boolean
+local yockdOpt = {}
+
 ---@class env
 ---@field args table<string>
 ---@field platform platform
@@ -32,59 +46,49 @@ local ychoOpt = {}
 ---@field yock_tmp string
 ---@field yock_bin string
 ---@field params table<string, table<string, starType>>?
----
 env = {}
 
----@param path string
----@return err
-function env.set_path(path)
-end
+-- ---@param path string
+-- ---@return err
+-- function env.set_path(path) end
 
----@param k string
----@param v any
----@return err
-function env.set(k, v)
-end
+-- ---@param k string
+-- ---@param v any
+-- ---@return err
+-- function env.set(k, v) end
 
----@param k string
----@param v any
----@return err
-function env.safe_set(k, v)
-end
+-- ---@param k string
+-- ---@param v any
+-- ---@return err
+-- function env.safe_set(k, v) end
 
----@param k string
----@param v any
----@return err
-function env.setl(k, v)
-end
+-- ---@param k string
+-- ---@param v any
+-- ---@return err
+-- function env.setl(k, v) end
 
----@param k string
----@param v any
----@return err
-function env.safe_setl(k, v)
-end
+-- ---@param k string
+-- ---@param v any
+-- ---@return err
+-- function env.safe_setl(k, v) end
 
----@param k string
----@return err
-function env.unset(k)
-end
+-- ---@param k string
+-- ---@return err
+-- function env.unset(k) end
 
----@param file string
----@return err
-function env.export(file)
-end
+-- ---@param file string
+-- ---@return err
+-- function env.export(file)
+-- end
 
-function env.print()
-end
+-- function env.print()
+-- end
 
 ---@return table
-function env.environ()
-    return {}
-end
+function env.environ() end
 
 ---@param args table
-function env.set_args(args)
-end
+function env.set_args(args) end
 
 ---
 ---@class platform

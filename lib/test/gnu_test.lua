@@ -124,7 +124,7 @@ job("export", function(ctx)
 end)
 
 job("net", function(ctx)
-    ifconfig()
+   table.dump( ifconfig())
 end)
 
 job("testService", function(ctx)

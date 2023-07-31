@@ -11,9 +11,9 @@ import (
 )
 
 func TestSSH(t *testing.T) {
-	go func ()  {
+	go func() {
 		time.Sleep(20 * time.Second)
-		os.Exit(0)	
+		os.Exit(0)
 	}()
 	sh, _ := NewSSHClient(SSHOpt{
 		User:     "ubuntu",

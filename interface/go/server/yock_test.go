@@ -14,7 +14,7 @@ import (
 
 func TestYocki(t *testing.T) {
 	go func() {
-		time.Sleep(10 * time.Second)
+		time.Sleep(100 * time.Second)
 		os.Exit(0)
 	}()
 	s := New()

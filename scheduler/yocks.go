@@ -9,7 +9,9 @@ import (
 	"path"
 	"path/filepath"
 
-	yockd "github.com/ansurfen/yock/daemon/client"
+	"github.com/ansurfen/yock/ctl/conf"
+	"github.com/ansurfen/yock/daemon/net"
+	yocke "github.com/ansurfen/yock/env"
 	yocki "github.com/ansurfen/yock/interface"
 	yockr "github.com/ansurfen/yock/runtime"
 	"github.com/ansurfen/yock/util"
@@ -72,7 +74,7 @@ type YockScheduler struct {
 	// daemon manages and schedules Yock's background tasks.
 	// yockd on each computer can be regarded as a node, and
 	// different nodes can form clusters to complete parallel build, deployment and etc.
-	daemon yockd.YockDaemonClient
+	daemon map[string]yocki.YockdClient
 
 	libPath string
 
@@ -87,7 +89,7 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 		goroutines:  newChannelPool(10),
 		yocksDB:     newYocksDB(),
 		yocki:       newYockInterface(),
-		// daemon:      *yockd.New(&yockd.DaemonOption{}),
+		daemon:      make(map[string]yocki.YockdClient),
 	}
 
 	for _, opt := range opts {
@@ -114,6 +116,7 @@ func Default(opts ...YockSchedulerOption) *YockScheduler {
 	yocks := New(opts...)
 	yocks.LoadLibs()
 	yocks.LoadYocki()
+	yocks.LoadYockd()
 	return yocks
 }
 
@@ -290,6 +293,19 @@ func (yocks *YockScheduler) setGlobalVars(vars map[string]lua.LValue) {
 	}
 }
 
+func (yocks *YockScheduler) defaultYockd() yocki.YockdClient {
+	if d, ok := yocks.daemon["default"]; !ok {
+		conf := yocke.GetEnv[*conf.YockConf]().Conf()
+		yocks.daemon["default"] = net.NewDirect(&net.YockdClientOption{
+			IP:   conf.Yockd.IP,
+			Port: conf.Yockd.Port,
+		})
+		return yocks.daemon["default"]
+	} else {
+		return d
+	}
+}
+
 func (yocks *YockScheduler) Opt() yocki.Table {
 	return yocks.opt
 }
@@ -319,7 +335,7 @@ func (yocks *YockScheduler) LaunchTask(name string) {
 	}
 	var (
 		inherit bool
-		super    *Context
+		super   *Context
 	)
 	for _, job := range yocks.task[name] {
 		ctx := newContext(name, job, flags, yocks)

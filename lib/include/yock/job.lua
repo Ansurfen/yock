@@ -61,14 +61,73 @@ function job(name, callback) end
 ---@vararg string
 function jobs(name, ...) end
 
----@class option_todo_ycho
----@field stdout boolean
-local option_todo_ycho = {}
+---@class option_ycho
+---@field stdout? boolean
+local option_ycho = {}
+
+---@class option_yockd
+---@field name string
+---@field peer? table<string, option_yockd_peer>
+---@field self_boot? boolean
+---@field port? integer
+local option_yockd = {}
+
+---@class option_yockd_peer
+---@field ip string
+---@field port integer
+---@field public boolean
+local option_yockd_peer = {}
+
+---@class option_yockw
+---@field self_boot? boolean
+---@field port? integer
+---@field metrics?
+---|>table<"couter", option_yockw_metrics_counter[]>
+---|table<"gauge", option_yockw_metrics_gauge[]>
+---|table<"histogram", option_yockw_metrics_hisogram[]>
+---|table<"summary", option_yockw_metrics_summary[]>
+---|table<"resolved", string[]>
+local option_yockw = {}
+
+---@class option_yockw_metrics_counter
+---@field namespace? string
+---@field subsystem? string
+---@field name string
+---@field help string
+---@field label? string[]
+local yockw_metrics_counter = {}
+
+---@class option_yockw_metrics_gauge
+---@field namespace? string
+---@field subsystem? string
+---@field name string
+---@field help string
+local yockw_metrics_gauge = {}
+
+---@class option_yockw_metrics_hisogram
+---@field namespace? string
+---@field subsystem? string
+---@field name string
+---@field help string
+---@field buckets number[]
+local yockw_metrics_hisogram = {}
+
+---@class option_yockw_metrics_summary
+---@field namespace? string
+---@field subsystem? string
+---@field name string
+---@field help string
+---@field objectives table<string, number>
+---@field max_age? integer
+---@field buf_cap? integer
+local yockw_metrics_summary = {}
 
 ---@class option_todo
----@field ycho option_todo_ycho
----@field strict boolean
----@field sync boolean
+---@field ycho? option_ycho
+---@field yockd? option_yockd
+---@field yockw? option_yockw
+---@field strict? boolean
+---@field sync? boolean
 local option_todo = {}
 
 -- Example:

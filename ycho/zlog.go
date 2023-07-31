@@ -138,6 +138,9 @@ func getLogWriter(conf YchoOpt) (zapcore.WriteSyncer, error) {
 	if len(conf.Path) == 0 {
 		conf.Path = util.Pathf("@/log")
 	}
+	if len(conf.FileName) == 0 {
+		conf.FileName = fmt.Sprintf("%s.log", util.NowTimestampByString())
+	}
 	if err := util.SafeMkdirs(conf.Path); err != nil {
 		return nil, err
 	}

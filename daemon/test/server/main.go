@@ -5,7 +5,7 @@
 package main
 
 import (
-	"github.com/ansurfen/yock/daemon/server/api"
+	"github.com/ansurfen/yock/daemon/server"
 )
 
 func main() {

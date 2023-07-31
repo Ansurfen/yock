@@ -35,6 +35,10 @@ function json.create(file, str) end
 ---@return jsonobject
 function json.open(file) end
 
+---@param str string
+---@return jsonobject
+function json.from_str(str) end
+
 ---@param k string
 ---@return boolean
 function jsonobject:getbool(k) end

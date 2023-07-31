@@ -210,11 +210,9 @@ function init(target)
         version = ver
     else
         module = target
+        local tmp = json.open(pathf("$/modules.json"))
+        version = tmp:getstr(strf("depend.%s.version", module))
     end
-
-    if find(pathf("$/yock_modules", module, "init.lua")) then
-        dofile(pathf("$/yock_modules", module, "init.lua"))
-    elseif find(pathf("~/yock_modules", module, "init.lua")) then
-        dofile(pathf("~/yock_modules", module, "init.lua"))
-    end
+    version = strings.ReplaceAll(version, ".", "_")
+    dofile(pathf(env.yock_modules, module, version, "init.lua"))
 end

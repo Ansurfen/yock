@@ -38,7 +38,7 @@ type YockDB interface {
 	Put(k string, v lua.LValue)
 }
 
-var Y_MODE YockMode
+var Y_MODE YockMode = yockMode(0)
 
 const (
 	Y_STRICT = 1
@@ -52,6 +52,24 @@ type YockMode interface {
 
 	Debug() bool
 	Strict() bool
+}
+
+type yockMode int32
+
+func (m yockMode) Mode() int32 {
+	return int32(m)
+}
+
+func (yockMode) SetMode(m int32) {}
+
+func (yockMode) UnsetMode(m int32) {}
+
+func (yockMode) Debug() bool {
+	return true
+}
+
+func (yockMode) Strict() bool {
+	return false
 }
 
 type YockJob interface {

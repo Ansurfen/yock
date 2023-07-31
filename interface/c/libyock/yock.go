@@ -13,8 +13,7 @@ import (
 	"net"
 	"unsafe"
 
-	"github.com/ansurfen/cushion/cgo"
-	"github.com/ansurfen/cushion/utils"
+	"github.com/ansurfen/yock/util"
 	grpc "google.golang.org/grpc"
 )
 
@@ -31,9 +30,9 @@ func newYockInterface() *YockInterface {
 
 func (yock *YockInterface) Callback(ctx context.Context, req *CallRequest) (*CallResponse, error) {
 	if cb, ok := yock.dict[req.Fn]; ok {
-		res := cb(utils.JsonStr(utils.NewJsonObject(map[string]utils.JsonValue{
-			"Fn":  utils.NewJsonString(req.Fn),
-			"Arg": utils.NewJsonString(req.Arg),
+		res := cb(util.JsonStr(util.NewJsonObject(map[string]util.JsonValue{
+			"Fn":  util.NewJsonString(req.Fn),
+			"Arg": util.NewJsonString(req.Arg),
 		})))
 		var ret CallResponse
 		err := json.Unmarshal([]byte(res), &ret)
@@ -49,14 +48,14 @@ func (yock *YockInterface) Register(name string, cb func(string) string) {
 //export newYock
 func newYock() *C.Yock {
 	s := newYockInterface()
-	ret := (*C.Yock)(cgo.CMalloc(cgo.CSize_t(unsafe.Sizeof(C.Yock{}))))
+	ret := (*C.Yock)(C.malloc(C.size_t(unsafe.Sizeof(C.Yock{}))))
 	ret.ptr = unsafe.Pointer(s)
 	return ret
 }
 
 //export yockRegisterCall
 func yockRegisterCall(yock *C.Yock, name *C.char, cb C.Call) {
-	s := cgo.CastPtr[YockInterface](yock.ptr)
+	s := CastPtr[YockInterface](yock.ptr)
 	s.Register(C.GoString(name), func(s string) string {
 		str := C.yockCall(cb, C.CString(s))
 		return C.GoString(str)
@@ -65,7 +64,7 @@ func yockRegisterCall(yock *C.Yock, name *C.char, cb C.Call) {
 
 //export yockRun
 func yockRun(yock *C.Yock, port *C.char) {
-	s := cgo.CastPtr[YockInterface](yock.ptr)
+	s := CastPtr[YockInterface](yock.ptr)
 	listen, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", C.GoString(port)))
 	if err != nil {
 		panic(err)
@@ -75,6 +74,10 @@ func yockRun(yock *C.Yock, port *C.char) {
 	if err := gsrv.Serve(listen); err != nil {
 		panic(err)
 	}
+}
+
+func CastPtr[T any](ptr unsafe.Pointer) *T {
+	return (*T)(ptr)
 }
 
 func main() {}

@@ -43,8 +43,11 @@ func LoadMisc(yocks yocki.YockScheduler) {
 	})
 	lib := yocks.CreateLib("ycho")
 	lib.SetYFunction(map[string]yocki.YGFunction{
-		"info": ychoInfo,
-		"warn": ychoWarn,
+		"info":  ychoInfo,
+		"warn":  ychoWarn,
+		"debug": ychoDebug,
+		"fatal": ychoFatal,
+		"error": ychoError,
 	})
 	yocks.SetGlobalFn(map[string]lua.LGFunction{
 		"print": func(l *lua.LState) int {
@@ -63,6 +66,21 @@ func LoadMisc(yocks yocki.YockScheduler) {
 
 func ychoInfo(s yocki.YockState) int {
 	ycho.Infof("%s%s", s.Stacktrace(), s.CheckString(1))
+	return 0
+}
+
+func ychoDebug(s yocki.YockState) int {
+	ycho.Debugf("%s%s", s.Stacktrace(), s.CheckString(1))
+	return 0
+}
+
+func ychoFatal(s yocki.YockState) int {
+	ycho.Fatalf("%s%s", s.Stacktrace(), s.CheckString(1))
+	return 0
+}
+
+func ychoError(s yocki.YockState) int {
+	ycho.Errorf("%s%s", s.Stacktrace(), s.CheckString(1))
 	return 0
 }
 

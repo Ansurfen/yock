@@ -22,6 +22,14 @@ func NewSafeMap[T any]() *SafeMap[T] {
 	}
 }
 
+func (m *SafeMap[T]) Keys() (keys []string) {
+	m.Range(func(k string, v T) bool {
+		keys = append(keys, k)
+		return true
+	})
+	return
+}
+
 // SafeGet locks to get the value of the specified k.
 // If the value doesn't exist, the second parameter returns false, and vice versa.
 func (m *SafeMap[T]) SafeGet(k string) (T, bool) {
@@ -50,6 +58,16 @@ func (m *SafeMap[T]) SafeSet(k string, v T) {
 // SafeSet sets value of key to be specified with locking
 func (m *SafeMap[T]) Set(k string, v T) {
 	m.data[k] = v
+}
+
+func (m *SafeMap[T]) SafeDelete(k string) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	delete(m.data, k)
+}
+
+func (m *SafeMap[T]) Delete(k string) {
+	delete(m.data, k)
 }
 
 // SafeRange locks to range map. You can set callback to implement demand.

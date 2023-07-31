@@ -12,6 +12,7 @@ return {
         if err ~= nil or #proxies == 0 then
             cp(cat(pathf("#1", "../../template/defaultSource.tpl")), pathf("#1", "../../proxy"))
         end
+        rm({ safe = false }, pathf("$/include"))
         cp(pathf("~/lib/include"), pathf("$"))
         if find(pathf("$/modules.json")) then
             local modules = json.open(pathf("$/modules.json"))
@@ -22,7 +23,7 @@ return {
                         local got = filepath.Base(filepath.Dir(p))
                         local name = filepath.Base(filepath.Dir(filepath.Dir(p)))
                         local want = modules:get("depend." .. name)
-                        if want == nil or strings.ReplaceAll(want, ".", "_") ~= got then
+                        if want == nil or strings.ReplaceAll(want.version, ".", "_") ~= got then
                             return true
                         end
                         mkdir(pathf("$/include", name))

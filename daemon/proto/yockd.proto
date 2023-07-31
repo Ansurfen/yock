@@ -9,13 +9,18 @@ service YockDaemon {
     // Ping is used to detect whether the connection is available
     rpc Ping (PingRequest) returns (PingResponse);
     // Wait is used to request signal from the daemon
-    rpc Wait (WaitRequest) returns (WaitResponse);
+    rpc SignalWait (WaitRequest) returns (WaitResponse);
     // Notify pushes signal to Daemon
-    rpc Notify (NotifyRequest) returns (NotifyResponse);
+    rpc SignalNotify (NotifyRequest) returns (NotifyResponse);
+
+    rpc SignalList (SignalListRequest) returns (SignalListResponse);
+
+    rpc SignalClear (SignalClearRequest) returns (SignalClearResponse);
+    // SignalInfo returns signal's stauts to be specified.
+    rpc SignalInfo (SignalInfoRequest) returns (SignalInfoResponse);
     // Upload pushes file information to peers so that peers can download files
     rpc Upload (UploadRequest) returns (UploadResponse);
-    // Download file in other peer
-    rpc Download (stream DownloadRequest) returns (stream DownloadResponse);
+
     // Register tells the daemon the address of the peer.
     rpc Register (RegisterRequest) returns (RegisterResponse);
     // Unregister tells the daemon to remove the peer according to addrs.
@@ -26,7 +31,168 @@ service YockDaemon {
     // (the name of the node, the file uploaded, and the connection information) are returned.
     rpc Info (InfoRequest) returns (InfoResponse);
 
-    rpc Cron (CronRequest) returns (CronResponse);
+    rpc FileSystemPut (FileSystemPutRequest) returns (FileSystemPutResponse);
+
+    rpc FileSystemGet (FileSystemGetRequest) returns (FileSystemGetResponse);
+    // FileSystemDownload file in other peer
+    rpc FileSystemDownload (stream FileSystemDownloadRequest) returns (stream FileSystemDownloadResponse);
+
+    rpc Dial (DialRequest) returns (DialResponse);
+
+    rpc Call (CallRequest) returns (CallResponse);
+
+    rpc Tunnel (stream TunnelRequest) returns (stream TunnelResponse);
+
+    rpc Mark (MarkRequest) returns (MarkResponse);
+
+    rpc ProcessSpawn (ProcessSpawnRequest) returns (ProcessSpawnResponse);
+
+    rpc ProcessFind (ProcessFindRequest) returns (ProcessFindResponse);
+
+    rpc ProcessList (ProcessListRequest) returns (ProcessListResponse);
+
+    rpc ProcessKill (ProcessKillRequest) returns (ProcessKillResponse);
+}
+
+message FileSystemDownloadRequest {
+    string filename = 1;
+    string sender = 2;
+}
+
+message FileSystemDownloadResponse {
+    bytes data = 1;
+}
+
+message FileSystemGetRequest {
+    string src = 1;
+    string dst = 2;
+}
+
+message FileSystemGetResponse {}
+
+message ProcessKillRequest {
+    int64 pid = 1;
+}
+
+message ProcessKillResponse {}
+
+enum ProcessSpawnType {
+    Invalid = 0;
+    Cron = 1;
+    FS = 2;
+    Script = 3;
+}
+
+message ProcessSpawnRequest {
+    ProcessSpawnType type = 1;
+    string spec = 2;
+    string cmd = 3;
+}
+
+message ProcessSpawnResponse {
+    int64 pid = 1;
+}
+
+message ProcessListRequest {}
+
+message Process {
+    int64 pid = 1;
+    int32 state = 2;
+    string spec = 3;
+    string cmd = 4;
+}
+
+message ProcessListResponse {
+    repeated Process res = 1;
+}
+
+message ProcessFindRequest {
+    int64 pid = 1;
+    string cmd = 2;
+}
+
+message ProcessFindResponse {
+    repeated Process res = 1;
+}
+
+message CallRequest {
+    string node = 1;
+    string method = 2;
+    repeated string args = 3;
+}
+
+message CallResponse {
+    string ret = 1;
+}
+
+message MarkRequest {
+    string name = 1;
+    string addr = 2;
+}
+
+message MarkResponse {}
+
+enum ProtocalType {
+    Unknown = 0;
+    Establish = 1;
+    Heartbeat = 2;
+    MethodCall = 3;
+    MethodReturn = 4;
+}
+
+message TunnelRequest {
+    ProtocalType type = 1;
+    string body = 2;
+    int64 id = 3;
+}
+
+message TunnelResponse {
+    ProtocalType type = 1;
+    string body = 2;
+    int64 id = 3;
+}
+
+message NodeInfo {
+    string name = 1;
+    string ip = 2;
+    int32 port = 3;
+    bool public = 4;
+}
+
+message DialRequest {
+    NodeInfo from = 1;
+    NodeInfo to = 2;
+}
+
+message DialResponse {}
+
+message FileSystemPutRequest {
+    string src = 1;
+    string dst = 2;
+    bool copy = 3;
+}
+
+message FileSystemPutResponse {}
+
+message SignalListRequest {}
+
+message SignalListResponse {
+    repeated string sigs = 1;
+}
+
+message SignalClearRequest {
+    repeated string sigs = 1;
+}
+
+message SignalClearResponse {}
+
+message SignalInfoRequest {
+    string sig = 1;
+}
+
+message SignalInfoResponse {
+    bool status = 1;
+    bool exist = 2;
 }
 
 message PingRequest {}
@@ -57,15 +223,6 @@ message UploadRequest {
 
 message UploadResponse {}
 
-message DownloadRequest {
-    string filename = 1;
-    string sender = 2;
-}
-
-message DownloadResponse {
-    bytes data = 1;
-}
-
 message RegisterRequest {
     repeated string addrs = 1;
 }
@@ -93,7 +250,3 @@ message InfoResponse {
     string name = 1;
     string payload = 2;
 }
-
-message CronRequest {}
-
-message CronResponse {}

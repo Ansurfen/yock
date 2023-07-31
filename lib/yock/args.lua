@@ -25,6 +25,7 @@ end
 
 ---@param cmd string
 ---@param v boolean|nil
+---@return argBuilder
 function argBuilder:add_bool(cmd, v)
     if v then
         table.insert(self.params, cmd)
@@ -34,9 +35,40 @@ end
 
 ---@param cmd string
 ---@param v string|nil
+---@return argBuilder
 function argBuilder:add_str(cmd, v)
     if v ~= nil then
         table.insert(self.params, cmd)
+    end
+    return self
+end
+
+---@param format string
+---@param v string|nil
+---@return argBuilder
+function argBuilder:add_strf(format, v)
+    if v ~= nil then
+        table.insert(self.params, string.format(format, v))
+    end
+    return self
+end
+
+---@param v any[]
+---@return argBuilder
+function argBuilder:add_arr(v)
+    for _, value in ipairs(v) do
+        table.insert(self.params, value)
+    end
+    return self
+end
+
+---@param ok boolean
+---@param format string
+---@vararg any
+---@return argBuilder
+function argBuilder:add_format(ok, format, ...)
+    if ok then
+        table.insert(self.params, string.format(format, ...))
     end
     return self
 end
@@ -54,7 +86,6 @@ end
 ---@return table, err
 function argBuilder:exec(opt)
     return sh({
-        debug = opt["debug"] or false,
         redirect = opt["redirect"] or false,
     }, self:build())
 end

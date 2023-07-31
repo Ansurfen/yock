@@ -13,7 +13,7 @@ type YockSchedulerOption func(*YockScheduler) error
 // OptionUpgradeSingalStream upgrades SingleSignalStream to CooperationSingalStream to meet distributed needs.
 func OptionUpgradeSingalStream() YockSchedulerOption {
 	return func(ys *YockScheduler) error {
-		upgradeSingalStream(ys.signals.(*SingleSignalStream))
+		ys.signals = upgradeSingalStream(ys.signals, ys.defaultYockd())
 		return nil
 	}
 }

@@ -10,24 +10,13 @@ ycho = {}
 function ycho.info(msg) end
 
 ---@param msg string
-function ycho:Fatal(msg)
-
-end
+function ycho.fatal(msg) end
 
 ---@param msg string
-function ycho:warn(msg) end
+function ycho.warn(msg) end
 
 ---@param msg string
-function ycho:Debug(msg)
-
-end
+function ycho.debug(msg) end
 
 ---@param msg string
-function ycho:Panic(msg)
-
-end
-
----@param msg string
-function ycho:DPanic(msg)
-
-end
+function ycho.error(msg) end

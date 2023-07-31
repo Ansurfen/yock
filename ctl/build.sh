@@ -4,11 +4,13 @@ SCRIPT_PATH=$(pwd)
 
 ffi=0
 dev=0
+ver=0
 remote=0
 os=linux
 
 for arg in "$@"; do
 str=$(echo $arg | cut -c1-2)
+str2=$(echo $arg | cur -c1)
 if [ $arg = ffi ]
 then
     ffi=1
@@ -18,11 +20,14 @@ then
 elif [ $arg = remote ]
 then
     remote=1
-elif [  $str = os ]
+elif [ $str = os ]
 then
     os=$(echo $arg | cut -c3-${#arg})
+elif [ $str2 = v ]
+then
+	ver=$(echo $arg | cur -c2-${#arg})
 else
-    echo "unknown flag"
+    echo "unknown argument $arg"
 fi                 
 done
 
@@ -40,9 +45,9 @@ go env -w GOOS=linux
 
 if [ $dev = 0 ]
 then
-	go run . run ../auto/build.lua all -- --all-os $os --all-r $remote
+	go run . run ../auto/build.lua all -- --all-os $os --all-r $remote --all-v $ver
 else
-	go run . run ../auto/build.lua alldev -- --alldev-os $os --alldev-r $remote
+	go run . run ../auto/build.lua alldev -- --alldev-os $os --alldev-r $remote --alldev-v $ver
 fi
 
 if [ $ffi = 1 ]

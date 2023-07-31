@@ -15,3 +15,13 @@ function httplib.GET(pattern, handle) end
 
 ---@param port integer
 function httplib.run(port) end
+
+formdata = {}
+
+---@param v table<string, string[]>
+---@return string
+function formdata.encode(v) end
+
+---@param v string
+---@return urlValues
+function formdata.decode(v) end

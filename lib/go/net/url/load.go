@@ -26,5 +26,8 @@ func LoadUrl(yocks yocki.YockScheduler) {
 		"UserPassword":    url.UserPassword,
 		// constants
 		// variable
+		"Values": func(v map[string][]string) url.Values {
+			return url.Values(v)
+		},
 	})
 }

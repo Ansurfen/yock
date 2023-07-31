@@ -9,7 +9,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
+	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/ansurfen/yock/util"
@@ -57,8 +60,9 @@ func (w *SSHWriter) Write(p []byte) (n int, err error) {
 type SSHOpt struct {
 	User string
 	// password
-	Pwd string
-	IP  string
+	Pwd  string
+	IP   string
+	Port int
 	// tcp, udp, etc.
 	Network  string
 	Redirect bool
@@ -77,7 +81,7 @@ func newSSHClient(opt SSHOpt) (*SSHClient, error) {
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	conn, err := ssh.Dial(opt.Network, opt.IP+":22", conf)
+	conn, err := ssh.Dial(opt.Network, fmt.Sprintf("%s:%d", opt.IP, opt.Port), conf)
 	if err != nil {
 		return nil, err
 	}
@@ -87,69 +91,125 @@ func newSSHClient(opt SSHOpt) (*SSHClient, error) {
 }
 
 // Put uploads local files to a remote server
-func (cli *SSHClient) Put(src, dst string) {
+func (cli *SSHClient) Put(src, dst string) error {
 	sftpClient, err := sftp.NewClient(cli.Client)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer sftpClient.Close()
 	remoteFile, err := sftpClient.Create(dst)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer remoteFile.Close()
 	out, err := util.ReadStraemFromFile(src)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	_, err = remoteFile.Write(out)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 // Get download remote file to localhost from remote server
-func (cli *SSHClient) Get(src, dst string) {
+func (cli *SSHClient) Get(src, dst string) error {
 	sftpClient, err := sftp.NewClient(cli.Client)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer sftpClient.Close()
 	remoteFile, err := sftpClient.Open(src)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer remoteFile.Close()
 	fp, err := os.Create(dst)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer fp.Close()
 	_, err = remoteFile.WriteTo(fp)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 // Exec creates a temporary session to execute commands
-func (cli *SSHClient) Exec(cmd string) error {
+func (cli *SSHClient) Exec(cmd string) (string, error) {
 	session, err := cli.NewSession()
 	if err != nil {
-		return fmt.Errorf("%s: %s", util.ErrCreateSession.Error(), err.Error())
+		return "", fmt.Errorf("%s: %s", util.ErrCreateSession.Error(), err.Error())
 	}
 	defer session.Close()
 	output, err := session.CombinedOutput(cmd)
 	if err != nil {
-		return fmt.Errorf("%s: %s", util.ErrExecuteCommand.Error(), err.Error())
+		return "", fmt.Errorf("%s: %s", util.ErrExecuteCommand.Error(), err.Error())
 	}
-	fmt.Println(string(output))
-	return nil
+	return string(output), nil
+}
+
+func (cli *SSHClient) Sh(file string, args ...string) (string, error) {
+	var (
+		out string
+		arg = strings.Join(args, " ")
+	)
+	switch filepath.Ext(file) {
+	case ".sh":
+		sh := util.RandString(32) + ".sh"
+		err := cli.Put(file, sh)
+		if err != nil {
+			return "", err
+		}
+		out, err = cli.Exec(fmt.Sprintf("chmod +x %s && sh %s %s && rm %s", sh, sh, arg, sh))
+		if err != nil {
+			return out, err
+		}
+	case ".bat":
+		bat := util.RandString(32) + ".bat"
+		err := cli.Put(file, bat)
+		if err != nil {
+			return "", err
+		}
+		out, err = cli.Exec(fmt.Sprintf("%s %s & del %s", bat, arg, bat))
+		if err != nil {
+			return out, err
+		}
+	}
+	return out, nil
+}
+
+func (cli *SSHClient) OS() string {
+	raw, err := cli.Exec("echo $OSTYPE")
+	raw = strings.TrimRight(raw, "\n")
+	if err != nil {
+		return "unknown"
+	}
+	if raw != "$OSTYPE" {
+		return raw
+	}
+	raw, err = cli.Exec("echo %OS%")
+	raw = strings.TrimRight(raw, "\n")
+	if err != nil {
+		return "unknown"
+	}
+	if raw != "%OS%" {
+		return raw
+	}
+	return "unknown"
 }
 
 // Shell assigns a terminal to the user while redrecting stdout, stderr, stdin.
 // Input exit to release the terminal to close the session.
 func (cli *SSHClient) Shell() error {
-	session, _ := cli.NewSession()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	session, err := cli.NewSession()
+	if err != nil {
+		return err
+	}
 	defer session.Close()
 	w := NewSSHWriter()
 	r := NewSSHReader()
@@ -177,15 +237,29 @@ func (cli *SSHClient) Shell() error {
 			}
 		}
 	}()
-	buf := bufio.NewReader(os.Stdin)
-	for {
-		cmd, _ := buf.ReadString('\n')
-		cmd = strings.TrimSpace(cmd)
-		if cmd == "exit" {
-			session.Close()
-			break
+	go func() {
+		for {
+			select {
+			case <-c:
+				session.Close()
+				return
+			default:
+				time.Sleep(10 * time.Millisecond)
+			}
 		}
-		r.channel <- cmd
+	}()
+	go func() {
+		buf := bufio.NewReader(os.Stdin)
+		for {
+			cmd, err := buf.ReadString('\n')
+			if err != nil {
+				continue
+			}
+			r.channel <- strings.TrimSpace(cmd)
+		}
+	}()
+	if err := session.Wait(); err != nil {
+		return err
 	}
 	return nil
 }

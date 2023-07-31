@@ -18,18 +18,13 @@ local BooleanType = {}
 
 ---@param b boolean
 ---@return BooleanType
-function Boolean(b)
-    return {}
-end
+function Boolean(b) end
 
 ---@return userdata
-function BooleanType:Ptr()
-end
+function BooleanType:Ptr() end
 
 ---@return boolean
-function BooleanType:Var()
-    return false
-end
+function BooleanType:Var() end
 
 ---@class StringType
 local StringType = {}
@@ -41,28 +36,24 @@ function String(str)
 end
 
 ---@return userdata
-function StringType:Ptr()
-end
+function StringType:Ptr() end
 
 ---@return string
-function StringType:Var()
-    return ""
-end
+function StringType:Var() end
 
 ---@class StringArrayType
 local StringArrayType = {}
 
 ---@vararg string
 ---@return StringArrayType
-function StringArray(...)
-    return {}
-end
+function StringArray(...) end
 
 ---@return userdata
-function StringArrayType:Ptr()
-end
+function StringArrayType:Ptr() end
 
 ---@return table
-function StringArrayType:Var()
-    return {}
-end
+function StringArrayType:Var() end
+
+---@param m userdata
+---@return table
+function map2Table(m) end

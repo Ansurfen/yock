@@ -1,0 +1,1101 @@
+basePath: /
+definitions:
+  models.HistogramOpts:
+    properties:
+      buckets:
+        items:
+          type: number
+        type: array
+      help:
+        type: string
+      name:
+        type: string
+      nameSpace:
+        type: string
+      subSystem:
+        type: string
+    type: object
+  models.HistogramVecOpts:
+    type: object
+  models.MetricsOpts:
+    properties:
+      help:
+        type: string
+      name:
+        type: string
+      nameSpace:
+        type: string
+      subSystem:
+        type: string
+    type: object
+  models.MetricsVecOpts:
+    type: object
+  models.SummaryOpts:
+    type: object
+  models.SummaryVecOpts:
+    type: object
+info:
+  contact: {}
+  description: 'Document: ansurfen.github.io/YockNav/'
+  title: YockWatch
+  version: "1.0"
+paths:
+  /internal/metrics:
+    get:
+      consumes:
+      - application/json
+      description: Get Metrics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get Metrics
+      tags:
+      - System
+  /internal/swagger/index.html:
+    get:
+      consumes:
+      - application/json
+      description: Get API Document
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get API Document
+      tags:
+      - System
+  /logger/find:
+    get:
+      consumes:
+      - application/json
+      description: Get API Document
+      parameters:
+      - description: File
+        in: query
+        name: file
+        type: string
+      - description: Time
+        in: query
+        name: time
+        type: string
+      - description: Level
+        in: query
+        name: level
+        type: string
+      - description: Caller
+        in: query
+        name: caller
+        type: string
+      - description: Message
+        in: query
+        name: msg
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get API Document
+      tags:
+      - Logger
+  /logger/parse:
+    get:
+      consumes:
+      - application/json
+      description: Get API Document
+      parameters:
+      - description: Path of logger
+        in: query
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get API Document
+      tags:
+      - Logger
+  /metrics/counter/add:
+    post:
+      description: Add Counter Metrics
+      parameters:
+      - description: Counter Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - default: 1
+        description: Index
+        in: formData
+        minimum: 0
+        name: f
+        required: true
+        type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Add Counter Metrics
+      tags:
+      - Metrics
+  /metrics/counter/inc:
+    post:
+      description: Inc Counter Metrics
+      parameters:
+      - description: Counter Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Inc Counter Metrics
+      tags:
+      - Metrics
+  /metrics/counter/ls:
+    get:
+      description: List Counter Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List Counter Metrics
+      tags:
+      - Metrics
+  /metrics/counter/new:
+    post:
+      consumes:
+      - application/json
+      description: Create Counter Metrics
+      parameters:
+      - description: Counter Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.MetricsOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create Counter Metrics
+      tags:
+      - Metrics
+  /metrics/counter/rm:
+    post:
+      description: Remove Counter Metrics
+      parameters:
+      - description: Counter Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Remove Counter Metrics
+      tags:
+      - Metrics
+  /metrics/counterVec/add:
+    post:
+      description: Add CounterVec Metrics
+      parameters:
+      - description: CounterVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - default: 1
+        description: Index
+        in: formData
+        minimum: 0
+        name: f
+        required: true
+        type: number
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Add CounterVec Metrics
+      tags:
+      - Metrics
+  /metrics/counterVec/inc:
+    post:
+      description: Inc CounterVec Metrics
+      parameters:
+      - description: Counter Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Inc CounterVec Metrics
+      tags:
+      - Metrics
+  /metrics/counterVec/ls:
+    get:
+      description: List CounterVec Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List CounterVec Metrics
+      tags:
+      - Metrics
+  /metrics/counterVec/new:
+    post:
+      consumes:
+      - application/json
+      description: Create CounterVec Metrics
+      parameters:
+      - description: CounterVec Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.MetricsVecOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create CounterVec Metrics
+      tags:
+      - Metrics
+  /metrics/counterVec/rm:
+    post:
+      description: Remove CounterVec Metrics
+      parameters:
+      - description: Counter Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Remove CounterVec Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/add:
+    post:
+      consumes:
+      - application/json
+      description: Create Gauge Metrics
+      parameters:
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/dec:
+    post:
+      description: Dec Gauge Metrics
+      parameters:
+      - description: Gauge Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Dec Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/inc:
+    post:
+      description: Inc Gauge Metrics
+      parameters:
+      - description: Gauge Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Inc Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/ls:
+    get:
+      description: List Gauge Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/new:
+    post:
+      consumes:
+      - application/json
+      description: Create Gauge Metrics
+      parameters:
+      - description: Gauge Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.MetricsOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/rm:
+    post:
+      description: Remove Gauge Metrics
+      parameters:
+      - description: Gauge Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Remove Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/set:
+    post:
+      description: Set Gauge Metrics
+      parameters:
+      - description: Gauge Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Set Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gauge/setToCurrentTime:
+    post:
+      description: Set Gauge Metrics To Current Time
+      parameters:
+      - description: Gauge Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Set Gauge Metrics To Current Time
+      tags:
+      - Metrics
+  /metrics/gauge/sub:
+    post:
+      consumes:
+      - application/json
+      description: Create Gauge Metrics
+      parameters:
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create Gauge Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/add:
+    post:
+      consumes:
+      - application/json
+      description: Create GaugeVec Metrics
+      parameters:
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/dec:
+    post:
+      description: Dec GaugeVec Metrics
+      parameters:
+      - description: GaugeVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Dec GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/inc:
+    post:
+      description: Inc GaugeVec Metrics
+      parameters:
+      - description: GaugeVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Inc GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/ls:
+    get:
+      description: List GaugeVec Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/new:
+    post:
+      consumes:
+      - application/json
+      description: Create GaugeVec Metrics
+      parameters:
+      - description: GaugeVec Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.MetricsVecOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/rm:
+    post:
+      description: Remove GaugeVec Metrics
+      parameters:
+      - description: GaugeVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Remove GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/set:
+    post:
+      description: Set GaugeVec Metrics
+      parameters:
+      - description: GaugeVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Set GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/gaugeVec/setToCurrentTime:
+    post:
+      description: Set GaugeVec Metrics To Current Time
+      parameters:
+      - description: GaugeVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Set GaugeVec Metrics To Current Time
+      tags:
+      - Metrics
+  /metrics/gaugeVec/sub:
+    post:
+      consumes:
+      - application/json
+      description: Create GaugeVec Metrics
+      parameters:
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create GaugeVec Metrics
+      tags:
+      - Metrics
+  /metrics/histogram/ls:
+    get:
+      description: List Histogram Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List Histogram Metrics
+      tags:
+      - Metrics
+  /metrics/histogram/new:
+    post:
+      consumes:
+      - application/json
+      description: Create Histogram Metrics
+      parameters:
+      - description: Histogram Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.HistogramOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create Histogram Metrics
+      tags:
+      - Metrics
+  /metrics/histogram/observe:
+    post:
+      description: Observe Histogram Metrics
+      parameters:
+      - description: Histogram Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Observe Histogram Metrics
+      tags:
+      - Metrics
+  /metrics/histogram/rm:
+    post:
+      description: Remove Histogram Metrics
+      parameters:
+      - description: Histogram Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Remove Histogram Metrics
+      tags:
+      - Metrics
+  /metrics/histogramVec/ls:
+    get:
+      description: List HistogramVec Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List HistogramVec Metrics
+      tags:
+      - Metrics
+  /metrics/histogramVec/new:
+    post:
+      consumes:
+      - application/json
+      description: Create HistogramVec Metrics
+      parameters:
+      - description: HistogramVec Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.HistogramVecOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create HistogramVec Metrics
+      tags:
+      - Metrics
+  /metrics/histogramVec/observe:
+    post:
+      description: Observe HistogramVec Metrics
+      parameters:
+      - description: HistogramVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Observe HistogramVec Metrics
+      tags:
+      - Metrics
+  /metrics/summary/ls:
+    get:
+      description: List Summary Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List Summary Metrics
+      tags:
+      - Metrics
+  /metrics/summary/new:
+    post:
+      consumes:
+      - application/json
+      description: Create Summary Metrics
+      parameters:
+      - description: Summary Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.SummaryOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create Summary Metrics
+      tags:
+      - Metrics
+  /metrics/summary/observe:
+    post:
+      description: Observe Summary Metrics
+      parameters:
+      - description: Summary Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Observe Summary Metrics
+      tags:
+      - Metrics
+  /metrics/summary/rm:
+    post:
+      description: Remove Summary Metrics
+      parameters:
+      - description: Summary Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Remove Summary Metrics
+      tags:
+      - Metrics
+  /metrics/summaryVec/ls:
+    get:
+      description: List SummaryVec Metrics
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: List SummaryVec Metrics
+      tags:
+      - Metrics
+  /metrics/summaryVec/new:
+    post:
+      consumes:
+      - application/json
+      description: Create SummaryVec Metrics
+      parameters:
+      - description: SummaryVec Option
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.SummaryVecOpts'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create SummaryVec Metrics
+      tags:
+      - Metrics
+  /metrics/summaryVec/observe:
+    post:
+      description: Observe SummaryVec Metrics
+      parameters:
+      - description: SummaryVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: formData
+        name: f
+        required: true
+        type: number
+      - description: Label
+        in: formData
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Observe SummaryVec Metrics
+      tags:
+      - Metrics
+  /metrics/summaryVec/rm:
+    post:
+      description: Remove SummaryVec Metrics
+      parameters:
+      - description: SummaryVec Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "304":
+          description: Not Modified
+          schema:
+            type: string
+      summary: Remove SummaryVec Metrics
+      tags:
+      - Metrics
+  /yock/eval:
+    post:
+      consumes:
+      - application/json
+      description: Eval Yock Script
+      parameters:
+      - description: Script
+        in: formData
+        name: script
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Eval Yock Script
+      tags:
+      - Yock
+  /yock/version:
+    get:
+      consumes:
+      - application/json
+      description: Get Yock Version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get Yock Version
+      tags:
+      - Yock
+swagger: "2.0"

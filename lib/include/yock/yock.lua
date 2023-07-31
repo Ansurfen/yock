@@ -134,6 +134,133 @@ function wrapscript(s) end
 ---@return Viper, err
 function open_conf(path) end
 
+---@class yockd_fs
+local yockd_fs = {}
+
+function yockd_fs.put(src, dst) end
+
+function yockd_fs.get(src, dst, scope) end
+
+function yockd_fs.ls(dir) end
+
+function yockd_fs.rmdir(dir) end
+
+---@param file string
+---@return string[]
+function yockd_fs.info(file) end
+
+---@class file_descriptor: string
+
+---@param file string
+---@return file_descriptor[]
+function yockd_fs.open(file) end
+
+---@param file string
+---@param owner string
+---@return file_descriptor
+function yockd_fs.open(file, owner) end
+
+---@param fd file_descriptor
+---@return string
+function yockd_fs.read(fd) end
+
+---@param file string
+---@return string
+function yockd_fs.read(file) end
+
+---@param name? string
+function yockd_fs.volume(name) end
+
+---@class yockd_signal
+local yockd_signal = {}
+
+function yockd_signal.list() end
+
+---@param sig string
+---@return boolean exist, boolean status, err
+function yockd_signal.info(sig) end
+
+---@vararg string
+function yockd_signal.clear(...) end
+
+---@class yockd_net
+local yockd_net = {}
+
+---@param fromName string
+---@param fromIP string
+---@param fromPort integer
+---@param fromPublic boolean
+---@param toName string
+---@param toIP string
+---@param toPort integer
+---@param toPublic boolean
+---@return err
+function yockd_net.dial(fromName, fromIP, fromPort, fromPublic,
+                        toName, toIP, toPort, toPublic)
+end
+
+---@param node string
+---@param method string
+---@vararg string
+function yockd_net.call(node, method, ...) end
+
+---@class yockd
+---@field fs yockd_fs
+---@field signal yockd_signal
+---@field net yockd_net
+---@field process yockd_process
+yockd = {}
+
+---@class yockd_process
+local yockd_process = {}
+
+---@param type string|"cron"|"fs"|"script"
+---@param sepc string
+---@param cmd string
+---@return integer pid, err
+function yockd_process.spawn(type, sepc, cmd) end
+
+---@param id integer
+---@return process[], err
+function yockd_process.find(id) end
+
+---@param cmd string
+---@return process[], err
+function yockd_process.find(cmd) end
+
+---@param id integer
+function yockd_process.kill(id) end
+
+---@class process
+---@field pid integer
+---@field state string|'create'|'ready'|'suspend'|'running'|'destory'
+---@field spec string
+---@field cmd string
+---@field type string
+local process = {}
+
+---@return process[]
+function yockd_process.list() end
+
+---@param name string
+---@return err
+function yockd.ping(name) end
+
+---@param name string
+---@param ip string
+---@param port integer
+function yockd.dial(name, ip, port) end
+
+---@param src string
+---@param dst string
+---@param perm? string
+function yockd.upload(src, dst, perm) end
+
+---@param src string
+---@param dst string
+---@param user? string
+function yockd.download(src, dst, user) end
+
 ---@class Viper
 local Viper = {}
 
@@ -160,9 +287,8 @@ end
 function Viper:AllKeys()
 end
 
----@return table
-function Viper:AllSettings()
-end
+---@return userdata
+function Viper:AllSettings() end
 
 ---@param allowEmptyEnv boolean
 function Viper:AllowEmptyEnv(allowEmptyEnv)

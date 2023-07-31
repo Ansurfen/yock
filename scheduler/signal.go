@@ -5,8 +5,8 @@
 package yocks
 
 import (
-	yockd "github.com/ansurfen/yock/daemon/client"
-	"github.com/ansurfen/yock/interface"
+	"github.com/ansurfen/yock/daemon/net"
+	yocki "github.com/ansurfen/yock/interface"
 	"github.com/ansurfen/yock/util"
 )
 
@@ -42,21 +42,21 @@ func (stream *SingleSignalStream) Store(sig string, v bool) {
 // using grpc + protobuf to transmit signals.
 type CooperationSingalStream struct {
 	*SingleSignalStream
-	cli *yockd.YockDaemonClient
+	cli yocki.YockdClient
 }
 
-func NewCooperationSingalStream() *CooperationSingalStream {
+func NewCooperationSingalStream(c *net.DirectClient) *CooperationSingalStream {
 	return &CooperationSingalStream{
 		SingleSignalStream: NewSingleSignalStream(),
-		cli:                yockd.New(yockd.Gopt),
+		cli:                c,
 	}
 }
 
 // upgradeSingalStream upgrades SingleSignalStream to CooperationSingalStream to meet distributed needs.
-func upgradeSingalStream(stream *SingleSignalStream) *CooperationSingalStream {
+func upgradeSingalStream(stream yocki.SignalStream, c yocki.YockdClient) yocki.SignalStream {
 	return &CooperationSingalStream{
-		SingleSignalStream: stream,
-		cli:                yockd.New(yockd.Gopt),
+		cli:                c,
+		SingleSignalStream: stream.(*SingleSignalStream),
 	}
 }
 
@@ -67,7 +67,7 @@ func upgradeSingalStream(stream *SingleSignalStream) *CooperationSingalStream {
 func (stream *CooperationSingalStream) Load(sig string) (any, bool) {
 	v, ok := stream.sigs.Get(sig)
 	if !ok {
-		v, _ = stream.cli.Wait(sig)
+		v, _ = stream.cli.SignalWait(sig)
 		if v {
 			stream.sigs.SafeSet(sig, v)
 		}
@@ -78,5 +78,5 @@ func (stream *CooperationSingalStream) Load(sig string) (any, bool) {
 // Store settings specify the value of the singal, similar to map's kv storage and send it to daemon.
 func (stream *CooperationSingalStream) Store(sig string, v bool) {
 	stream.SingleSignalStream.Store(sig, v)
-	stream.cli.Notify(sig)
+	stream.cli.SignalNotify(sig)
 }

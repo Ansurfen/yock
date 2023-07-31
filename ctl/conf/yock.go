@@ -19,6 +19,10 @@ ycho:
   fileMaxBackups: 0
   stdout: true
   path: "@/log"
+yockd:
+  ip: localhost
+  port: 1314
+  self_boot: false
 `
 
 var conf *YockConf
@@ -29,6 +33,7 @@ type YockConf struct {
 	Ycho   ycho.YchoOpt  `yaml:"ycho"`
 	Yocks  yockScheduler `yaml:"yocks"`
 	Yockd  yockDaemon    `yaml:"yockd"`
+	Yockw  yockWatch     `yaml:"yockw"`
 }
 
 func (c *YockConf) Restore() error {

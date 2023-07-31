@@ -40,6 +40,16 @@ function json.open(file)
     return obj
 end
 
+---@param str string
+---@return jsonobject
+function jsonobject.from_str(str)
+    local obj = {
+        buf = json.decode(str)
+    }
+    setmetatable(obj, { __index = jsonobject })
+    return obj
+end
+
 ---@param k string
 ---@return boolean
 function jsonobject:getbool(k)

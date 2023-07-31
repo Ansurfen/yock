@@ -5,6 +5,8 @@
 package liby
 
 import (
+	"time"
+
 	yocki "github.com/ansurfen/yock/interface"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
@@ -16,7 +18,118 @@ func LoadType(yocks yocki.YockScheduler) {
 		"String":      typeString,
 		"StringArray": typeStringArray,
 		"Ptr":         typePtr,
+		"map2Table": func(l *lua.LState) int {
+			if v, ok := l.CheckUserData(1).Value.(map[string]any); ok {
+				l.Push(mapToTable(v))
+				return 1
+			}
+			l.Push(&lua.LTable{})
+			return 1
+		},
 	})
+}
+
+func mapToTable(m map[string]interface{}) *lua.LTable {
+	resultTable := &lua.LTable{}
+	for key, element := range m {
+		switch el := element.(type) {
+		case float64:
+			resultTable.RawSetString(key, lua.LNumber(el))
+		case int64:
+			resultTable.RawSetString(key, lua.LNumber(el))
+		case string:
+			resultTable.RawSetString(key, lua.LString(el))
+		case bool:
+			resultTable.RawSetString(key, lua.LBool(el))
+		case []byte:
+			resultTable.RawSetString(key, lua.LString(string(el)))
+		case map[string]interface{}:
+			tble := mapToTable(el)
+			resultTable.RawSetString(key, tble)
+		case map[string][]interface{}:
+			globalTable := &lua.LTable{}
+			for k, v := range element.(map[string][]interface{}) {
+				// Create slice table
+				sliceTable := &lua.LTable{}
+				// Loop interface slice
+				for _, s := range v {
+					// Switch interface type
+					switch sv := s.(type) {
+					case map[string]interface{}:
+						// Convert map to table
+						t := mapToTable(sv)
+						// Append result
+						sliceTable.Append(t)
+					case float64:
+						// Append result as number
+						sliceTable.Append(lua.LNumber(sv))
+					case string:
+						// Append result as string
+						sliceTable.Append(lua.LString(sv))
+					case bool:
+						// Append result as bool
+						sliceTable.Append(lua.LBool(sv))
+					}
+				}
+				// Append to main table
+				globalTable.RawSetString(k, sliceTable)
+			}
+			resultTable.RawSetString(key, globalTable)
+		case map[string][]string:
+			globalTable := &lua.LTable{}
+			for k, v := range element.(map[string][]string) {
+				// Create slice table
+				sliceTable := &lua.LTable{}
+				// Loop interface slice
+				for _, s := range v {
+					sliceTable.Append(lua.LString(s))
+				}
+				// Append to main table
+				globalTable.RawSetString(k, sliceTable)
+			}
+			resultTable.RawSetString(key, globalTable)
+		case time.Time:
+			resultTable.RawSetString(key, lua.LNumber(el.Unix()))
+		case []map[string]interface{}:
+			// Create slice table
+			sliceTable := &lua.LTable{}
+			// Loop element
+			for _, s := range el {
+				// Get table from map
+				tble := mapToTable(s)
+				sliceTable.Append(tble)
+			}
+			// Set slice table
+			resultTable.RawSetString(key, sliceTable)
+		case []interface{}:
+			// Create slice table
+			sliceTable := &lua.LTable{}
+			// Loop interface slice
+			for _, s := range element.([]interface{}) {
+				// Switch interface type
+				switch sv := s.(type) {
+				case map[string]interface{}:
+					// Convert map to table
+					t := mapToTable(sv)
+					// Append result
+					sliceTable.Append(t)
+				case float64:
+					// Append result as number
+					sliceTable.Append(lua.LNumber(sv))
+				case string:
+					// Append result as string
+					sliceTable.Append(lua.LString(sv))
+				case bool:
+					// Append result as bool
+					sliceTable.Append(lua.LBool(sv))
+				}
+			}
+			// Append to main table
+			resultTable.RawSetString(key, sliceTable)
+		default:
+		}
+	}
+	return resultTable
 }
 
 func typePtr(l *lua.LState) int {

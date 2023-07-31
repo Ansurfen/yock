@@ -1,0 +1,24 @@
+2023-07-23 16:04:27.725 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:25	mkdir D:\yock\yock
+2023-07-23 16:04:27.911 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:46	sh go env -w GOOS=$os
+2023-07-23 16:04:31.114 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:46	sh go build -o $yock -ldflags "-X 'github.com/ansurfen/yock/util.YockBuild=release' -X 'github.com/ansurfen/yock/util.YockVersion=$ver'" .
+2023-07-23 16:04:32.893 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:46	sh go build -o $yockd ../daemon/yockd.go
+2023-07-23 16:04:32.893 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\ypm
+2023-07-23 16:04:32.894 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\lib\boot
+2023-07-23 16:04:32.895 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\lib\yock
+2023-07-23 16:04:32.895 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\lib\sdk
+2023-07-23 16:04:32.895 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\lib\include
+2023-07-23 16:04:32.896 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\bin
+2023-07-23 16:04:32.896 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\tmp
+2023-07-23 16:04:32.897 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:53	mkdir D:\yock\yock\lib\include\ypm
+2023-07-23 16:04:33.080 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp install.lua D:\yock\yock
+2023-07-23 16:04:33.255 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\ypm\proxy D:\yock\yock\ypm
+2023-07-23 16:04:33.454 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\interface\python D:\yock\yock\sdk\python
+2023-07-23 16:04:33.639 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\lib\yock D:\yock\yock\lib
+2023-07-23 16:04:33.847 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\lib\include D:\yock\yock\lib
+2023-07-23 16:04:34.018 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\lib\boot\* D:\yock\yock\lib\boot
+2023-07-23 16:04:34.188 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\ypm\ctl.lua D:\yock\yock\ypm
+2023-07-23 16:04:34.365 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\ypm\util D:\yock\yock\ypm
+2023-07-23 16:04:34.533 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\auto\sudo.bat D:\yock\yock\bin
+2023-07-23 16:04:34.701 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp uninstall.lua D:\yock\yock
+2023-07-23 16:04:34.867 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\ypm\ypm.lua D:\yock\yock\lib\boot
+2023-07-23 16:04:35.034 +0800	[34mINFO[0m	yock/gnu.go:611	../auto/build.lua:61	cp D:\yock\ypm\include\ypm.lua D:\yock\yock\lib\include\ypm

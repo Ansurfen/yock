@@ -45,9 +45,9 @@ func newContext(name string, job yocki.YockJob, flags yocki.Table, yocks yocki.Y
 	tbl.SetFields(s.LState(), map[string]any{
 		"throw": func(msg ...string) {
 			if len(msg) > 0 {
-				s.LState().RaiseError("[%s] %s", name, s.Stacktrace())
+				s.LState().RaiseError("[%s] %s", name, msg[0])
 			} else {
-				s.LState().RaiseError("[%s] %s %s", name, msg[0], s.Stacktrace())
+				s.LState().RaiseError("[%s]", name)
 			}
 		},
 		"yield": func(timeout ...int) {

@@ -6,6 +6,17 @@
 
 url = {}
 
+---@class urlValues
+---@field Encode fun(): string
+
+--  Values maps a string key to a list of values.
+--  It is typically used for query parameters and form values.
+--  Unlike in the http.Header map, the keys in a Values map
+--  are case-sensitive.
+---@param v table<string, string[]>
+---@return urlValues
+function url.Values(v) end
+
 --- ParseRequestURI parses a raw url into a URL structure. It assumes that
 --- url was received in an HTTP request, so the url is interpreted
 --- only as an absolute URI or an absolute path.
@@ -108,18 +119,14 @@ local execError = {}
 ---@return string
 function execError:Error() end
 
-
 ---@return boolean
 function execError:Timeout() end
-
 
 ---@return boolean
 function execError:Temporary() end
 
-
 ---@return err
 function execError:Unwrap() end
-
 
 ---@class urlEscapeError
 local urlEscapeError = {}
@@ -127,7 +134,6 @@ local urlEscapeError = {}
 
 ---@return string
 function urlEscapeError:Error() end
-
 
 ---@class urlInvalidHostError
 local urlInvalidHostError = {}
@@ -187,7 +193,6 @@ function urlURL:RequestURI() end
 --- the square brackets are removed from the result.
 ---@return string
 function urlURL:Hostname() end
-
 
 ---@param text byte[]
 ---@return err
@@ -280,7 +285,6 @@ function urlURL:JoinPath(...) end
 --- reading u.RawFragment directly.
 ---@return string
 function urlURL:EscapedFragment() end
-
 
 ---@return byte[], err
 function urlURL:MarshalBinary() end

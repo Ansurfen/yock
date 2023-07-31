@@ -25,3 +25,18 @@ end
 function httplib.run(port)
     http.ListenAndServe(":" .. strconv.Itoa(port), nil)
 end
+
+formdata = {}
+
+---@param v table<string, string[]>
+---@return string
+function formdata.encode(v)
+    return url.Values(v):Encode()
+end
+
+---@param v string
+---@return urlValues
+function formdata.decode(v)
+    local formData = url.ParseQuery(v)
+    return formData or url.Values({})
+end

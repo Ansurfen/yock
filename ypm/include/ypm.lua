@@ -32,15 +32,6 @@ end
 ---@return any
 function load_module(target) end
 
----@param opt table
-function yock_todo_loader(opt)
-end
-
----@param url string
----@return fun(opt: table)
-function github_loader(url)
-end
-
 ---@class module
 ---@field name string
 ---@field version string

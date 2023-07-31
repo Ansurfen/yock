@@ -20,13 +20,15 @@ type YockDaemonClient interface {
 	// Ping is used to detect whether the connection is available
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 	// Wait is used to request signal from the daemon
-	Wait(ctx context.Context, in *WaitRequest, opts ...grpc.CallOption) (*WaitResponse, error)
+	SignalWait(ctx context.Context, in *WaitRequest, opts ...grpc.CallOption) (*WaitResponse, error)
 	// Notify pushes signal to Daemon
-	Notify(ctx context.Context, in *NotifyRequest, opts ...grpc.CallOption) (*NotifyResponse, error)
+	SignalNotify(ctx context.Context, in *NotifyRequest, opts ...grpc.CallOption) (*NotifyResponse, error)
+	SignalList(ctx context.Context, in *SignalListRequest, opts ...grpc.CallOption) (*SignalListResponse, error)
+	SignalClear(ctx context.Context, in *SignalClearRequest, opts ...grpc.CallOption) (*SignalClearResponse, error)
+	// SignalInfo returns signal's stauts to be specified.
+	SignalInfo(ctx context.Context, in *SignalInfoRequest, opts ...grpc.CallOption) (*SignalInfoResponse, error)
 	// Upload pushes file information to peers so that peers can download files
 	Upload(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadResponse, error)
-	// Download file in other peer
-	Download(ctx context.Context, opts ...grpc.CallOption) (YockDaemon_DownloadClient, error)
 	// Register tells the daemon the address of the peer.
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// Unregister tells the daemon to remove the peer according to addrs.
@@ -36,6 +38,18 @@ type YockDaemonClient interface {
 	// You can specify it by InfoRequest, and by default only basic parameters
 	// (the name of the node, the file uploaded, and the connection information) are returned.
 	Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error)
+	FileSystemPut(ctx context.Context, in *FileSystemPutRequest, opts ...grpc.CallOption) (*FileSystemPutResponse, error)
+	FileSystemGet(ctx context.Context, in *FileSystemGetRequest, opts ...grpc.CallOption) (*FileSystemGetResponse, error)
+	// FileSystemDownload file in other peer
+	FileSystemDownload(ctx context.Context, opts ...grpc.CallOption) (YockDaemon_FileSystemDownloadClient, error)
+	Dial(ctx context.Context, in *DialRequest, opts ...grpc.CallOption) (*DialResponse, error)
+	Call(ctx context.Context, in *CallRequest, opts ...grpc.CallOption) (*CallResponse, error)
+	Tunnel(ctx context.Context, opts ...grpc.CallOption) (YockDaemon_TunnelClient, error)
+	Mark(ctx context.Context, in *MarkRequest, opts ...grpc.CallOption) (*MarkResponse, error)
+	ProcessSpawn(ctx context.Context, in *ProcessSpawnRequest, opts ...grpc.CallOption) (*ProcessSpawnResponse, error)
+	ProcessFind(ctx context.Context, in *ProcessFindRequest, opts ...grpc.CallOption) (*ProcessFindResponse, error)
+	ProcessList(ctx context.Context, in *ProcessListRequest, opts ...grpc.CallOption) (*ProcessListResponse, error)
+	ProcessKill(ctx context.Context, in *ProcessKillRequest, opts ...grpc.CallOption) (*ProcessKillResponse, error)
 }
 
 type yockDaemonClient struct {
@@ -55,18 +69,45 @@ func (c *yockDaemonClient) Ping(ctx context.Context, in *PingRequest, opts ...gr
 	return out, nil
 }
 
-func (c *yockDaemonClient) Wait(ctx context.Context, in *WaitRequest, opts ...grpc.CallOption) (*WaitResponse, error) {
+func (c *yockDaemonClient) SignalWait(ctx context.Context, in *WaitRequest, opts ...grpc.CallOption) (*WaitResponse, error) {
 	out := new(WaitResponse)
-	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/Wait", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/SignalWait", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *yockDaemonClient) Notify(ctx context.Context, in *NotifyRequest, opts ...grpc.CallOption) (*NotifyResponse, error) {
+func (c *yockDaemonClient) SignalNotify(ctx context.Context, in *NotifyRequest, opts ...grpc.CallOption) (*NotifyResponse, error) {
 	out := new(NotifyResponse)
-	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/Notify", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/SignalNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) SignalList(ctx context.Context, in *SignalListRequest, opts ...grpc.CallOption) (*SignalListResponse, error) {
+	out := new(SignalListResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/SignalList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) SignalClear(ctx context.Context, in *SignalClearRequest, opts ...grpc.CallOption) (*SignalClearResponse, error) {
+	out := new(SignalClearResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/SignalClear", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) SignalInfo(ctx context.Context, in *SignalInfoRequest, opts ...grpc.CallOption) (*SignalInfoResponse, error) {
+	out := new(SignalInfoResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/SignalInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,37 +121,6 @@ func (c *yockDaemonClient) Upload(ctx context.Context, in *UploadRequest, opts .
 		return nil, err
 	}
 	return out, nil
-}
-
-func (c *yockDaemonClient) Download(ctx context.Context, opts ...grpc.CallOption) (YockDaemon_DownloadClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_YockDaemon_serviceDesc.Streams[0], "/Yockd.YockDaemon/Download", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &yockDaemonDownloadClient{stream}
-	return x, nil
-}
-
-type YockDaemon_DownloadClient interface {
-	Send(*DownloadRequest) error
-	Recv() (*DownloadResponse, error)
-	grpc.ClientStream
-}
-
-type yockDaemonDownloadClient struct {
-	grpc.ClientStream
-}
-
-func (x *yockDaemonDownloadClient) Send(m *DownloadRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *yockDaemonDownloadClient) Recv() (*DownloadResponse, error) {
-	m := new(DownloadResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
 }
 
 func (c *yockDaemonClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
@@ -140,6 +150,149 @@ func (c *yockDaemonClient) Info(ctx context.Context, in *InfoRequest, opts ...gr
 	return out, nil
 }
 
+func (c *yockDaemonClient) FileSystemPut(ctx context.Context, in *FileSystemPutRequest, opts ...grpc.CallOption) (*FileSystemPutResponse, error) {
+	out := new(FileSystemPutResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/FileSystemPut", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) FileSystemGet(ctx context.Context, in *FileSystemGetRequest, opts ...grpc.CallOption) (*FileSystemGetResponse, error) {
+	out := new(FileSystemGetResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/FileSystemGet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) FileSystemDownload(ctx context.Context, opts ...grpc.CallOption) (YockDaemon_FileSystemDownloadClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_YockDaemon_serviceDesc.Streams[0], "/Yockd.YockDaemon/FileSystemDownload", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &yockDaemonFileSystemDownloadClient{stream}
+	return x, nil
+}
+
+type YockDaemon_FileSystemDownloadClient interface {
+	Send(*FileSystemDownloadRequest) error
+	Recv() (*FileSystemDownloadResponse, error)
+	grpc.ClientStream
+}
+
+type yockDaemonFileSystemDownloadClient struct {
+	grpc.ClientStream
+}
+
+func (x *yockDaemonFileSystemDownloadClient) Send(m *FileSystemDownloadRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *yockDaemonFileSystemDownloadClient) Recv() (*FileSystemDownloadResponse, error) {
+	m := new(FileSystemDownloadResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *yockDaemonClient) Dial(ctx context.Context, in *DialRequest, opts ...grpc.CallOption) (*DialResponse, error) {
+	out := new(DialResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/Dial", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) Call(ctx context.Context, in *CallRequest, opts ...grpc.CallOption) (*CallResponse, error) {
+	out := new(CallResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/Call", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) Tunnel(ctx context.Context, opts ...grpc.CallOption) (YockDaemon_TunnelClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_YockDaemon_serviceDesc.Streams[1], "/Yockd.YockDaemon/Tunnel", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &yockDaemonTunnelClient{stream}
+	return x, nil
+}
+
+type YockDaemon_TunnelClient interface {
+	Send(*TunnelRequest) error
+	Recv() (*TunnelResponse, error)
+	grpc.ClientStream
+}
+
+type yockDaemonTunnelClient struct {
+	grpc.ClientStream
+}
+
+func (x *yockDaemonTunnelClient) Send(m *TunnelRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *yockDaemonTunnelClient) Recv() (*TunnelResponse, error) {
+	m := new(TunnelResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *yockDaemonClient) Mark(ctx context.Context, in *MarkRequest, opts ...grpc.CallOption) (*MarkResponse, error) {
+	out := new(MarkResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/Mark", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) ProcessSpawn(ctx context.Context, in *ProcessSpawnRequest, opts ...grpc.CallOption) (*ProcessSpawnResponse, error) {
+	out := new(ProcessSpawnResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/ProcessSpawn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) ProcessFind(ctx context.Context, in *ProcessFindRequest, opts ...grpc.CallOption) (*ProcessFindResponse, error) {
+	out := new(ProcessFindResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/ProcessFind", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) ProcessList(ctx context.Context, in *ProcessListRequest, opts ...grpc.CallOption) (*ProcessListResponse, error) {
+	out := new(ProcessListResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/ProcessList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *yockDaemonClient) ProcessKill(ctx context.Context, in *ProcessKillRequest, opts ...grpc.CallOption) (*ProcessKillResponse, error) {
+	out := new(ProcessKillResponse)
+	err := c.cc.Invoke(ctx, "/Yockd.YockDaemon/ProcessKill", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // YockDaemonServer is the server API for YockDaemon service.
 // All implementations must embed UnimplementedYockDaemonServer
 // for forward compatibility
@@ -147,13 +300,15 @@ type YockDaemonServer interface {
 	// Ping is used to detect whether the connection is available
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	// Wait is used to request signal from the daemon
-	Wait(context.Context, *WaitRequest) (*WaitResponse, error)
+	SignalWait(context.Context, *WaitRequest) (*WaitResponse, error)
 	// Notify pushes signal to Daemon
-	Notify(context.Context, *NotifyRequest) (*NotifyResponse, error)
+	SignalNotify(context.Context, *NotifyRequest) (*NotifyResponse, error)
+	SignalList(context.Context, *SignalListRequest) (*SignalListResponse, error)
+	SignalClear(context.Context, *SignalClearRequest) (*SignalClearResponse, error)
+	// SignalInfo returns signal's stauts to be specified.
+	SignalInfo(context.Context, *SignalInfoRequest) (*SignalInfoResponse, error)
 	// Upload pushes file information to peers so that peers can download files
 	Upload(context.Context, *UploadRequest) (*UploadResponse, error)
-	// Download file in other peer
-	Download(YockDaemon_DownloadServer) error
 	// Register tells the daemon the address of the peer.
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// Unregister tells the daemon to remove the peer according to addrs.
@@ -163,6 +318,18 @@ type YockDaemonServer interface {
 	// You can specify it by InfoRequest, and by default only basic parameters
 	// (the name of the node, the file uploaded, and the connection information) are returned.
 	Info(context.Context, *InfoRequest) (*InfoResponse, error)
+	FileSystemPut(context.Context, *FileSystemPutRequest) (*FileSystemPutResponse, error)
+	FileSystemGet(context.Context, *FileSystemGetRequest) (*FileSystemGetResponse, error)
+	// FileSystemDownload file in other peer
+	FileSystemDownload(YockDaemon_FileSystemDownloadServer) error
+	Dial(context.Context, *DialRequest) (*DialResponse, error)
+	Call(context.Context, *CallRequest) (*CallResponse, error)
+	Tunnel(YockDaemon_TunnelServer) error
+	Mark(context.Context, *MarkRequest) (*MarkResponse, error)
+	ProcessSpawn(context.Context, *ProcessSpawnRequest) (*ProcessSpawnResponse, error)
+	ProcessFind(context.Context, *ProcessFindRequest) (*ProcessFindResponse, error)
+	ProcessList(context.Context, *ProcessListRequest) (*ProcessListResponse, error)
+	ProcessKill(context.Context, *ProcessKillRequest) (*ProcessKillResponse, error)
 	mustEmbedUnimplementedYockDaemonServer()
 }
 
@@ -173,17 +340,23 @@ type UnimplementedYockDaemonServer struct {
 func (*UnimplementedYockDaemonServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
-func (*UnimplementedYockDaemonServer) Wait(context.Context, *WaitRequest) (*WaitResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Wait not implemented")
+func (*UnimplementedYockDaemonServer) SignalWait(context.Context, *WaitRequest) (*WaitResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignalWait not implemented")
 }
-func (*UnimplementedYockDaemonServer) Notify(context.Context, *NotifyRequest) (*NotifyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Notify not implemented")
+func (*UnimplementedYockDaemonServer) SignalNotify(context.Context, *NotifyRequest) (*NotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignalNotify not implemented")
+}
+func (*UnimplementedYockDaemonServer) SignalList(context.Context, *SignalListRequest) (*SignalListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignalList not implemented")
+}
+func (*UnimplementedYockDaemonServer) SignalClear(context.Context, *SignalClearRequest) (*SignalClearResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignalClear not implemented")
+}
+func (*UnimplementedYockDaemonServer) SignalInfo(context.Context, *SignalInfoRequest) (*SignalInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignalInfo not implemented")
 }
 func (*UnimplementedYockDaemonServer) Upload(context.Context, *UploadRequest) (*UploadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Upload not implemented")
-}
-func (*UnimplementedYockDaemonServer) Download(YockDaemon_DownloadServer) error {
-	return status.Errorf(codes.Unimplemented, "method Download not implemented")
 }
 func (*UnimplementedYockDaemonServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
@@ -193,6 +366,39 @@ func (*UnimplementedYockDaemonServer) Unregister(context.Context, *UnregisterReq
 }
 func (*UnimplementedYockDaemonServer) Info(context.Context, *InfoRequest) (*InfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
+}
+func (*UnimplementedYockDaemonServer) FileSystemPut(context.Context, *FileSystemPutRequest) (*FileSystemPutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FileSystemPut not implemented")
+}
+func (*UnimplementedYockDaemonServer) FileSystemGet(context.Context, *FileSystemGetRequest) (*FileSystemGetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FileSystemGet not implemented")
+}
+func (*UnimplementedYockDaemonServer) FileSystemDownload(YockDaemon_FileSystemDownloadServer) error {
+	return status.Errorf(codes.Unimplemented, "method FileSystemDownload not implemented")
+}
+func (*UnimplementedYockDaemonServer) Dial(context.Context, *DialRequest) (*DialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Dial not implemented")
+}
+func (*UnimplementedYockDaemonServer) Call(context.Context, *CallRequest) (*CallResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Call not implemented")
+}
+func (*UnimplementedYockDaemonServer) Tunnel(YockDaemon_TunnelServer) error {
+	return status.Errorf(codes.Unimplemented, "method Tunnel not implemented")
+}
+func (*UnimplementedYockDaemonServer) Mark(context.Context, *MarkRequest) (*MarkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Mark not implemented")
+}
+func (*UnimplementedYockDaemonServer) ProcessSpawn(context.Context, *ProcessSpawnRequest) (*ProcessSpawnResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessSpawn not implemented")
+}
+func (*UnimplementedYockDaemonServer) ProcessFind(context.Context, *ProcessFindRequest) (*ProcessFindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessFind not implemented")
+}
+func (*UnimplementedYockDaemonServer) ProcessList(context.Context, *ProcessListRequest) (*ProcessListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessList not implemented")
+}
+func (*UnimplementedYockDaemonServer) ProcessKill(context.Context, *ProcessKillRequest) (*ProcessKillResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessKill not implemented")
 }
 func (*UnimplementedYockDaemonServer) mustEmbedUnimplementedYockDaemonServer() {}
 
@@ -218,38 +424,92 @@ func _YockDaemon_Ping_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _YockDaemon_Wait_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _YockDaemon_SignalWait_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(WaitRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(YockDaemonServer).Wait(ctx, in)
+		return srv.(YockDaemonServer).SignalWait(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Yockd.YockDaemon/Wait",
+		FullMethod: "/Yockd.YockDaemon/SignalWait",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(YockDaemonServer).Wait(ctx, req.(*WaitRequest))
+		return srv.(YockDaemonServer).SignalWait(ctx, req.(*WaitRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _YockDaemon_Notify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _YockDaemon_SignalNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NotifyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(YockDaemonServer).Notify(ctx, in)
+		return srv.(YockDaemonServer).SignalNotify(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Yockd.YockDaemon/Notify",
+		FullMethod: "/Yockd.YockDaemon/SignalNotify",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(YockDaemonServer).Notify(ctx, req.(*NotifyRequest))
+		return srv.(YockDaemonServer).SignalNotify(ctx, req.(*NotifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_SignalList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignalListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).SignalList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/SignalList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).SignalList(ctx, req.(*SignalListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_SignalClear_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignalClearRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).SignalClear(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/SignalClear",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).SignalClear(ctx, req.(*SignalClearRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_SignalInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignalInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).SignalInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/SignalInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).SignalInfo(ctx, req.(*SignalInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -270,32 +530,6 @@ func _YockDaemon_Upload_Handler(srv interface{}, ctx context.Context, dec func(i
 		return srv.(YockDaemonServer).Upload(ctx, req.(*UploadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
-}
-
-func _YockDaemon_Download_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(YockDaemonServer).Download(&yockDaemonDownloadServer{stream})
-}
-
-type YockDaemon_DownloadServer interface {
-	Send(*DownloadResponse) error
-	Recv() (*DownloadRequest, error)
-	grpc.ServerStream
-}
-
-type yockDaemonDownloadServer struct {
-	grpc.ServerStream
-}
-
-func (x *yockDaemonDownloadServer) Send(m *DownloadResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *yockDaemonDownloadServer) Recv() (*DownloadRequest, error) {
-	m := new(DownloadRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
 }
 
 func _YockDaemon_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -352,6 +586,220 @@ func _YockDaemon_Info_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _YockDaemon_FileSystemPut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FileSystemPutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).FileSystemPut(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/FileSystemPut",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).FileSystemPut(ctx, req.(*FileSystemPutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_FileSystemGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FileSystemGetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).FileSystemGet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/FileSystemGet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).FileSystemGet(ctx, req.(*FileSystemGetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_FileSystemDownload_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(YockDaemonServer).FileSystemDownload(&yockDaemonFileSystemDownloadServer{stream})
+}
+
+type YockDaemon_FileSystemDownloadServer interface {
+	Send(*FileSystemDownloadResponse) error
+	Recv() (*FileSystemDownloadRequest, error)
+	grpc.ServerStream
+}
+
+type yockDaemonFileSystemDownloadServer struct {
+	grpc.ServerStream
+}
+
+func (x *yockDaemonFileSystemDownloadServer) Send(m *FileSystemDownloadResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *yockDaemonFileSystemDownloadServer) Recv() (*FileSystemDownloadRequest, error) {
+	m := new(FileSystemDownloadRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _YockDaemon_Dial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).Dial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/Dial",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).Dial(ctx, req.(*DialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_Call_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CallRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).Call(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/Call",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).Call(ctx, req.(*CallRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_Tunnel_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(YockDaemonServer).Tunnel(&yockDaemonTunnelServer{stream})
+}
+
+type YockDaemon_TunnelServer interface {
+	Send(*TunnelResponse) error
+	Recv() (*TunnelRequest, error)
+	grpc.ServerStream
+}
+
+type yockDaemonTunnelServer struct {
+	grpc.ServerStream
+}
+
+func (x *yockDaemonTunnelServer) Send(m *TunnelResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *yockDaemonTunnelServer) Recv() (*TunnelRequest, error) {
+	m := new(TunnelRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _YockDaemon_Mark_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).Mark(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/Mark",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).Mark(ctx, req.(*MarkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_ProcessSpawn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessSpawnRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).ProcessSpawn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/ProcessSpawn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).ProcessSpawn(ctx, req.(*ProcessSpawnRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_ProcessFind_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessFindRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).ProcessFind(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/ProcessFind",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).ProcessFind(ctx, req.(*ProcessFindRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_ProcessList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).ProcessList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/ProcessList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).ProcessList(ctx, req.(*ProcessListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _YockDaemon_ProcessKill_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessKillRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YockDaemonServer).ProcessKill(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Yockd.YockDaemon/ProcessKill",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YockDaemonServer).ProcessKill(ctx, req.(*ProcessKillRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _YockDaemon_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "Yockd.YockDaemon",
 	HandlerType: (*YockDaemonServer)(nil),
@@ -361,12 +809,24 @@ var _YockDaemon_serviceDesc = grpc.ServiceDesc{
 			Handler:    _YockDaemon_Ping_Handler,
 		},
 		{
-			MethodName: "Wait",
-			Handler:    _YockDaemon_Wait_Handler,
+			MethodName: "SignalWait",
+			Handler:    _YockDaemon_SignalWait_Handler,
 		},
 		{
-			MethodName: "Notify",
-			Handler:    _YockDaemon_Notify_Handler,
+			MethodName: "SignalNotify",
+			Handler:    _YockDaemon_SignalNotify_Handler,
+		},
+		{
+			MethodName: "SignalList",
+			Handler:    _YockDaemon_SignalList_Handler,
+		},
+		{
+			MethodName: "SignalClear",
+			Handler:    _YockDaemon_SignalClear_Handler,
+		},
+		{
+			MethodName: "SignalInfo",
+			Handler:    _YockDaemon_SignalInfo_Handler,
 		},
 		{
 			MethodName: "Upload",
@@ -384,11 +844,53 @@ var _YockDaemon_serviceDesc = grpc.ServiceDesc{
 			MethodName: "Info",
 			Handler:    _YockDaemon_Info_Handler,
 		},
+		{
+			MethodName: "FileSystemPut",
+			Handler:    _YockDaemon_FileSystemPut_Handler,
+		},
+		{
+			MethodName: "FileSystemGet",
+			Handler:    _YockDaemon_FileSystemGet_Handler,
+		},
+		{
+			MethodName: "Dial",
+			Handler:    _YockDaemon_Dial_Handler,
+		},
+		{
+			MethodName: "Call",
+			Handler:    _YockDaemon_Call_Handler,
+		},
+		{
+			MethodName: "Mark",
+			Handler:    _YockDaemon_Mark_Handler,
+		},
+		{
+			MethodName: "ProcessSpawn",
+			Handler:    _YockDaemon_ProcessSpawn_Handler,
+		},
+		{
+			MethodName: "ProcessFind",
+			Handler:    _YockDaemon_ProcessFind_Handler,
+		},
+		{
+			MethodName: "ProcessList",
+			Handler:    _YockDaemon_ProcessList_Handler,
+		},
+		{
+			MethodName: "ProcessKill",
+			Handler:    _YockDaemon_ProcessKill_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Download",
-			Handler:       _YockDaemon_Download_Handler,
+			StreamName:    "FileSystemDownload",
+			Handler:       _YockDaemon_FileSystemDownload_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "Tunnel",
+			Handler:       _YockDaemon_Tunnel_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

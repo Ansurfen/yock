@@ -39,8 +39,7 @@ return {
             version = ver
         }))
         ver = strings.ReplaceAll(ver, ".", "_")
-        mkdir(ver, "include")
-        write(pathf(ver, "index.lua"), cat(pathf("#1", "../../template/index.tpl")))
+        write("index.lua", cat(pathf("#1", "../../template/index.tpl")))
         cp(pathf("~/lib/include"), pathf("$"))
         rm({ safe = false }, pathf("$/include/lang"), pathf("$/include/misc"))
         write("README.md", string.format("# %s", name))

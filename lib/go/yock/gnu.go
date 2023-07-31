@@ -461,14 +461,19 @@ func gnuSudo(s yocki.YockState) int {
 //
 // @return string
 func gnuAlias(s yocki.YockState) int {
-	yockc.Alias(s.CheckString(1), s.CheckString(2))
+	k := s.CheckString(1)
+	v := s.CheckString(2)
+	ychoLogger(nil, "alias %s %s", k, v)
+	yockc.Alias(k, v)
 	return 0
 }
 
 // @param key string
 func gnuUnalias(s yocki.YockState) int {
 	for i := 1; i <= s.Argc(); i++ {
-		yockc.Unalias(s.CheckString(i))
+		k := s.CheckString(i)
+		ychoLogger(nil, "unalias %s", k)
+		yockc.Unalias(k)
 	}
 	return 0
 }

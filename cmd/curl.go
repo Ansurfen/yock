@@ -6,7 +6,6 @@ package yockc
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -74,7 +73,7 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 		}
 
 		if len(opt.Data) != 0 {
-			req.Body = ioutil.NopCloser(strings.NewReader(opt.Data))
+			req.Body = io.NopCloser(strings.NewReader(opt.Data))
 		}
 
 		if opt.Async {
@@ -147,7 +146,7 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 					return nil, err
 				}
 			} else {
-				return ioutil.ReadAll(res.Body)
+				return io.ReadAll(res.Body)
 			}
 		}
 	}

@@ -20,6 +20,1627 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ProcessSpawnType int32
+
+const (
+	ProcessSpawnType_Invalid ProcessSpawnType = 0
+	ProcessSpawnType_Cron    ProcessSpawnType = 1
+	ProcessSpawnType_FS      ProcessSpawnType = 2
+	ProcessSpawnType_Script  ProcessSpawnType = 3
+)
+
+// Enum value maps for ProcessSpawnType.
+var (
+	ProcessSpawnType_name = map[int32]string{
+		0: "Invalid",
+		1: "Cron",
+		2: "FS",
+		3: "Script",
+	}
+	ProcessSpawnType_value = map[string]int32{
+		"Invalid": 0,
+		"Cron":    1,
+		"FS":      2,
+		"Script":  3,
+	}
+)
+
+func (x ProcessSpawnType) Enum() *ProcessSpawnType {
+	p := new(ProcessSpawnType)
+	*p = x
+	return p
+}
+
+func (x ProcessSpawnType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProcessSpawnType) Descriptor() protoreflect.EnumDescriptor {
+	return file_yockd_proto_enumTypes[0].Descriptor()
+}
+
+func (ProcessSpawnType) Type() protoreflect.EnumType {
+	return &file_yockd_proto_enumTypes[0]
+}
+
+func (x ProcessSpawnType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProcessSpawnType.Descriptor instead.
+func (ProcessSpawnType) EnumDescriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{0}
+}
+
+type ProtocalType int32
+
+const (
+	ProtocalType_Unknown      ProtocalType = 0
+	ProtocalType_Establish    ProtocalType = 1
+	ProtocalType_Heartbeat    ProtocalType = 2
+	ProtocalType_MethodCall   ProtocalType = 3
+	ProtocalType_MethodReturn ProtocalType = 4
+)
+
+// Enum value maps for ProtocalType.
+var (
+	ProtocalType_name = map[int32]string{
+		0: "Unknown",
+		1: "Establish",
+		2: "Heartbeat",
+		3: "MethodCall",
+		4: "MethodReturn",
+	}
+	ProtocalType_value = map[string]int32{
+		"Unknown":      0,
+		"Establish":    1,
+		"Heartbeat":    2,
+		"MethodCall":   3,
+		"MethodReturn": 4,
+	}
+)
+
+func (x ProtocalType) Enum() *ProtocalType {
+	p := new(ProtocalType)
+	*p = x
+	return p
+}
+
+func (x ProtocalType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProtocalType) Descriptor() protoreflect.EnumDescriptor {
+	return file_yockd_proto_enumTypes[1].Descriptor()
+}
+
+func (ProtocalType) Type() protoreflect.EnumType {
+	return &file_yockd_proto_enumTypes[1]
+}
+
+func (x ProtocalType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProtocalType.Descriptor instead.
+func (ProtocalType) EnumDescriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{1}
+}
+
+type FileSystemDownloadRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Filename string `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
+	Sender   string `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
+}
+
+func (x *FileSystemDownloadRequest) Reset() {
+	*x = FileSystemDownloadRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileSystemDownloadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileSystemDownloadRequest) ProtoMessage() {}
+
+func (x *FileSystemDownloadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileSystemDownloadRequest.ProtoReflect.Descriptor instead.
+func (*FileSystemDownloadRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *FileSystemDownloadRequest) GetFilename() string {
+	if x != nil {
+		return x.Filename
+	}
+	return ""
+}
+
+func (x *FileSystemDownloadRequest) GetSender() string {
+	if x != nil {
+		return x.Sender
+	}
+	return ""
+}
+
+type FileSystemDownloadResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+}
+
+func (x *FileSystemDownloadResponse) Reset() {
+	*x = FileSystemDownloadResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileSystemDownloadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileSystemDownloadResponse) ProtoMessage() {}
+
+func (x *FileSystemDownloadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileSystemDownloadResponse.ProtoReflect.Descriptor instead.
+func (*FileSystemDownloadResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *FileSystemDownloadResponse) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type FileSystemGetRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Src string `protobuf:"bytes,1,opt,name=src,proto3" json:"src,omitempty"`
+	Dst string `protobuf:"bytes,2,opt,name=dst,proto3" json:"dst,omitempty"`
+}
+
+func (x *FileSystemGetRequest) Reset() {
+	*x = FileSystemGetRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileSystemGetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileSystemGetRequest) ProtoMessage() {}
+
+func (x *FileSystemGetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileSystemGetRequest.ProtoReflect.Descriptor instead.
+func (*FileSystemGetRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *FileSystemGetRequest) GetSrc() string {
+	if x != nil {
+		return x.Src
+	}
+	return ""
+}
+
+func (x *FileSystemGetRequest) GetDst() string {
+	if x != nil {
+		return x.Dst
+	}
+	return ""
+}
+
+type FileSystemGetResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *FileSystemGetResponse) Reset() {
+	*x = FileSystemGetResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileSystemGetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileSystemGetResponse) ProtoMessage() {}
+
+func (x *FileSystemGetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileSystemGetResponse.ProtoReflect.Descriptor instead.
+func (*FileSystemGetResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{3}
+}
+
+type ProcessKillRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Pid int64 `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+}
+
+func (x *ProcessKillRequest) Reset() {
+	*x = ProcessKillRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessKillRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessKillRequest) ProtoMessage() {}
+
+func (x *ProcessKillRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessKillRequest.ProtoReflect.Descriptor instead.
+func (*ProcessKillRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ProcessKillRequest) GetPid() int64 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+type ProcessKillResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ProcessKillResponse) Reset() {
+	*x = ProcessKillResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessKillResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessKillResponse) ProtoMessage() {}
+
+func (x *ProcessKillResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessKillResponse.ProtoReflect.Descriptor instead.
+func (*ProcessKillResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{5}
+}
+
+type ProcessSpawnRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Type ProcessSpawnType `protobuf:"varint,1,opt,name=type,proto3,enum=Yockd.ProcessSpawnType" json:"type,omitempty"`
+	Spec string           `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	Cmd  string           `protobuf:"bytes,3,opt,name=cmd,proto3" json:"cmd,omitempty"`
+}
+
+func (x *ProcessSpawnRequest) Reset() {
+	*x = ProcessSpawnRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessSpawnRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessSpawnRequest) ProtoMessage() {}
+
+func (x *ProcessSpawnRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessSpawnRequest.ProtoReflect.Descriptor instead.
+func (*ProcessSpawnRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ProcessSpawnRequest) GetType() ProcessSpawnType {
+	if x != nil {
+		return x.Type
+	}
+	return ProcessSpawnType_Invalid
+}
+
+func (x *ProcessSpawnRequest) GetSpec() string {
+	if x != nil {
+		return x.Spec
+	}
+	return ""
+}
+
+func (x *ProcessSpawnRequest) GetCmd() string {
+	if x != nil {
+		return x.Cmd
+	}
+	return ""
+}
+
+type ProcessSpawnResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Pid int64 `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+}
+
+func (x *ProcessSpawnResponse) Reset() {
+	*x = ProcessSpawnResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessSpawnResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessSpawnResponse) ProtoMessage() {}
+
+func (x *ProcessSpawnResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessSpawnResponse.ProtoReflect.Descriptor instead.
+func (*ProcessSpawnResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ProcessSpawnResponse) GetPid() int64 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+type ProcessListRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ProcessListRequest) Reset() {
+	*x = ProcessListRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessListRequest) ProtoMessage() {}
+
+func (x *ProcessListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessListRequest.ProtoReflect.Descriptor instead.
+func (*ProcessListRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{8}
+}
+
+type Process struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Pid   int64  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	State int32  `protobuf:"varint,2,opt,name=state,proto3" json:"state,omitempty"`
+	Spec  string `protobuf:"bytes,3,opt,name=spec,proto3" json:"spec,omitempty"`
+	Cmd   string `protobuf:"bytes,4,opt,name=cmd,proto3" json:"cmd,omitempty"`
+}
+
+func (x *Process) Reset() {
+	*x = Process{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Process) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Process) ProtoMessage() {}
+
+func (x *Process) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Process.ProtoReflect.Descriptor instead.
+func (*Process) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *Process) GetPid() int64 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *Process) GetState() int32 {
+	if x != nil {
+		return x.State
+	}
+	return 0
+}
+
+func (x *Process) GetSpec() string {
+	if x != nil {
+		return x.Spec
+	}
+	return ""
+}
+
+func (x *Process) GetCmd() string {
+	if x != nil {
+		return x.Cmd
+	}
+	return ""
+}
+
+type ProcessListResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Res []*Process `protobuf:"bytes,1,rep,name=res,proto3" json:"res,omitempty"`
+}
+
+func (x *ProcessListResponse) Reset() {
+	*x = ProcessListResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessListResponse) ProtoMessage() {}
+
+func (x *ProcessListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessListResponse.ProtoReflect.Descriptor instead.
+func (*ProcessListResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ProcessListResponse) GetRes() []*Process {
+	if x != nil {
+		return x.Res
+	}
+	return nil
+}
+
+type ProcessFindRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Pid int64  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	Cmd string `protobuf:"bytes,2,opt,name=cmd,proto3" json:"cmd,omitempty"`
+}
+
+func (x *ProcessFindRequest) Reset() {
+	*x = ProcessFindRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessFindRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessFindRequest) ProtoMessage() {}
+
+func (x *ProcessFindRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessFindRequest.ProtoReflect.Descriptor instead.
+func (*ProcessFindRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ProcessFindRequest) GetPid() int64 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *ProcessFindRequest) GetCmd() string {
+	if x != nil {
+		return x.Cmd
+	}
+	return ""
+}
+
+type ProcessFindResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Res []*Process `protobuf:"bytes,1,rep,name=res,proto3" json:"res,omitempty"`
+}
+
+func (x *ProcessFindResponse) Reset() {
+	*x = ProcessFindResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProcessFindResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessFindResponse) ProtoMessage() {}
+
+func (x *ProcessFindResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessFindResponse.ProtoReflect.Descriptor instead.
+func (*ProcessFindResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ProcessFindResponse) GetRes() []*Process {
+	if x != nil {
+		return x.Res
+	}
+	return nil
+}
+
+type CallRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Node   string   `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
+	Method string   `protobuf:"bytes,2,opt,name=method,proto3" json:"method,omitempty"`
+	Args   []string `protobuf:"bytes,3,rep,name=args,proto3" json:"args,omitempty"`
+}
+
+func (x *CallRequest) Reset() {
+	*x = CallRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CallRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallRequest) ProtoMessage() {}
+
+func (x *CallRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallRequest.ProtoReflect.Descriptor instead.
+func (*CallRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CallRequest) GetNode() string {
+	if x != nil {
+		return x.Node
+	}
+	return ""
+}
+
+func (x *CallRequest) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+func (x *CallRequest) GetArgs() []string {
+	if x != nil {
+		return x.Args
+	}
+	return nil
+}
+
+type CallResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Ret string `protobuf:"bytes,1,opt,name=ret,proto3" json:"ret,omitempty"`
+}
+
+func (x *CallResponse) Reset() {
+	*x = CallResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CallResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallResponse) ProtoMessage() {}
+
+func (x *CallResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallResponse.ProtoReflect.Descriptor instead.
+func (*CallResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *CallResponse) GetRet() string {
+	if x != nil {
+		return x.Ret
+	}
+	return ""
+}
+
+type MarkRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Addr string `protobuf:"bytes,2,opt,name=addr,proto3" json:"addr,omitempty"`
+}
+
+func (x *MarkRequest) Reset() {
+	*x = MarkRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MarkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MarkRequest) ProtoMessage() {}
+
+func (x *MarkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MarkRequest.ProtoReflect.Descriptor instead.
+func (*MarkRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *MarkRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *MarkRequest) GetAddr() string {
+	if x != nil {
+		return x.Addr
+	}
+	return ""
+}
+
+type MarkResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *MarkResponse) Reset() {
+	*x = MarkResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MarkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MarkResponse) ProtoMessage() {}
+
+func (x *MarkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MarkResponse.ProtoReflect.Descriptor instead.
+func (*MarkResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{16}
+}
+
+type TunnelRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Type ProtocalType `protobuf:"varint,1,opt,name=type,proto3,enum=Yockd.ProtocalType" json:"type,omitempty"`
+	Body string       `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
+	Id   int64        `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *TunnelRequest) Reset() {
+	*x = TunnelRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TunnelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TunnelRequest) ProtoMessage() {}
+
+func (x *TunnelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TunnelRequest.ProtoReflect.Descriptor instead.
+func (*TunnelRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *TunnelRequest) GetType() ProtocalType {
+	if x != nil {
+		return x.Type
+	}
+	return ProtocalType_Unknown
+}
+
+func (x *TunnelRequest) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *TunnelRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type TunnelResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Type ProtocalType `protobuf:"varint,1,opt,name=type,proto3,enum=Yockd.ProtocalType" json:"type,omitempty"`
+	Body string       `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
+	Id   int64        `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *TunnelResponse) Reset() {
+	*x = TunnelResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TunnelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TunnelResponse) ProtoMessage() {}
+
+func (x *TunnelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TunnelResponse.ProtoReflect.Descriptor instead.
+func (*TunnelResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *TunnelResponse) GetType() ProtocalType {
+	if x != nil {
+		return x.Type
+	}
+	return ProtocalType_Unknown
+}
+
+func (x *TunnelResponse) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *TunnelResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type NodeInfo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name   string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Ip     string `protobuf:"bytes,2,opt,name=ip,proto3" json:"ip,omitempty"`
+	Port   int32  `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	Public bool   `protobuf:"varint,4,opt,name=public,proto3" json:"public,omitempty"`
+}
+
+func (x *NodeInfo) Reset() {
+	*x = NodeInfo{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *NodeInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeInfo) ProtoMessage() {}
+
+func (x *NodeInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeInfo.ProtoReflect.Descriptor instead.
+func (*NodeInfo) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *NodeInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *NodeInfo) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *NodeInfo) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *NodeInfo) GetPublic() bool {
+	if x != nil {
+		return x.Public
+	}
+	return false
+}
+
+type DialRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	From *NodeInfo `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	To   *NodeInfo `protobuf:"bytes,2,opt,name=to,proto3" json:"to,omitempty"`
+}
+
+func (x *DialRequest) Reset() {
+	*x = DialRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DialRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DialRequest) ProtoMessage() {}
+
+func (x *DialRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DialRequest.ProtoReflect.Descriptor instead.
+func (*DialRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *DialRequest) GetFrom() *NodeInfo {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *DialRequest) GetTo() *NodeInfo {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+type DialResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DialResponse) Reset() {
+	*x = DialResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DialResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DialResponse) ProtoMessage() {}
+
+func (x *DialResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DialResponse.ProtoReflect.Descriptor instead.
+func (*DialResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{21}
+}
+
+type FileSystemPutRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Src  string `protobuf:"bytes,1,opt,name=src,proto3" json:"src,omitempty"`
+	Dst  string `protobuf:"bytes,2,opt,name=dst,proto3" json:"dst,omitempty"`
+	Copy bool   `protobuf:"varint,3,opt,name=copy,proto3" json:"copy,omitempty"`
+}
+
+func (x *FileSystemPutRequest) Reset() {
+	*x = FileSystemPutRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileSystemPutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileSystemPutRequest) ProtoMessage() {}
+
+func (x *FileSystemPutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileSystemPutRequest.ProtoReflect.Descriptor instead.
+func (*FileSystemPutRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *FileSystemPutRequest) GetSrc() string {
+	if x != nil {
+		return x.Src
+	}
+	return ""
+}
+
+func (x *FileSystemPutRequest) GetDst() string {
+	if x != nil {
+		return x.Dst
+	}
+	return ""
+}
+
+func (x *FileSystemPutRequest) GetCopy() bool {
+	if x != nil {
+		return x.Copy
+	}
+	return false
+}
+
+type FileSystemPutResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *FileSystemPutResponse) Reset() {
+	*x = FileSystemPutResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[23]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileSystemPutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileSystemPutResponse) ProtoMessage() {}
+
+func (x *FileSystemPutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[23]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileSystemPutResponse.ProtoReflect.Descriptor instead.
+func (*FileSystemPutResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{23}
+}
+
+type SignalListRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SignalListRequest) Reset() {
+	*x = SignalListRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[24]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignalListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignalListRequest) ProtoMessage() {}
+
+func (x *SignalListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[24]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignalListRequest.ProtoReflect.Descriptor instead.
+func (*SignalListRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{24}
+}
+
+type SignalListResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Sigs []string `protobuf:"bytes,1,rep,name=sigs,proto3" json:"sigs,omitempty"`
+}
+
+func (x *SignalListResponse) Reset() {
+	*x = SignalListResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[25]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignalListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignalListResponse) ProtoMessage() {}
+
+func (x *SignalListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[25]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignalListResponse.ProtoReflect.Descriptor instead.
+func (*SignalListResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *SignalListResponse) GetSigs() []string {
+	if x != nil {
+		return x.Sigs
+	}
+	return nil
+}
+
+type SignalClearRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Sigs []string `protobuf:"bytes,1,rep,name=sigs,proto3" json:"sigs,omitempty"`
+}
+
+func (x *SignalClearRequest) Reset() {
+	*x = SignalClearRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[26]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignalClearRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignalClearRequest) ProtoMessage() {}
+
+func (x *SignalClearRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[26]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignalClearRequest.ProtoReflect.Descriptor instead.
+func (*SignalClearRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *SignalClearRequest) GetSigs() []string {
+	if x != nil {
+		return x.Sigs
+	}
+	return nil
+}
+
+type SignalClearResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SignalClearResponse) Reset() {
+	*x = SignalClearResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[27]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignalClearResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignalClearResponse) ProtoMessage() {}
+
+func (x *SignalClearResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[27]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignalClearResponse.ProtoReflect.Descriptor instead.
+func (*SignalClearResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{27}
+}
+
+type SignalInfoRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Sig string `protobuf:"bytes,1,opt,name=sig,proto3" json:"sig,omitempty"`
+}
+
+func (x *SignalInfoRequest) Reset() {
+	*x = SignalInfoRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[28]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignalInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignalInfoRequest) ProtoMessage() {}
+
+func (x *SignalInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[28]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignalInfoRequest.ProtoReflect.Descriptor instead.
+func (*SignalInfoRequest) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *SignalInfoRequest) GetSig() string {
+	if x != nil {
+		return x.Sig
+	}
+	return ""
+}
+
+type SignalInfoResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status bool `protobuf:"varint,1,opt,name=status,proto3" json:"status,omitempty"`
+	Exist  bool `protobuf:"varint,2,opt,name=exist,proto3" json:"exist,omitempty"`
+}
+
+func (x *SignalInfoResponse) Reset() {
+	*x = SignalInfoResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_yockd_proto_msgTypes[29]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignalInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignalInfoResponse) ProtoMessage() {}
+
+func (x *SignalInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yockd_proto_msgTypes[29]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignalInfoResponse.ProtoReflect.Descriptor instead.
+func (*SignalInfoResponse) Descriptor() ([]byte, []int) {
+	return file_yockd_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *SignalInfoResponse) GetStatus() bool {
+	if x != nil {
+		return x.Status
+	}
+	return false
+}
+
+func (x *SignalInfoResponse) GetExist() bool {
+	if x != nil {
+		return x.Exist
+	}
+	return false
+}
+
 type PingRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -29,7 +1650,7 @@ type PingRequest struct {
 func (x *PingRequest) Reset() {
 	*x = PingRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[0]
+		mi := &file_yockd_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -42,7 +1663,7 @@ func (x *PingRequest) String() string {
 func (*PingRequest) ProtoMessage() {}
 
 func (x *PingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[0]
+	mi := &file_yockd_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +1676,7 @@ func (x *PingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
 func (*PingRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{0}
+	return file_yockd_proto_rawDescGZIP(), []int{30}
 }
 
 type PingResponse struct {
@@ -67,7 +1688,7 @@ type PingResponse struct {
 func (x *PingResponse) Reset() {
 	*x = PingResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[1]
+		mi := &file_yockd_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -80,7 +1701,7 @@ func (x *PingResponse) String() string {
 func (*PingResponse) ProtoMessage() {}
 
 func (x *PingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[1]
+	mi := &file_yockd_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -93,7 +1714,7 @@ func (x *PingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
 func (*PingResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{1}
+	return file_yockd_proto_rawDescGZIP(), []int{31}
 }
 
 type WaitRequest struct {
@@ -107,7 +1728,7 @@ type WaitRequest struct {
 func (x *WaitRequest) Reset() {
 	*x = WaitRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[2]
+		mi := &file_yockd_proto_msgTypes[32]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -120,7 +1741,7 @@ func (x *WaitRequest) String() string {
 func (*WaitRequest) ProtoMessage() {}
 
 func (x *WaitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[2]
+	mi := &file_yockd_proto_msgTypes[32]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -133,7 +1754,7 @@ func (x *WaitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WaitRequest.ProtoReflect.Descriptor instead.
 func (*WaitRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{2}
+	return file_yockd_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *WaitRequest) GetSig() string {
@@ -154,7 +1775,7 @@ type WaitResponse struct {
 func (x *WaitResponse) Reset() {
 	*x = WaitResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[3]
+		mi := &file_yockd_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -167,7 +1788,7 @@ func (x *WaitResponse) String() string {
 func (*WaitResponse) ProtoMessage() {}
 
 func (x *WaitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[3]
+	mi := &file_yockd_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,7 +1801,7 @@ func (x *WaitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WaitResponse.ProtoReflect.Descriptor instead.
 func (*WaitResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{3}
+	return file_yockd_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *WaitResponse) GetOk() bool {
@@ -201,7 +1822,7 @@ type NotifyRequest struct {
 func (x *NotifyRequest) Reset() {
 	*x = NotifyRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[4]
+		mi := &file_yockd_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -214,7 +1835,7 @@ func (x *NotifyRequest) String() string {
 func (*NotifyRequest) ProtoMessage() {}
 
 func (x *NotifyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[4]
+	mi := &file_yockd_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -227,7 +1848,7 @@ func (x *NotifyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotifyRequest.ProtoReflect.Descriptor instead.
 func (*NotifyRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{4}
+	return file_yockd_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *NotifyRequest) GetSig() string {
@@ -246,7 +1867,7 @@ type NotifyResponse struct {
 func (x *NotifyResponse) Reset() {
 	*x = NotifyResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[5]
+		mi := &file_yockd_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -259,7 +1880,7 @@ func (x *NotifyResponse) String() string {
 func (*NotifyResponse) ProtoMessage() {}
 
 func (x *NotifyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[5]
+	mi := &file_yockd_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -272,7 +1893,7 @@ func (x *NotifyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotifyResponse.ProtoReflect.Descriptor instead.
 func (*NotifyResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{5}
+	return file_yockd_proto_rawDescGZIP(), []int{35}
 }
 
 type UploadRequest struct {
@@ -290,7 +1911,7 @@ type UploadRequest struct {
 func (x *UploadRequest) Reset() {
 	*x = UploadRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[6]
+		mi := &file_yockd_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -303,7 +1924,7 @@ func (x *UploadRequest) String() string {
 func (*UploadRequest) ProtoMessage() {}
 
 func (x *UploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[6]
+	mi := &file_yockd_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +1937,7 @@ func (x *UploadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadRequest.ProtoReflect.Descriptor instead.
 func (*UploadRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{6}
+	return file_yockd_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *UploadRequest) GetFilename() string {
@@ -363,7 +1984,7 @@ type UploadResponse struct {
 func (x *UploadResponse) Reset() {
 	*x = UploadResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[7]
+		mi := &file_yockd_proto_msgTypes[37]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -376,7 +1997,7 @@ func (x *UploadResponse) String() string {
 func (*UploadResponse) ProtoMessage() {}
 
 func (x *UploadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[7]
+	mi := &file_yockd_proto_msgTypes[37]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -389,109 +2010,7 @@ func (x *UploadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadResponse.ProtoReflect.Descriptor instead.
 func (*UploadResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{7}
-}
-
-type DownloadRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Filename string `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
-	Sender   string `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
-}
-
-func (x *DownloadRequest) Reset() {
-	*x = DownloadRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[8]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *DownloadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DownloadRequest) ProtoMessage() {}
-
-func (x *DownloadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[8]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DownloadRequest.ProtoReflect.Descriptor instead.
-func (*DownloadRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *DownloadRequest) GetFilename() string {
-	if x != nil {
-		return x.Filename
-	}
-	return ""
-}
-
-func (x *DownloadRequest) GetSender() string {
-	if x != nil {
-		return x.Sender
-	}
-	return ""
-}
-
-type DownloadResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
-}
-
-func (x *DownloadResponse) Reset() {
-	*x = DownloadResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *DownloadResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DownloadResponse) ProtoMessage() {}
-
-func (x *DownloadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DownloadResponse.ProtoReflect.Descriptor instead.
-func (*DownloadResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *DownloadResponse) GetData() []byte {
-	if x != nil {
-		return x.Data
-	}
-	return nil
+	return file_yockd_proto_rawDescGZIP(), []int{37}
 }
 
 type RegisterRequest struct {
@@ -505,7 +2024,7 @@ type RegisterRequest struct {
 func (x *RegisterRequest) Reset() {
 	*x = RegisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[10]
+		mi := &file_yockd_proto_msgTypes[38]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -518,7 +2037,7 @@ func (x *RegisterRequest) String() string {
 func (*RegisterRequest) ProtoMessage() {}
 
 func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[10]
+	mi := &file_yockd_proto_msgTypes[38]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -531,7 +2050,7 @@ func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{10}
+	return file_yockd_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *RegisterRequest) GetAddrs() []string {
@@ -552,7 +2071,7 @@ type RegisterResponse struct {
 func (x *RegisterResponse) Reset() {
 	*x = RegisterResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[11]
+		mi := &file_yockd_proto_msgTypes[39]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -565,7 +2084,7 @@ func (x *RegisterResponse) String() string {
 func (*RegisterResponse) ProtoMessage() {}
 
 func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[11]
+	mi := &file_yockd_proto_msgTypes[39]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -578,7 +2097,7 @@ func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
 func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{11}
+	return file_yockd_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *RegisterResponse) GetAddrs() []string {
@@ -599,7 +2118,7 @@ type UnregisterRequest struct {
 func (x *UnregisterRequest) Reset() {
 	*x = UnregisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[12]
+		mi := &file_yockd_proto_msgTypes[40]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -612,7 +2131,7 @@ func (x *UnregisterRequest) String() string {
 func (*UnregisterRequest) ProtoMessage() {}
 
 func (x *UnregisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[12]
+	mi := &file_yockd_proto_msgTypes[40]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -625,7 +2144,7 @@ func (x *UnregisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnregisterRequest.ProtoReflect.Descriptor instead.
 func (*UnregisterRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{12}
+	return file_yockd_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *UnregisterRequest) GetAddrs() []string {
@@ -644,7 +2163,7 @@ type UnregisterResponse struct {
 func (x *UnregisterResponse) Reset() {
 	*x = UnregisterResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[13]
+		mi := &file_yockd_proto_msgTypes[41]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -657,7 +2176,7 @@ func (x *UnregisterResponse) String() string {
 func (*UnregisterResponse) ProtoMessage() {}
 
 func (x *UnregisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[13]
+	mi := &file_yockd_proto_msgTypes[41]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -670,7 +2189,7 @@ func (x *UnregisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnregisterResponse.ProtoReflect.Descriptor instead.
 func (*UnregisterResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{13}
+	return file_yockd_proto_rawDescGZIP(), []int{41}
 }
 
 type InfoRequest struct {
@@ -689,7 +2208,7 @@ type InfoRequest struct {
 func (x *InfoRequest) Reset() {
 	*x = InfoRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[14]
+		mi := &file_yockd_proto_msgTypes[42]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -702,7 +2221,7 @@ func (x *InfoRequest) String() string {
 func (*InfoRequest) ProtoMessage() {}
 
 func (x *InfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[14]
+	mi := &file_yockd_proto_msgTypes[42]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -715,7 +2234,7 @@ func (x *InfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InfoRequest.ProtoReflect.Descriptor instead.
 func (*InfoRequest) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{14}
+	return file_yockd_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *InfoRequest) GetAll() bool {
@@ -772,7 +2291,7 @@ type InfoResponse struct {
 func (x *InfoResponse) Reset() {
 	*x = InfoResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_yockd_proto_msgTypes[15]
+		mi := &file_yockd_proto_msgTypes[43]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -785,7 +2304,7 @@ func (x *InfoResponse) String() string {
 func (*InfoResponse) ProtoMessage() {}
 
 func (x *InfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yockd_proto_msgTypes[15]
+	mi := &file_yockd_proto_msgTypes[43]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -798,7 +2317,7 @@ func (x *InfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InfoResponse.ProtoReflect.Descriptor instead.
 func (*InfoResponse) Descriptor() ([]byte, []int) {
-	return file_yockd_proto_rawDescGZIP(), []int{15}
+	return file_yockd_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *InfoResponse) GetName() string {
@@ -819,7 +2338,108 @@ var File_yockd_proto protoreflect.FileDescriptor
 
 var file_yockd_proto_rawDesc = []byte{
 	0x0a, 0x0b, 0x79, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x05, 0x59,
-	0x6f, 0x63, 0x6b, 0x64, 0x22, 0x0d, 0x0a, 0x0b, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75,
+	0x6f, 0x63, 0x6b, 0x64, 0x22, 0x4f, 0x0a, 0x19, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74,
+	0x65, 0x6d, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x1a, 0x0a, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a,
+	0x06, 0x73, 0x65, 0x6e, 0x64, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73,
+	0x65, 0x6e, 0x64, 0x65, 0x72, 0x22, 0x30, 0x0a, 0x1a, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73,
+	0x74, 0x65, 0x6d, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x3a, 0x0a, 0x14, 0x46, 0x69, 0x6c, 0x65, 0x53,
+	0x79, 0x73, 0x74, 0x65, 0x6d, 0x47, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x10, 0x0a, 0x03, 0x73, 0x72, 0x63, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x73, 0x72,
+	0x63, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
+	0x64, 0x73, 0x74, 0x22, 0x17, 0x0a, 0x15, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65,
+	0x6d, 0x47, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x26, 0x0a, 0x12,
+	0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4b, 0x69, 0x6c, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x70, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52,
+	0x03, 0x70, 0x69, 0x64, 0x22, 0x15, 0x0a, 0x13, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4b,
+	0x69, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x68, 0x0a, 0x13, 0x50,
+	0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x70, 0x61, 0x77, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x2b, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e,
+	0x32, 0x17, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73,
+	0x53, 0x70, 0x61, 0x77, 0x6e, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12,
+	0x12, 0x0a, 0x04, 0x73, 0x70, 0x65, 0x63, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73,
+	0x70, 0x65, 0x63, 0x12, 0x10, 0x0a, 0x03, 0x63, 0x6d, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x03, 0x63, 0x6d, 0x64, 0x22, 0x28, 0x0a, 0x14, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73,
+	0x53, 0x70, 0x61, 0x77, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a,
+	0x03, 0x70, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x03, 0x70, 0x69, 0x64, 0x22,
+	0x14, 0x0a, 0x12, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x57, 0x0a, 0x07, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73,
+	0x12, 0x10, 0x0a, 0x03, 0x70, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x03, 0x70,
+	0x69, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x70, 0x65, 0x63,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x70, 0x65, 0x63, 0x12, 0x10, 0x0a, 0x03,
+	0x63, 0x6d, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x63, 0x6d, 0x64, 0x22, 0x37,
+	0x0a, 0x13, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a, 0x03, 0x72, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65,
+	0x73, 0x73, 0x52, 0x03, 0x72, 0x65, 0x73, 0x22, 0x38, 0x0a, 0x12, 0x50, 0x72, 0x6f, 0x63, 0x65,
+	0x73, 0x73, 0x46, 0x69, 0x6e, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a,
+	0x03, 0x70, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x03, 0x70, 0x69, 0x64, 0x12,
+	0x10, 0x0a, 0x03, 0x63, 0x6d, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x63, 0x6d,
+	0x64, 0x22, 0x37, 0x0a, 0x13, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x46, 0x69, 0x6e, 0x64,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a, 0x03, 0x72, 0x65, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72,
+	0x6f, 0x63, 0x65, 0x73, 0x73, 0x52, 0x03, 0x72, 0x65, 0x73, 0x22, 0x4d, 0x0a, 0x0b, 0x43, 0x61,
+	0x6c, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x6f, 0x64,
+	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x6f, 0x64, 0x65, 0x12, 0x16, 0x0a,
+	0x06, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x6d,
+	0x65, 0x74, 0x68, 0x6f, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x61, 0x72, 0x67, 0x73, 0x18, 0x03, 0x20,
+	0x03, 0x28, 0x09, 0x52, 0x04, 0x61, 0x72, 0x67, 0x73, 0x22, 0x20, 0x0a, 0x0c, 0x43, 0x61, 0x6c,
+	0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x72, 0x65, 0x74,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x72, 0x65, 0x74, 0x22, 0x35, 0x0a, 0x0b, 0x4d,
+	0x61, 0x72, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x12,
+	0x0a, 0x04, 0x61, 0x64, 0x64, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x61, 0x64,
+	0x64, 0x72, 0x22, 0x0e, 0x0a, 0x0c, 0x4d, 0x61, 0x72, 0x6b, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x5c, 0x0a, 0x0d, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x27, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0e, 0x32, 0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x63,
+	0x61, 0x6c, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x12, 0x0a, 0x04,
+	0x62, 0x6f, 0x64, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x62, 0x6f, 0x64, 0x79,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64,
+	0x22, 0x5d, 0x0a, 0x0e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x27, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e,
+	0x32, 0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x61,
+	0x6c, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x62,
+	0x6f, 0x64, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x22,
+	0x5a, 0x0a, 0x08, 0x4e, 0x6f, 0x64, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x12, 0x0a, 0x04, 0x6e,
+	0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x70, 0x12,
+	0x12, 0x0a, 0x04, 0x70, 0x6f, 0x72, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x70,
+	0x6f, 0x72, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x06, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x22, 0x53, 0x0a, 0x0b, 0x44,
+	0x69, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x23, 0x0a, 0x04, 0x66, 0x72,
+	0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64,
+	0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12,
+	0x1f, 0x0a, 0x02, 0x74, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x59, 0x6f,
+	0x63, 0x6b, 0x64, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x02, 0x74, 0x6f,
+	0x22, 0x0e, 0x0a, 0x0c, 0x44, 0x69, 0x61, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x4e, 0x0a, 0x14, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x50, 0x75,
+	0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x73, 0x72, 0x63, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x73, 0x72, 0x63, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73,
+	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04,
+	0x63, 0x6f, 0x70, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x04, 0x63, 0x6f, 0x70, 0x79,
+	0x22, 0x17, 0x0a, 0x15, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x50, 0x75,
+	0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x13, 0x0a, 0x11, 0x53, 0x69, 0x67,
+	0x6e, 0x61, 0x6c, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x28,
+	0x0a, 0x12, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x69, 0x67, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x09, 0x52, 0x04, 0x73, 0x69, 0x67, 0x73, 0x22, 0x28, 0x0a, 0x12, 0x53, 0x69, 0x67, 0x6e,
+	0x61, 0x6c, 0x43, 0x6c, 0x65, 0x61, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12,
+	0x0a, 0x04, 0x73, 0x69, 0x67, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x73, 0x69,
+	0x67, 0x73, 0x22, 0x15, 0x0a, 0x13, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x43, 0x6c, 0x65, 0x61,
+	0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x25, 0x0a, 0x11, 0x53, 0x69, 0x67,
+	0x6e, 0x61, 0x6c, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10,
+	0x0a, 0x03, 0x73, 0x69, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x73, 0x69, 0x67,
+	0x22, 0x42, 0x0a, 0x12, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x14,
+	0x0a, 0x05, 0x65, 0x78, 0x69, 0x73, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x65,
+	0x78, 0x69, 0x73, 0x74, 0x22, 0x0d, 0x0a, 0x0b, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75,
 	0x65, 0x73, 0x74, 0x22, 0x0e, 0x0a, 0x0c, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x22, 0x1f, 0x0a, 0x0b, 0x57, 0x61, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x73, 0x69, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
@@ -838,66 +2458,124 @@ var file_yockd_proto_rawDesc = []byte{
 	0x04, 0x68, 0x61, 0x73, 0x68, 0x12, 0x1b, 0x0a, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x5f,
 	0x61, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65,
 	0x41, 0x74, 0x22, 0x10, 0x0a, 0x0e, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x45, 0x0a, 0x0f, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e,
-	0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e,
-	0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x65, 0x6e, 0x64, 0x65, 0x72, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x65, 0x6e, 0x64, 0x65, 0x72, 0x22, 0x26, 0x0a, 0x10, 0x44,
-	0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x64,
-	0x61, 0x74, 0x61, 0x22, 0x27, 0x0a, 0x0f, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x61, 0x64, 0x64, 0x72, 0x73, 0x18,
-	0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x61, 0x64, 0x64, 0x72, 0x73, 0x22, 0x28, 0x0a, 0x10,
-	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x14, 0x0a, 0x05, 0x61, 0x64, 0x64, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52,
-	0x05, 0x61, 0x64, 0x64, 0x72, 0x73, 0x22, 0x29, 0x0a, 0x11, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69,
-	0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x61,
-	0x64, 0x64, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x61, 0x64, 0x64, 0x72,
-	0x73, 0x22, 0x14, 0x0a, 0x12, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x7d, 0x0a, 0x0b, 0x49, 0x6e, 0x66, 0x6f, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x61, 0x6c, 0x6c, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x08, 0x52, 0x03, 0x61, 0x6c, 0x6c, 0x12, 0x10, 0x0a, 0x03, 0x63, 0x70, 0x75, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03, 0x63, 0x70, 0x75, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x65,
-	0x6d, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03, 0x6d, 0x65, 0x6d, 0x12, 0x12, 0x0a, 0x04,
-	0x64, 0x69, 0x73, 0x6b, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x04, 0x64, 0x69, 0x73, 0x6b,
-	0x12, 0x10, 0x0a, 0x03, 0x6e, 0x65, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03, 0x6e,
-	0x65, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x6f, 0x73, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28, 0x08,
-	0x52, 0x04, 0x68, 0x6f, 0x73, 0x74, 0x22, 0x3c, 0x0a, 0x0c, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x61,
-	0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x70, 0x61, 0x79,
-	0x6c, 0x6f, 0x61, 0x64, 0x32, 0xce, 0x03, 0x0a, 0x0a, 0x59, 0x6f, 0x63, 0x6b, 0x44, 0x61, 0x65,
-	0x6d, 0x6f, 0x6e, 0x12, 0x2f, 0x0a, 0x04, 0x50, 0x69, 0x6e, 0x67, 0x12, 0x12, 0x2e, 0x59, 0x6f,
-	0x63, 0x6b, 0x64, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2f, 0x0a, 0x04, 0x57, 0x61, 0x69, 0x74, 0x12, 0x12, 0x2e, 0x59,
-	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x57, 0x61, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x57, 0x61, 0x69, 0x74, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x35, 0x0a, 0x06, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x12,
-	0x14, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x4e, 0x6f,
-	0x74, 0x69, 0x66, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x35, 0x0a, 0x06,
-	0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x14, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x55,
-	0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x59,
-	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x3f, 0x0a, 0x08, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x12,
-	0x16, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e,
-	0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x28, 0x01, 0x30, 0x01, 0x12, 0x3b, 0x0a, 0x08, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
-	0x12, 0x16, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65,
-	0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64,
-	0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x41, 0x0a, 0x0a, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x12,
-	0x18, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74,
-	0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x59, 0x6f, 0x63, 0x6b,
-	0x64, 0x2e, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2f, 0x0a, 0x04, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x12, 0x2e, 0x59,
-	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x19, 0x0a, 0x05, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x5a, 0x08,
-	0x2e, 0x2f, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0xaa, 0x02, 0x05, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x27, 0x0a, 0x0f, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x61, 0x64, 0x64, 0x72, 0x73,
+	0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x61, 0x64, 0x64, 0x72, 0x73, 0x22, 0x28, 0x0a,
+	0x10, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x14, 0x0a, 0x05, 0x61, 0x64, 0x64, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x05, 0x61, 0x64, 0x64, 0x72, 0x73, 0x22, 0x29, 0x0a, 0x11, 0x55, 0x6e, 0x72, 0x65, 0x67,
+	0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05,
+	0x61, 0x64, 0x64, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x61, 0x64, 0x64,
+	0x72, 0x73, 0x22, 0x14, 0x0a, 0x12, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x7d, 0x0a, 0x0b, 0x49, 0x6e, 0x66, 0x6f,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x61, 0x6c, 0x6c, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x08, 0x52, 0x03, 0x61, 0x6c, 0x6c, 0x12, 0x10, 0x0a, 0x03, 0x63, 0x70, 0x75,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03, 0x63, 0x70, 0x75, 0x12, 0x10, 0x0a, 0x03, 0x6d,
+	0x65, 0x6d, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03, 0x6d, 0x65, 0x6d, 0x12, 0x12, 0x0a,
+	0x04, 0x64, 0x69, 0x73, 0x6b, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x04, 0x64, 0x69, 0x73,
+	0x6b, 0x12, 0x10, 0x0a, 0x03, 0x6e, 0x65, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03,
+	0x6e, 0x65, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x6f, 0x73, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28,
+	0x08, 0x52, 0x04, 0x68, 0x6f, 0x73, 0x74, 0x22, 0x3c, 0x0a, 0x0c, 0x49, 0x6e, 0x66, 0x6f, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x70,
+	0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x70, 0x61,
+	0x79, 0x6c, 0x6f, 0x61, 0x64, 0x2a, 0x3d, 0x0a, 0x10, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73,
+	0x53, 0x70, 0x61, 0x77, 0x6e, 0x54, 0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x49, 0x6e, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x43, 0x72, 0x6f, 0x6e, 0x10, 0x01,
+	0x12, 0x06, 0x0a, 0x02, 0x46, 0x53, 0x10, 0x02, 0x12, 0x0a, 0x0a, 0x06, 0x53, 0x63, 0x72, 0x69,
+	0x70, 0x74, 0x10, 0x03, 0x2a, 0x5b, 0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x61, 0x6c,
+	0x54, 0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x55, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x10,
+	0x00, 0x12, 0x0d, 0x0a, 0x09, 0x45, 0x73, 0x74, 0x61, 0x62, 0x6c, 0x69, 0x73, 0x68, 0x10, 0x01,
+	0x12, 0x0d, 0x0a, 0x09, 0x48, 0x65, 0x61, 0x72, 0x74, 0x62, 0x65, 0x61, 0x74, 0x10, 0x02, 0x12,
+	0x0e, 0x0a, 0x0a, 0x4d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x43, 0x61, 0x6c, 0x6c, 0x10, 0x03, 0x12,
+	0x10, 0x0a, 0x0c, 0x4d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x52, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x10,
+	0x04, 0x32, 0xc5, 0x0a, 0x0a, 0x0a, 0x59, 0x6f, 0x63, 0x6b, 0x44, 0x61, 0x65, 0x6d, 0x6f, 0x6e,
+	0x12, 0x2f, 0x0a, 0x04, 0x50, 0x69, 0x6e, 0x67, 0x12, 0x12, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64,
+	0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x59,
+	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x35, 0x0a, 0x0a, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x57, 0x61, 0x69, 0x74, 0x12,
+	0x12, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x57, 0x61, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x57, 0x61, 0x69, 0x74,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3b, 0x0a, 0x0c, 0x53, 0x69, 0x67, 0x6e,
+	0x61, 0x6c, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x12, 0x14, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64,
+	0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15,
+	0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x41, 0x0a, 0x0a, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x4c,
+	0x69, 0x73, 0x74, 0x12, 0x18, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x53, 0x69, 0x67, 0x6e,
+	0x61, 0x6c, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e,
+	0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x4c, 0x69, 0x73, 0x74,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x44, 0x0a, 0x0b, 0x53, 0x69, 0x67, 0x6e,
+	0x61, 0x6c, 0x43, 0x6c, 0x65, 0x61, 0x72, 0x12, 0x19, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e,
+	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x43, 0x6c, 0x65, 0x61, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61,
+	0x6c, 0x43, 0x6c, 0x65, 0x61, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x41,
+	0x0a, 0x0a, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x18, 0x2e, 0x59,
+	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x49, 0x6e, 0x66, 0x6f, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x53,
+	0x69, 0x67, 0x6e, 0x61, 0x6c, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x35, 0x0a, 0x06, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x14, 0x2e, 0x59, 0x6f,
+	0x63, 0x6b, 0x64, 0x2e, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x15, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3b, 0x0a, 0x08, 0x52, 0x65, 0x67, 0x69,
+	0x73, 0x74, 0x65, 0x72, 0x12, 0x16, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x52, 0x65, 0x67,
+	0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x59,
+	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x41, 0x0a, 0x0a, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73,
+	0x74, 0x65, 0x72, 0x12, 0x18, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x55, 0x6e, 0x72, 0x65,
+	0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e,
+	0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2f, 0x0a, 0x04, 0x49, 0x6e, 0x66, 0x6f,
+	0x12, 0x12, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x49, 0x6e, 0x66,
+	0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4a, 0x0a, 0x0d, 0x46, 0x69, 0x6c,
+	0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x50, 0x75, 0x74, 0x12, 0x1b, 0x2e, 0x59, 0x6f, 0x63,
+	0x6b, 0x64, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x50, 0x75, 0x74,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e,
+	0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x50, 0x75, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4a, 0x0a, 0x0d, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73,
+	0x74, 0x65, 0x6d, 0x47, 0x65, 0x74, 0x12, 0x1b, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x46,
+	0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x47, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x46, 0x69, 0x6c, 0x65,
+	0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x47, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x5d, 0x0a, 0x12, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x44,
+	0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x20, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e,
+	0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f,
+	0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x59, 0x6f, 0x63, 0x6b,
+	0x64, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x44, 0x6f, 0x77, 0x6e,
+	0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x28, 0x01, 0x30, 0x01,
+	0x12, 0x2f, 0x0a, 0x04, 0x44, 0x69, 0x61, 0x6c, 0x12, 0x12, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64,
+	0x2e, 0x44, 0x69, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x59,
+	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x44, 0x69, 0x61, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x2f, 0x0a, 0x04, 0x43, 0x61, 0x6c, 0x6c, 0x12, 0x12, 0x2e, 0x59, 0x6f, 0x63, 0x6b,
+	0x64, 0x2e, 0x43, 0x61, 0x6c, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e,
+	0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x43, 0x61, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x39, 0x0a, 0x06, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x14, 0x2e, 0x59,
+	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x15, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x28, 0x01, 0x30, 0x01, 0x12, 0x2f, 0x0a,
+	0x04, 0x4d, 0x61, 0x72, 0x6b, 0x12, 0x12, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x4d, 0x61,
+	0x72, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x59, 0x6f, 0x63, 0x6b,
+	0x64, 0x2e, 0x4d, 0x61, 0x72, 0x6b, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x47,
+	0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x70, 0x61, 0x77, 0x6e, 0x12, 0x1a,
+	0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x70,
+	0x61, 0x77, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x59, 0x6f, 0x63,
+	0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x70, 0x61, 0x77, 0x6e, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x44, 0x0a, 0x0b, 0x50, 0x72, 0x6f, 0x63, 0x65,
+	0x73, 0x73, 0x46, 0x69, 0x6e, 0x64, 0x12, 0x19, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50,
+	0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x46, 0x69, 0x6e, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x1a, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73,
+	0x73, 0x46, 0x69, 0x6e, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x44, 0x0a,
+	0x0b, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x19, 0x2e, 0x59,
+	0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4c, 0x69, 0x73, 0x74,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e,
+	0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x44, 0x0a, 0x0b, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4b, 0x69,
+	0x6c, 0x6c, 0x12, 0x19, 0x2e, 0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65,
+	0x73, 0x73, 0x4b, 0x69, 0x6c, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e,
+	0x59, 0x6f, 0x63, 0x6b, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x4b, 0x69, 0x6c,
+	0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x19, 0x0a, 0x05, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x5a, 0x08, 0x2e, 0x2f, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0xaa, 0x02, 0x05, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -912,47 +2590,111 @@ func file_yockd_proto_rawDescGZIP() []byte {
 	return file_yockd_proto_rawDescData
 }
 
-var file_yockd_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_yockd_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_yockd_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
 var file_yockd_proto_goTypes = []interface{}{
-	(*PingRequest)(nil),        // 0: Yockd.PingRequest
-	(*PingResponse)(nil),       // 1: Yockd.PingResponse
-	(*WaitRequest)(nil),        // 2: Yockd.WaitRequest
-	(*WaitResponse)(nil),       // 3: Yockd.WaitResponse
-	(*NotifyRequest)(nil),      // 4: Yockd.NotifyRequest
-	(*NotifyResponse)(nil),     // 5: Yockd.NotifyResponse
-	(*UploadRequest)(nil),      // 6: Yockd.UploadRequest
-	(*UploadResponse)(nil),     // 7: Yockd.UploadResponse
-	(*DownloadRequest)(nil),    // 8: Yockd.DownloadRequest
-	(*DownloadResponse)(nil),   // 9: Yockd.DownloadResponse
-	(*RegisterRequest)(nil),    // 10: Yockd.RegisterRequest
-	(*RegisterResponse)(nil),   // 11: Yockd.RegisterResponse
-	(*UnregisterRequest)(nil),  // 12: Yockd.UnregisterRequest
-	(*UnregisterResponse)(nil), // 13: Yockd.UnregisterResponse
-	(*InfoRequest)(nil),        // 14: Yockd.InfoRequest
-	(*InfoResponse)(nil),       // 15: Yockd.InfoResponse
+	(ProcessSpawnType)(0),              // 0: Yockd.ProcessSpawnType
+	(ProtocalType)(0),                  // 1: Yockd.ProtocalType
+	(*FileSystemDownloadRequest)(nil),  // 2: Yockd.FileSystemDownloadRequest
+	(*FileSystemDownloadResponse)(nil), // 3: Yockd.FileSystemDownloadResponse
+	(*FileSystemGetRequest)(nil),       // 4: Yockd.FileSystemGetRequest
+	(*FileSystemGetResponse)(nil),      // 5: Yockd.FileSystemGetResponse
+	(*ProcessKillRequest)(nil),         // 6: Yockd.ProcessKillRequest
+	(*ProcessKillResponse)(nil),        // 7: Yockd.ProcessKillResponse
+	(*ProcessSpawnRequest)(nil),        // 8: Yockd.ProcessSpawnRequest
+	(*ProcessSpawnResponse)(nil),       // 9: Yockd.ProcessSpawnResponse
+	(*ProcessListRequest)(nil),         // 10: Yockd.ProcessListRequest
+	(*Process)(nil),                    // 11: Yockd.Process
+	(*ProcessListResponse)(nil),        // 12: Yockd.ProcessListResponse
+	(*ProcessFindRequest)(nil),         // 13: Yockd.ProcessFindRequest
+	(*ProcessFindResponse)(nil),        // 14: Yockd.ProcessFindResponse
+	(*CallRequest)(nil),                // 15: Yockd.CallRequest
+	(*CallResponse)(nil),               // 16: Yockd.CallResponse
+	(*MarkRequest)(nil),                // 17: Yockd.MarkRequest
+	(*MarkResponse)(nil),               // 18: Yockd.MarkResponse
+	(*TunnelRequest)(nil),              // 19: Yockd.TunnelRequest
+	(*TunnelResponse)(nil),             // 20: Yockd.TunnelResponse
+	(*NodeInfo)(nil),                   // 21: Yockd.NodeInfo
+	(*DialRequest)(nil),                // 22: Yockd.DialRequest
+	(*DialResponse)(nil),               // 23: Yockd.DialResponse
+	(*FileSystemPutRequest)(nil),       // 24: Yockd.FileSystemPutRequest
+	(*FileSystemPutResponse)(nil),      // 25: Yockd.FileSystemPutResponse
+	(*SignalListRequest)(nil),          // 26: Yockd.SignalListRequest
+	(*SignalListResponse)(nil),         // 27: Yockd.SignalListResponse
+	(*SignalClearRequest)(nil),         // 28: Yockd.SignalClearRequest
+	(*SignalClearResponse)(nil),        // 29: Yockd.SignalClearResponse
+	(*SignalInfoRequest)(nil),          // 30: Yockd.SignalInfoRequest
+	(*SignalInfoResponse)(nil),         // 31: Yockd.SignalInfoResponse
+	(*PingRequest)(nil),                // 32: Yockd.PingRequest
+	(*PingResponse)(nil),               // 33: Yockd.PingResponse
+	(*WaitRequest)(nil),                // 34: Yockd.WaitRequest
+	(*WaitResponse)(nil),               // 35: Yockd.WaitResponse
+	(*NotifyRequest)(nil),              // 36: Yockd.NotifyRequest
+	(*NotifyResponse)(nil),             // 37: Yockd.NotifyResponse
+	(*UploadRequest)(nil),              // 38: Yockd.UploadRequest
+	(*UploadResponse)(nil),             // 39: Yockd.UploadResponse
+	(*RegisterRequest)(nil),            // 40: Yockd.RegisterRequest
+	(*RegisterResponse)(nil),           // 41: Yockd.RegisterResponse
+	(*UnregisterRequest)(nil),          // 42: Yockd.UnregisterRequest
+	(*UnregisterResponse)(nil),         // 43: Yockd.UnregisterResponse
+	(*InfoRequest)(nil),                // 44: Yockd.InfoRequest
+	(*InfoResponse)(nil),               // 45: Yockd.InfoResponse
 }
 var file_yockd_proto_depIdxs = []int32{
-	0,  // 0: Yockd.YockDaemon.Ping:input_type -> Yockd.PingRequest
-	2,  // 1: Yockd.YockDaemon.Wait:input_type -> Yockd.WaitRequest
-	4,  // 2: Yockd.YockDaemon.Notify:input_type -> Yockd.NotifyRequest
-	6,  // 3: Yockd.YockDaemon.Upload:input_type -> Yockd.UploadRequest
-	8,  // 4: Yockd.YockDaemon.Download:input_type -> Yockd.DownloadRequest
-	10, // 5: Yockd.YockDaemon.Register:input_type -> Yockd.RegisterRequest
-	12, // 6: Yockd.YockDaemon.Unregister:input_type -> Yockd.UnregisterRequest
-	14, // 7: Yockd.YockDaemon.Info:input_type -> Yockd.InfoRequest
-	1,  // 8: Yockd.YockDaemon.Ping:output_type -> Yockd.PingResponse
-	3,  // 9: Yockd.YockDaemon.Wait:output_type -> Yockd.WaitResponse
-	5,  // 10: Yockd.YockDaemon.Notify:output_type -> Yockd.NotifyResponse
-	7,  // 11: Yockd.YockDaemon.Upload:output_type -> Yockd.UploadResponse
-	9,  // 12: Yockd.YockDaemon.Download:output_type -> Yockd.DownloadResponse
-	11, // 13: Yockd.YockDaemon.Register:output_type -> Yockd.RegisterResponse
-	13, // 14: Yockd.YockDaemon.Unregister:output_type -> Yockd.UnregisterResponse
-	15, // 15: Yockd.YockDaemon.Info:output_type -> Yockd.InfoResponse
-	8,  // [8:16] is the sub-list for method output_type
-	0,  // [0:8] is the sub-list for method input_type
-	0,  // [0:0] is the sub-list for extension type_name
-	0,  // [0:0] is the sub-list for extension extendee
-	0,  // [0:0] is the sub-list for field type_name
+	0,  // 0: Yockd.ProcessSpawnRequest.type:type_name -> Yockd.ProcessSpawnType
+	11, // 1: Yockd.ProcessListResponse.res:type_name -> Yockd.Process
+	11, // 2: Yockd.ProcessFindResponse.res:type_name -> Yockd.Process
+	1,  // 3: Yockd.TunnelRequest.type:type_name -> Yockd.ProtocalType
+	1,  // 4: Yockd.TunnelResponse.type:type_name -> Yockd.ProtocalType
+	21, // 5: Yockd.DialRequest.from:type_name -> Yockd.NodeInfo
+	21, // 6: Yockd.DialRequest.to:type_name -> Yockd.NodeInfo
+	32, // 7: Yockd.YockDaemon.Ping:input_type -> Yockd.PingRequest
+	34, // 8: Yockd.YockDaemon.SignalWait:input_type -> Yockd.WaitRequest
+	36, // 9: Yockd.YockDaemon.SignalNotify:input_type -> Yockd.NotifyRequest
+	26, // 10: Yockd.YockDaemon.SignalList:input_type -> Yockd.SignalListRequest
+	28, // 11: Yockd.YockDaemon.SignalClear:input_type -> Yockd.SignalClearRequest
+	30, // 12: Yockd.YockDaemon.SignalInfo:input_type -> Yockd.SignalInfoRequest
+	38, // 13: Yockd.YockDaemon.Upload:input_type -> Yockd.UploadRequest
+	40, // 14: Yockd.YockDaemon.Register:input_type -> Yockd.RegisterRequest
+	42, // 15: Yockd.YockDaemon.Unregister:input_type -> Yockd.UnregisterRequest
+	44, // 16: Yockd.YockDaemon.Info:input_type -> Yockd.InfoRequest
+	24, // 17: Yockd.YockDaemon.FileSystemPut:input_type -> Yockd.FileSystemPutRequest
+	4,  // 18: Yockd.YockDaemon.FileSystemGet:input_type -> Yockd.FileSystemGetRequest
+	2,  // 19: Yockd.YockDaemon.FileSystemDownload:input_type -> Yockd.FileSystemDownloadRequest
+	22, // 20: Yockd.YockDaemon.Dial:input_type -> Yockd.DialRequest
+	15, // 21: Yockd.YockDaemon.Call:input_type -> Yockd.CallRequest
+	19, // 22: Yockd.YockDaemon.Tunnel:input_type -> Yockd.TunnelRequest
+	17, // 23: Yockd.YockDaemon.Mark:input_type -> Yockd.MarkRequest
+	8,  // 24: Yockd.YockDaemon.ProcessSpawn:input_type -> Yockd.ProcessSpawnRequest
+	13, // 25: Yockd.YockDaemon.ProcessFind:input_type -> Yockd.ProcessFindRequest
+	10, // 26: Yockd.YockDaemon.ProcessList:input_type -> Yockd.ProcessListRequest
+	6,  // 27: Yockd.YockDaemon.ProcessKill:input_type -> Yockd.ProcessKillRequest
+	33, // 28: Yockd.YockDaemon.Ping:output_type -> Yockd.PingResponse
+	35, // 29: Yockd.YockDaemon.SignalWait:output_type -> Yockd.WaitResponse
+	37, // 30: Yockd.YockDaemon.SignalNotify:output_type -> Yockd.NotifyResponse
+	27, // 31: Yockd.YockDaemon.SignalList:output_type -> Yockd.SignalListResponse
+	29, // 32: Yockd.YockDaemon.SignalClear:output_type -> Yockd.SignalClearResponse
+	31, // 33: Yockd.YockDaemon.SignalInfo:output_type -> Yockd.SignalInfoResponse
+	39, // 34: Yockd.YockDaemon.Upload:output_type -> Yockd.UploadResponse
+	41, // 35: Yockd.YockDaemon.Register:output_type -> Yockd.RegisterResponse
+	43, // 36: Yockd.YockDaemon.Unregister:output_type -> Yockd.UnregisterResponse
+	45, // 37: Yockd.YockDaemon.Info:output_type -> Yockd.InfoResponse
+	25, // 38: Yockd.YockDaemon.FileSystemPut:output_type -> Yockd.FileSystemPutResponse
+	5,  // 39: Yockd.YockDaemon.FileSystemGet:output_type -> Yockd.FileSystemGetResponse
+	3,  // 40: Yockd.YockDaemon.FileSystemDownload:output_type -> Yockd.FileSystemDownloadResponse
+	23, // 41: Yockd.YockDaemon.Dial:output_type -> Yockd.DialResponse
+	16, // 42: Yockd.YockDaemon.Call:output_type -> Yockd.CallResponse
+	20, // 43: Yockd.YockDaemon.Tunnel:output_type -> Yockd.TunnelResponse
+	18, // 44: Yockd.YockDaemon.Mark:output_type -> Yockd.MarkResponse
+	9,  // 45: Yockd.YockDaemon.ProcessSpawn:output_type -> Yockd.ProcessSpawnResponse
+	14, // 46: Yockd.YockDaemon.ProcessFind:output_type -> Yockd.ProcessFindResponse
+	12, // 47: Yockd.YockDaemon.ProcessList:output_type -> Yockd.ProcessListResponse
+	7,  // 48: Yockd.YockDaemon.ProcessKill:output_type -> Yockd.ProcessKillResponse
+	28, // [28:49] is the sub-list for method output_type
+	7,  // [7:28] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_yockd_proto_init() }
@@ -962,7 +2704,7 @@ func file_yockd_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_yockd_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PingRequest); i {
+			switch v := v.(*FileSystemDownloadRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -974,7 +2716,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PingResponse); i {
+			switch v := v.(*FileSystemDownloadResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -986,7 +2728,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*WaitRequest); i {
+			switch v := v.(*FileSystemGetRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -998,7 +2740,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*WaitResponse); i {
+			switch v := v.(*FileSystemGetResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1010,7 +2752,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotifyRequest); i {
+			switch v := v.(*ProcessKillRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1022,7 +2764,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotifyResponse); i {
+			switch v := v.(*ProcessKillResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1034,7 +2776,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UploadRequest); i {
+			switch v := v.(*ProcessSpawnRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1046,7 +2788,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UploadResponse); i {
+			switch v := v.(*ProcessSpawnResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1058,7 +2800,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DownloadRequest); i {
+			switch v := v.(*ProcessListRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1070,7 +2812,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DownloadResponse); i {
+			switch v := v.(*Process); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1082,7 +2824,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegisterRequest); i {
+			switch v := v.(*ProcessListResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1094,7 +2836,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegisterResponse); i {
+			switch v := v.(*ProcessFindRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1106,7 +2848,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UnregisterRequest); i {
+			switch v := v.(*ProcessFindResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1118,7 +2860,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UnregisterResponse); i {
+			switch v := v.(*CallRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1130,7 +2872,7 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*InfoRequest); i {
+			switch v := v.(*CallResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1142,6 +2884,342 @@ func file_yockd_proto_init() {
 			}
 		}
 		file_yockd_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MarkRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MarkResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TunnelRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TunnelResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*NodeInfo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DialRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DialResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*FileSystemPutRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*FileSystemPutResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SignalListRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SignalListResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SignalClearRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SignalClearResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SignalInfoRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SignalInfoResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PingRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PingResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*WaitRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*WaitResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*NotifyRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*NotifyResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UploadRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UploadResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RegisterRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RegisterResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UnregisterRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UnregisterResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*InfoRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_yockd_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*InfoResponse); i {
 			case 0:
 				return &v.state
@@ -1159,13 +3237,14 @@ func file_yockd_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_yockd_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   16,
+			NumEnums:      2,
+			NumMessages:   44,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_yockd_proto_goTypes,
 		DependencyIndexes: file_yockd_proto_depIdxs,
+		EnumInfos:         file_yockd_proto_enumTypes,
 		MessageInfos:      file_yockd_proto_msgTypes,
 	}.Build()
 	File_yockd_proto = out.File

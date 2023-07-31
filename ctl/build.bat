@@ -10,6 +10,7 @@ cd %script_path%
 set "ffi=0"
 set "dev=0"
 set "os=windows"
+set "ver=0"
 set "remote=0"
 
 for %%A in (%*) do (
@@ -24,6 +25,8 @@ for %%A in (%*) do (
         set "prefix=%%A"
         if "!prefix:~0,2!" == "os" (
             set os=!prefix:~2!
+        ) else if "!prefix:~0,1!" == "v" (
+            set ver=!prefix:~1!
         ) else (
             echo unknown argument: %%A
         )
@@ -44,10 +47,10 @@ cd %script_path%
 go env -w GOOS=windows
 
 if %dev% equ 0 (
-    go run . run ../auto/build.lua all -- --all-os %os% --all-r %remote%
+    go run . run ../auto/build.lua all -- --all-os %os% --all-r %remote% --all-v %ver%
 ) else (
     @REM dev environment
-    go run . run ../auto/build.lua alldev -- --alldev-os %os% --alldev-r %remote%
+    go run . run ../auto/build.lua alldev -- --alldev-os %os% --alldev-r %remote% --alldev-v %ver%
 )
 
 if %ffi% equ 1 (
