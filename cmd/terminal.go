@@ -48,6 +48,10 @@ func (term *Terminal) Exec(opt *ExecOpt) ([]byte, error) {
 
 	cmd := exec.Command(name, args...)
 
+	if !opt.Sandbox {
+		cmd.Env = append(cmd.Env, os.Environ()...)
+	}
+
 	if opt.Redirect {
 		var out bytes.Buffer
 		cmd.Stdin = os.Stdin

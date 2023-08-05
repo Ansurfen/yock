@@ -36,7 +36,9 @@ for %%A in (%*) do (
 cd ../scheduler
 if %ffi% equ 0 (
     @REM echo comments ffi
-    ren yockf.go yockf.go.txt
+    if exist "yockf.go" (
+        ren yockf.go yockf.go.txt
+    )
 ) else (
     if exist "yockf.go.txt" (
         ren yockf.go.txt yockf.go
@@ -56,6 +58,8 @@ if %dev% equ 0 (
 if %ffi% equ 1 (
     @REM echo recovery ffi file
     cd ../scheduler
-    ren yockf.go yockf.go.txt
+    if exist "yockf.go" (
+        ren yockf.go yockf.go.txt
+    )
     cd %script_path%
 )

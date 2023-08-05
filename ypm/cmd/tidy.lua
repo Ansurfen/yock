@@ -3,7 +3,7 @@
 --  license that can be found in the LICENSE file.
 
 return {
-    desc = { use = "tidy" },
+    desc = { use = "tidy", short = "Complement definitions" },
     run = function(cmd, args)
         local proxies, err = find({
             dir = false,

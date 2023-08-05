@@ -3,7 +3,7 @@
 --  license that can be found in the LICENSE file.
 
 return {
-    desc = { use = "build" },
+    desc = { use = "build", short = "Build to pack current project" },
     run = function(cmd, args)
         local meta = import(pathf("$", "boot"))
         local version = meta.version or ""

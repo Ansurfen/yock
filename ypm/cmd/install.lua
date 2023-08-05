@@ -23,7 +23,7 @@ local find_modules = function(path, modules)
 end
 
 return {
-    desc = { use = "install" },
+    desc = { use = "install", short = "Install module to be specified" },
     run = function(cmd, args)
         local installParameter = env.params["/ypm/install"]
         local p = ""
@@ -40,7 +40,7 @@ return {
             find_modules(modulesPath, modules)
             for name, mod in pairs(modules) do
                 for ver, meta in pairs(mod) do
-                    fmt.Printf("install %s@%s", name, ver)
+                    ycho.info(string.format("install %s@%s", name, ver))
                     if #meta.resolved > 0 then
                         sh(string.format("ypm install %s -w", meta.resolved[1]))
                     end
@@ -54,13 +54,7 @@ return {
                     local idx = strings.IndexAny(before, "/")
                     if idx > 0 then
                         local policy = string.sub(before, 1, idx)
-                        local _switch = {
-                            ["github.tag"] = "https://github.com/{{.Repo}}/archive/refs/tags/{{.TagPack}}",
-                            ["github.release"] = "https://github.com/{{.Repo}}/releases/download/{{.Tag}}/{{.ReleasePack}}",
-                            ["gitee.tag"] = "https://gitee.com/{{.Repo}}/archive/refs/tags/{{.TagPack}}",
-                            ["gitee.release"] = "https://gitee.com/{{.Repo}}/releases/download/{{.Tag}}/{{.ReleasePack}}",
-                            ["gitea.tag"] = "https://gitea.com/{{.Repo}}/archive/{{.TagPack}}",
-                        }
+                        local _switch = json.open(pathf("#1", "../install.json")).buf
                         local name = string.sub(before, strings.LastIndex(before, "/") + 2, #before)
                         local url = _switch[policy]
                         if url ~= nil then
@@ -99,7 +93,19 @@ return {
                             if not find(pathf(env.yock_modules, meta.name, version)) then
                                 mkdir(pathf(env.yock_modules, meta.name, version))
                             end
-                            cp(pathf(newDir, "*"), pathf(env.yock_modules, meta.name, version))
+
+                            local files = ioutil.ReadDir(pathf(env.yock_modules, meta.name, version))
+                            if #files == 0 then
+                                cp(pathf(newDir, "*"), pathf(env.yock_modules, meta.name, version))
+                            end
+
+                            local boot_lua = import(pathf(env.yock_modules, meta.name, version, "boot"))
+                            if type(boot_lua.load) == "function" then
+                                boot_lua.load({
+                                    ver = version
+                                })
+                            end
+
                             if w then
                                 local modules_json = json.create(pathf("$/modules.json"), [[{"depend":{}}]])
                                 modules_json:set(string.format("depend.%s.version", meta.name), after)

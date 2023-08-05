@@ -4,43 +4,18 @@
 
 ---@meta _
 
----
 ---@class waitGroup
----
----{{.wait_group}}
----
 local waitGroup = {}
 
----
----{{.wait_group_add}}
----
 ---@param delta number
----
-function waitGroup:Add(delta)
-end
+function waitGroup:Add(delta) end
 
----
----{{.wait_group_done}}
----
 function waitGroup:Done()
 end
 
----
----{{.wait_group_wait}}
----
-function waitGroup:Wait()
-end
+function waitGroup:Wait() end
 
----
----{{.sync}}
----
 sync = {}
 
----
----{{.sync_new}}
----
 ---@return waitGroup
----
-function sync.new()
-    return {}
-end
+function sync.new() end

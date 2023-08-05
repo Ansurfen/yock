@@ -8,5 +8,6 @@
 ---@field lib table
 ffi = {}
 
-function ffi.library(lib, funcs)
-end
+---@param lib string
+---@param funcs table
+function ffi.library(lib, funcs) end

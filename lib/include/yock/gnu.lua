@@ -15,8 +15,8 @@
 ---| "s" # open for synchronous I/O.
 
 ---@class echoopt
----@field mode echomode
----@field fd table<string>
+---@field mode? echomode
+---@field fd? table<string>
 local echoopt = {}
 
 ---@vararg string
@@ -56,7 +56,7 @@ function touch(file) end
 function cat(file) end
 
 ---@param opt table|string
----@return table<string>|string, err
+---@return string[][], err
 function ls(opt) end
 
 ---@param name string
@@ -83,8 +83,8 @@ function mkdir(...) end
 function cp(src, dst) end
 
 ---@class cpopt
----@field recurse boolean
----@field force boolean
+---@field recurse? boolean
+---@field force? boolean
 local cpopt = {}
 
 -- Example:
@@ -106,8 +106,8 @@ function mv(src, dst) end
 function pwd() end
 
 ---@class rmOpt
----@field safe boolean
----@field pattern string
+---@field safe? boolean
+---@field pattern? string
 local rmOpt = {}
 
 ---Example:
@@ -124,7 +124,6 @@ local rmOpt = {}
 ---@param opt rmOpt
 ---@vararg string
 ---@return err
----
 function rm(opt, ...) end
 
 ---Example:
@@ -142,19 +141,41 @@ function rename(src, dst) end
 ---@param cmd table|string
 function sudo(cmd) end
 
----@param opt table
+---@class grep_opt
+---@field case? boolean
+---@field color? string
+---@field pattern string
+---@field file string[]
+local grep_opt = {}
+
+---@param opt grep_opt
+---@return string, err
 function grep(opt) end
 
----@param opt table
+---@class awk_opt
+---@field prog string|string[]
+---@field var? table
+---@field file string[]
+local awk_opt = {}
+
+---@param opt awk_opt
+---@return string, err
 function awk(opt) end
 
----@param opt table
+---@class sed_opt
+---@field old string
+---@field new string
+---@field file string[]
+local sed_opt = {}
+
+---@param opt sed_opt
+---@return string, err
 function sed(opt) end
 
 ---@class findopt
----@field pattern string
----@field dir boolean
----@field file boolean
+---@field pattern? string
+---@field dir? boolean
+---@field file? boolean
 local findopt = {}
 
 ---
@@ -256,6 +277,7 @@ function compress(src, dst) end
 
 ---@param src string
 ---@param dst string
+---@return string, err
 function uncompress(src, dst) end
 
 ---Example:
@@ -345,18 +367,18 @@ function systemctl.disable(name) end
 function systemctl.enable(name) end
 
 ---@class sccreateoptunit
----@field description string
----@field before string
----@field after string
+---@field description? string
+---@field before? string
+---@field after? string
 local sccreateoptunit = {}
 
 ---@class sccreateoptservice
----@field type "simple"|"exec"|"forking"|"oneshot"|"dbus"|"notify"|"idle"
----@field execStart string
----@field execStop string
----@field privateTmp boolean
----@field restartSec integer
----@field restart string
+---@field type? "simple"|"exec"|"forking"|"oneshot"|"dbus"|"notify"|"idle"
+---@field execStart? string
+---@field execStop? string
+---@field privateTmp? boolean
+---@field restartSec? integer
+---@field restart? string
 local sccreateoptservice = {}
 
 ---@class sccreateoptinstall
@@ -367,10 +389,10 @@ local sccreateoptinstall = {}
 local sscreateoptspec = {}
 
 ---@class sccreateopt
----@field unit sccreateoptunit
----@field service sccreateoptservice
----@field install sccreateoptinstall
----@field spec sscreateoptspec
+---@field unit? sccreateoptunit
+---@field service? sccreateoptservice
+---@field install? sccreateoptinstall
+---@field spec? sscreateoptspec
 local sccreateopt = {}
 
 ---@param name string
@@ -417,12 +439,12 @@ local firewarerule = {}
 function iptables.list(opt) end
 
 ---@class iptablesopopt
----@field chain string
----@field name string
----@field protocol string
----@field action string
----@field destination string
----@field legacy boolean
+---@field chain? string
+---@field name? string
+---@field protocol? string
+---@field action? string
+---@field destination? string
+---@field legacy? boolean
 local iptablesopopt = {}
 
 -- chain: INPUT(linux), in(windows)
@@ -474,3 +496,22 @@ function curl(...) end
 ---@param data string
 ---@return err
 function write(file, data) end
+
+---@param name string
+function read(name) end
+
+---@param k string
+---@param v string
+---@return err
+function exportl(k, v) end
+
+---@param k string
+---@return err
+function unsetl(k) end
+
+---@param k string
+---@return string[]
+function environ(k) end
+
+---@return table<string, string>
+function environ() end

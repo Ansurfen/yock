@@ -9,11 +9,9 @@ bit = {}
 ---@param a integer
 ---@param b integer
 ---@return integer
-function bit.And(a, b)
-end
+function bit.And(a, b) end
 
 ---@param a integer
 ---@param b integer
 ---@return integer
-function bit.Or(a, b)
-end
+function bit.Or(a, b) end

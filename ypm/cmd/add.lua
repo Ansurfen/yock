@@ -3,7 +3,7 @@
 --  license that can be found in the LICENSE file.
 
 return {
-    desc = { use = "add" },
+    desc = { use = "add", short = "Add doc to include directory" },
     run = function(cmd, args)
         if #args == 0 then
             yassert("arguments too little")

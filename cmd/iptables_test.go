@@ -82,5 +82,6 @@ func TestIPTablesAdd(t *testing.T) {
 		Protocol:    "tcp",
 		Destination: "8080",
 		Action:      "DROP",
+		Legacy:      true,
 	}))
 }

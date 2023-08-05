@@ -1,4 +1,4 @@
-job_option({
+option({
     sync = false,
     jobs = { "c", "go" },
 })
@@ -24,7 +24,7 @@ job("c", function()
     local i = 0
     while i ~= 2 do
         print("c, " .. i)
-        time.sleep(5)
+        time.Sleep(5 * time.Second)
         i = i + 1
     end
     waits("job._proto_go", "curl finish")
@@ -36,7 +36,7 @@ job("go", function()
     local i = 0
     while i ~= 5 do
         print("go, " .. i)
-        time.sleep(3)
+        time.Sleep(3 * time.Second)
         i = i + 1
     end
     notify("go fine")

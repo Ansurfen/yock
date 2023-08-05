@@ -4,7 +4,7 @@
 
 ---@diagnostic disable: param-type-mismatch
 
-job("default", function(cenv)
+job("default", function(ctx)
     clear()
     -- chmod("main.go", 0777)
     print(pwd())
@@ -17,11 +17,11 @@ job("default", function(cenv)
     }, "tmp.txt")
 end)
 
-job("whoami", function(cenv)
+job("whoami", function(ctx)
     print(whoami())
 end)
 
-job("ls", function(cenv)
+job("ls", function(ctx)
     print(ls({
         dir = ".",
         str = true
@@ -29,52 +29,56 @@ job("ls", function(cenv)
     table.dump(ls("."))
 end)
 
-job("awk", function(cenv)
-    awk({
+job("awk", function(ctx)
+    local res, err = awk({
         prog = {
-            "../bin/test.awk",
-            "../bin/test2.awk"
+            "./static/test.awk",
+            "./static/test2.awk"
         },
         file = {
-            "awk_test.txt"
+            "./static/awk_test.txt"
         },
         var = {
             name = "ansurfen",
             age = 20
         }
     })
+    yassert(err)
+    print(res)
 end)
 
-job("sed", function(cenv)
+job("sed", function(ctx)
     local out, err = sed({
         old = "(.*)",
         new = "//$1",
-        file = { "t.txt" },
+        file = { "./static/sed_test.txt" },
     })
     print(out, err)
 end)
 
-job("grep", function(cenv)
-    grep({
+job("grep", function(ctx)
+    local res, err = grep({
         case = true,
         color = "never",
         pattern = "get",
-        file = { "awk_test.txt" }
+        file = { "./static/awk_test.txt" }
     })
+    yassert(err)
+    print(res)
 end)
 
-job("alias", function(cenv)
+job("alias", function(ctx)
     alias("CC", "go")
     sh("$CC -v")
     unalias("CC")
     sh("$CC -v")
 end)
 
-job("sudo", function(cenv)
+job("sudo", function(ctx)
     sudo("go -v")
 end)
 
-job("find", function(cenv)
+job("find", function(ctx)
     print(find("gnu_test.lua"))
     local tbl, err = find({
         pattern = "rg$",
@@ -84,7 +88,7 @@ job("find", function(cenv)
     table.dump(tbl)
 end)
 
-job("echo", function(cenv)
+job("echo", function(ctx)
     echo("$GOPATH")
     print(echo("$GOPATH not auto print"))
     write("file.txt", "hello world")
@@ -124,7 +128,7 @@ job("export", function(ctx)
 end)
 
 job("net", function(ctx)
-   table.dump( ifconfig())
+    table.dump(ifconfig())
 end)
 
 job("testService", function(ctx)

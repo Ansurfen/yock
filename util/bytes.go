@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -210,16 +211,19 @@ func BytesToInt32(buf []byte) int32 {
 	return int32(binary.BigEndian.Uint32(buf))
 }
 
-func ConvertByte2String(byte []byte, charset Charset) string {
+func ConvertByte2String(b []byte, charset Charset) string {
 	var str string
 	switch charset {
 	case GB18030:
-		decodeBytes, _ := simplifiedchinese.GB18030.NewDecoder().Bytes(byte)
+		if utf8.ValidString(str) {
+			return string(b)
+		}
+		decodeBytes, _ := simplifiedchinese.GB18030.NewDecoder().Bytes(b)
 		str = string(decodeBytes)
 	case UTF8:
 		fallthrough
 	default:
-		str = string(byte)
+		str = string(b)
 	}
 	return str
 }

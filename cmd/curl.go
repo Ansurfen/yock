@@ -47,6 +47,7 @@ type CurlOpt struct {
 
 // Curl is similar with curl, which is used to send Curl request according to opt and urls.
 func Curl(opt CurlOpt, urls []string) ([]byte, error) {
+	ret := []byte{}
 	for _, url := range urls {
 		if !util.IsURL(url) {
 			return nil, util.ErrInvalidURL
@@ -146,7 +147,14 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 					return nil, err
 				}
 			} else {
-				return io.ReadAll(res.Body)
+				d, e := io.ReadAll(res.Body)
+				if opt.Strict && e != nil {
+					return ret, e
+				} else if e != nil {
+					opt.err = e
+				}
+				ret = append(ret, d...)
+				ret = append(ret, []byte("\n\n")...)
 			}
 		}
 	}
@@ -156,5 +164,5 @@ func Curl(opt CurlOpt, urls []string) ([]byte, error) {
 		opt.wg.Wait()
 	}
 
-	return nil, opt.err
+	return ret, opt.err
 }

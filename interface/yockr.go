@@ -73,7 +73,7 @@ type YockState interface {
 
 	LState() *lua.LState
 	Argc() int
-	PopTop()
+	PopAll()
 	Clone() YockState
 }
 

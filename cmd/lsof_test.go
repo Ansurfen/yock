@@ -12,14 +12,17 @@ import (
 )
 
 func TestLsof(t *testing.T) {
-	fmt.Println(Lsof())
+	_, err := Lsof()
+	test.Assert(err == nil)
 }
 
-func TestLsof4Linux(t *testing.T) {
+func ExampleLsofInfo() {
 	test.Batch(test.BatchOpt{
 		Path: "./testdata/lsof/linux",
 	}).Range(func(data string) error {
 		fmt.Println(lsofLinux(data))
 		return nil
 	})
+	// Output:
+	// [{tcp 0.0.0.0:22 0.0.0.0:* LISTEN 0} {tcp 127.0.0.1:631 0.0.0.0:* LISTEN 0} {tcp 127.0.0.53:53 0.0.0.0:* LISTEN 0} {tcp6 :::8080 :::* LISTEN 2717}]
 }

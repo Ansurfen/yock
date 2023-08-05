@@ -1,0 +1,8 @@
+{
+    "github.tag": "https://github.com/{{.Repo}}/archive/refs/tags/{{.TagPack}}",
+    "github.release": "https://github.com/{{.Repo}}/releases/download/{{.Tag}}/{{.ReleasePack}}",
+    "gitee.tag": "https://gitee.com/{{.Repo}}/archive/refs/tags/{{.TagPack}}",
+    "gitee.release": "https://gitee.com/{{.Repo}}/releases/download/{{.Tag}}/{{.ReleasePack}}",
+    "gitea.tag": "https://gitea.com/{{.Repo}}/archive/{{.TagPack}}",
+    "gogs.tag": "https://try.gogs.io/{{.Repo}}/archive/{{.TagPack}}"
+}

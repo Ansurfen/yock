@@ -5,6 +5,8 @@
 ---@diagnostic disable: duplicate-set-field
 
 ---@class conf
+---@field buf table
+---@field viper Viper
 conf = {}
 
 ---@param file string
@@ -43,4 +45,14 @@ function conf:read(k)
         x = x[key]
     end
     return x
+end
+
+---@param k string
+---@param v any
+function conf:write(k, v)
+    self.viper:Set(k, v)
+end
+
+function conf:save()
+    self.viper:WriteConfig()
 end

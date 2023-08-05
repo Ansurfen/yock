@@ -123,7 +123,7 @@ func pathWalk(s yocki.YockState) int {
 			ycho.Fatal(err)
 		}
 		ok := s.CheckBool(-1)
-		s.PopTop()
+		s.PopAll()
 		if ok {
 			return nil
 		}

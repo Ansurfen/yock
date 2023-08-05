@@ -7,36 +7,27 @@
 
 ---@meta _
 
----{{.pull}}
 ---@param tbl table
-function pull(tbl)
-end
+function pull(tbl) end
 
 ---@param plugin string
 ---@return string,string
-function parse_plugin(plugin)
-    return "", ""
-end
+function parse_plugin(plugin) end
 
 ---@param file string
 ---@return string
-function export_builder(file)
-    return ""
-end
+function export_builder(file) end
 
 ---@class pluginlist
 plugin_list = {}
 
 ---@param path string
 ---@return boolean
-function plugin_list:IsExist(path)
-    return false
-end
+function plugin_list:IsExist(path) end
 
 ---@param pid string
 ---@param path string
-function plugin_list:AddPlugin(pid, path)
-end
+function plugin_list:AddPlugin(pid, path) end
 
 ---@class exportOpt
 ---@field update fun()
@@ -55,157 +46,80 @@ end
 
 ---@param opt table
 ---@vararg string
-function installs(opt, ...)
-end
+function installs(opt, ...) end
 
 ---@param plugin string
 ---@param opt table
-function install(plugin, opt)
-end
+function install(plugin, opt) end
 
 ---@param file string
 ---@return string
-function load_plugin(file)
-    return ""
-end
+function load_plugin(file) end
 
 plugins = {}
 
 ---@param opt table
-function plugin(opt)
-end
+function plugin(opt) end
 
----
----{{.ldns}}
----
 ---@class ldns
----
 ldns = {}
 
----
----{{.lsdn_get_driver}}
----
 ---@param domain string
----
-function ldns:GetDriver(domain)
-end
+function ldns:GetDriver(domain) end
 
----
----{{.ldns_get_plugin}}
----
 ---@param domain string
----
-function ldns:GetPlugin(domain)
-end
+function ldns:GetPlugin(domain) end
 
----
----{{.lsdn_put_plugin}}
----
 ---@param domain string
 ---@param url string
 ---@param path string
----
-function ldns:PutPlugin(domain, url, path)
-end
+function ldns:PutPlugin(domain, url, path) end
 
----
----{{.lsdn_put_driver}}
----
 ---@param domain string
 ---@param url string
 ---@param path string
----
-function ldns:PutDriver(domain, url, path)
-end
+function ldns:PutDriver(domain, url, path) end
 
----
----{{.lsdn_alias_driver}}
----
 ---@param domain string
 ---@param alias string
----
-function ldns:AliasDriver(domain, alias)
-end
+function ldns:AliasDriver(domain, alias) end
 
----
----{{.lsdn_alias_plugin}}
----
 ---@param domain string
 ---@param alias string
----
-function ldns:AliasPlugin(domain, alias)
-end
+function ldns:AliasPlugin(domain, alias) end
 
----
----{{.gdns}}
----
 ---@class gdns
----
 gdns = {}
 
----
----{{.gdns_get_driver}}
----
 ---@param domain string
----
-function gdns:GetDriver(domain)
-end
+function gdns:GetDriver(domain) end
 
----
----{{.gdns_get_plugin}}
----
 ---@param domain string
 ---@return table
----
-function gdns:GetPlugin(domain)
-    return {}
-end
+function gdns:GetPlugin(domain) end
 
 ---@param domain string
 ---@param url string
 ---@param path string
-function gdns:UpdatePlugin(domain, url, path)
-end
+function gdns:UpdatePlugin(domain, url, path) end
 
----
----{{.driver}}
----
 ---@param callback fun(...): ...:any
----
-function driver(callback)
-end
+function driver(callback) end
 
----
----{{.uninit_driver}}
----
 ---@param fn string
 ---@return fun(opt: table, ...:any)
----
 function uninit_driver(fn)
     ---@param opt table
     ---@vararg any
-    return function(opt, ...)
-
-    end
+    return function(opt, ...) end
 end
 
----
----{{.set_driver}}
----
 ---@param driver string
 ---@param name string
 ---@return string
----
-function set_driver(driver, name)
-    return ""
-end
+function set_driver(driver, name) end
 
----
----{{.exec_driver}}
----
 ---@param did string
 ---@param opt table
 ---@vararg any
----
-function exec_driver(did, opt, ...)
-end
+function exec_driver(did, opt, ...) end

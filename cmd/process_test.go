@@ -7,14 +7,18 @@ package yockc
 import (
 	"fmt"
 	"testing"
+
+	"github.com/ansurfen/yock/util/test"
 )
 
 func TestPS(t *testing.T) {
-	fmt.Println(PS(PSOpt{User: true, CPU: true}))
+	_, err := PS(PSOpt{User: true, CPU: true})
+	test.Assert(err == nil)
 }
 
 func TestKill(t *testing.T) {
-	KillByName("test")
+	err := KillByName("test")
+	test.Assert(err == nil)
 }
 
 func TestPGrep(t *testing.T) {
@@ -22,5 +26,6 @@ func TestPGrep(t *testing.T) {
 }
 
 func TestNohup(t *testing.T) {
-	Nohup("./test/test.exe")
+	err := Nohup("./test/test.exe")
+	test.Assert(err == nil)
 }

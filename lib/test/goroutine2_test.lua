@@ -1,3 +1,3 @@
-time.sleep(25 * time.second)
+time.Sleep(25 * time.Second)
 notify("b")
 print("push b")

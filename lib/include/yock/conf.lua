@@ -19,3 +19,9 @@ function conf.create(file, tmpl) end
 ---@param k string
 ---@return table|nil
 function conf:read(k) end
+
+---@param k string
+---@param v any
+function conf:write(k, v) end
+
+function conf:save() end

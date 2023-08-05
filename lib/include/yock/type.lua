@@ -31,9 +31,7 @@ local StringType = {}
 
 ---@param str string
 ---@return StringType
-function String(str)
-    return {}
-end
+function String(str) end
 
 ---@return userdata
 function StringType:Ptr() end

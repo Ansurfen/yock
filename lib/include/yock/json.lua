@@ -11,15 +11,11 @@ json = {}
 ---@param v any
 ---@vararg string
 ---@return string
-function json.encode(v, ...)
-    return ""
-end
+function json.encode(v, ...) end
 
 ---@param str string
 ---@return table
-function json.decode(str)
-    return {}
-end
+function json.decode(str) end
 
 ---@class jsonobject
 ---@field buf table

@@ -6,6 +6,7 @@ package yockc
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/ansurfen/yock/util"
@@ -37,24 +38,26 @@ echo 'export %s=$%s:%s' >> ~/.bashrc
 	unsetWindows = `
 Set objShell = CreateObject("WScript.Shell")
 objShell.Environment("User").Remove("%s")`
+	unsetExpandWindows = `
+Set wshShell = CreateObject("WScript.Shell")
+Set env = wshShell.Environment("{{ .Target }}")
+old = env("{{ .Key }}")
+newVar = "{{ .Value }}"
+if InStr(1, old, newVar, vbTextCompare) = 1 Then
+	old = Replace(old, newVar+";", "")
+End If
+env("{{ .Key }}") = old`
 	unsetPosix = `#!/bin/bash
 sed -i '/^export %s=/d' ~/.bashrc
 . ~/.bashrc`
+	UnsetExpandPosix = `#!/bin/bash
+sed -i '/^export %s=%s/d' ~/.bashrc
+. ~/.bashrc`
 )
-
-var envPath = "User"
-
-func SetPath(path string) {
-	switch strings.ToLower(path) {
-	case "user":
-		envPath = "User"
-	case "sys":
-		envPath = "Sys"
-	}
-}
 
 type ExportOpt struct {
 	Expand bool
+	System bool
 }
 
 func Export(opt ExportOpt, k, v string) error {
@@ -83,8 +86,17 @@ func Export(opt ExportOpt, k, v string) error {
 	return err
 }
 
-func Unset(k string) error {
+type UnsetOpt struct {
+	Expand bool
+	System bool
+}
+
+func Unset(opt UnsetOpt, k, v string) error {
 	script := ""
+	target := "User"
+	if opt.System {
+		target = "System"
+	}
 	if strings.ToUpper(k) == "PATH" {
 		if util.CurPlatform.OS == "windows" {
 			k = "Path"
@@ -93,10 +105,34 @@ func Unset(k string) error {
 		}
 	}
 	if util.CurPlatform.OS == "windows" {
-		script = fmt.Sprintf(unsetWindows, k)
+		if opt.Expand {
+			script, _ = util.NewTemplate().OnceParse(unsetExpandWindows, map[string]string{
+				"Target": target,
+				"Key":    k,
+				"Value":  v,
+			})
+		} else {
+			script = fmt.Sprintf(unsetWindows, k)
+		}
 	} else {
-		script = fmt.Sprintf(unsetPosix, k)
+		if opt.Expand {
+			script = fmt.Sprintf(UnsetExpandPosix, k, v)
+		} else {
+			script = fmt.Sprintf(unsetPosix, k)
+		}
 	}
 	_, err := OnceScript(script)
 	return err
+}
+
+func ExportL(k, v string) error {
+	return os.Setenv(k, v)
+}
+
+func Environ(k string) string {
+	return os.Getenv(k)
+}
+
+func UnsetL(k string) error {
+	return os.Unsetenv(k)
 }

@@ -84,28 +84,20 @@ env = {}
 -- function env.print()
 -- end
 
----@return table
-function env.environ() end
-
 ---@param args table
 function env.set_args(args) end
 
----
 ---@class platform
 ---@field OS string
 ---@field Ver string
 ---@field Arch string
----
 local platform = {}
 
 ---@return string
-function platform:Exf()
-end
+function platform:Exf() end
 
 ---@return string
-function platform:Script()
-end
+function platform:Script() end
 
 ---@return string
-function platform:Zip()
-end
+function platform:Zip() end

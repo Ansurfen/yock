@@ -17,6 +17,9 @@ Yock is a solution of cross platform to compose distributed build stream. It's a
 * YockPack: it's mainly used for preprocessing lua file, such as schema decomposition, decomposing a lua source file into multiple lua files according to a given modes for distributed system.
 * YockScheduler: the scheduler is responsible for running the lua code, and launchs goroutines to execute in tasks.
 * YPM: yock package manager, used for completion and loading dependencies.
+* Yockd: yock's daemon responsible for cross-process and cross-end communication, building P2P or centralized cluster.
+* Yockr: yock's runtime。
+* Yockw: yock's monitoring, used for log search and metric monitoring.
 
 ## Installation
 
@@ -37,10 +40,14 @@ git clone https://github.com/Ansurfen/yock.git
 
 cd ctl
 
-./build.bat // normal build
+./build.bat/sh // normal build
 ./build.bat/sh ffi //build with libffi (gcc or mingw required)
 ./build.bat/sh dev //build developer version
 ./build.bat/sh oslinux //cross compile to linux
+
+// automatically build with libffi version when the last step was finished
+yock run install.lua
+yock run ../auto/build-ffi.lua
 ```
 
 #### Embed in Go

@@ -44,7 +44,9 @@ end
 ---@param src string
 ---@param dst string
 zipc = function(src, dst)
-    mkdir(path.dir(dst))
+    if not find(path.dir(dst)) then
+        mkdir(path.dir(dst))
+    end
     local archive, err = os.Create(dst)
     yassert(err)
     local zw = zip.NewWriter(archive)
@@ -77,12 +79,14 @@ end
 
 ---@param src string
 ---@param dst string
+---@return string, err
 untar = function(src, dst)
     local file, err = os.Open(src)
     yassert(err)
     local gzipReader, err = gzip.NewReader(file)
     yassert(err)
     local tarReader = tar.NewReader(gzipReader)
+    local long_path = ""
     while true do
         local header, err = tarReader:Next()
         if err == io.EOF then
@@ -91,6 +95,9 @@ untar = function(src, dst)
         yassert(err)
         local targetPath = path.join(dst, header.Name)
         if header.Typeflag == tar.TypeDir then
+            if #targetPath > #long_path then
+                long_path = targetPath
+            end
             if not find(targetPath) then
                 mkdir(targetPath)
             end
@@ -109,17 +116,28 @@ untar = function(src, dst)
         end
     end
     file:Close()
+    local rel, err = filepath.Rel(dst, long_path)
+    if err ~= nil then
+        return rel, err
+    end
+    local idx = strings.IndexAny(rel, string.char(filepath.Separator))
+    return string.sub(rel, 1, idx), nil
 end
 
 ---@param src string
 ---@param dst string
+---@return string, err
 unzip = function(src, dst)
     local reader, err = zip.OpenReader(src)
     yassert(err)
+    local long_path = ""
     for i = 1, #reader.File, 1 do
         local file = reader.File[i]
         local filePath = path.join(dst, file.Name)
         if file:FileInfo():IsDir() then
+            if #filePath > #long_path then
+                long_path = filePath
+            end
             if not find(filePath) then
                 mkdir(filePath)
             end
@@ -139,6 +157,12 @@ unzip = function(src, dst)
         rc:Close()
         ::continue::
     end
+    local rel, err = filepath.Rel(dst, long_path)
+    if err ~= nil then
+        return rel, err
+    end
+    local idx = strings.IndexAny(rel, string.char(filepath.Separator))
+    return string.sub(rel, 1, idx), nil
 end
 
 ---@param src string
@@ -156,13 +180,15 @@ end
 
 ---@param src string
 ---@param dst string
+---@return string, err
 uncompress = function(src, dst)
     local ext = filepath.Ext(src)
     if ext == ".zip" then
-        unzip(src, dst)
+        return unzip(src, dst)
     elseif ext == ".gz" then
-        untar(src, dst)
+        return untar(src, dst)
     else
         yassert("no support the uncompress type")
     end
+    return "", nil
 end

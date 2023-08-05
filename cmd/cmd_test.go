@@ -6,21 +6,29 @@ package yockc
 
 import (
 	"fmt"
+	"os"
 	"testing"
+
+	"github.com/ansurfen/yock/util"
+	"github.com/ansurfen/yock/util/test"
 )
 
-func TestRm(t *testing.T) {
-	Rm(RmOpt{
-		Safe: true,
-	}, "test")
-}
-
-func TestMv(t *testing.T) {
-	Mv(MvOpt{}, "a", "b")
-}
-
-func TestCp(t *testing.T) {
-	Cp(CpOpt{}, "a", "b")
+func TestIO(t *testing.T) {
+	Rm(RmOpt{Safe: false}, "a")
+	Rm(RmOpt{Safe: false}, "b")
+	util.Mkdirs("a")
+	err := Mv(MvOpt{}, "a", "b")
+	test.Assert(err == nil)
+	_, err = os.Stat("a")
+	test.Assert(err != nil)
+	err = Cp(CpOpt{Recurse: true}, "b", "a")
+	test.Assert(err == nil)
+	err = Rm(RmOpt{
+		Safe: false,
+	}, "a")
+	test.Assert(err == nil)
+	_, err = os.Stat("a")
+	test.Assert(err != nil)
 }
 
 func TestEchoConsole(t *testing.T) {
@@ -73,9 +81,22 @@ func TestExport(t *testing.T) {
 }
 
 func TestUnset(t *testing.T) {
-	Unset("a")
+	Unset(UnsetOpt{}, "a", "")
 }
 
 func TestUntar(t *testing.T) {
-	fmt.Println(Untar("yock.tar.gz", "aaa"))
+	// Rm(RmOpt{Safe: false}, "tmp")
+	// util.Mkdirs("tmp/a/b/c")
+	// err := Tar("tmp", "yock.tar.gz")
+	// test.Assert(err == nil, err.Error())
+	// err = Untar("yock.tar.gz", "aaa")
+	// test.Assert(err == nil, "fail to untar")
+}
+
+func TestUserUnset(t *testing.T) {
+	fmt.Println(util.NewTemplate().OnceParse(unsetExpandWindows, map[string]string{
+		"Target": "User",
+		"Key":    "demo",
+		"Value":  "1",
+	}))
 }

@@ -4,9 +4,10 @@
 
 ---@diagnostic disable: param-type-mismatch
 
----@param opt table
+---@param opt grep_opt
+---@return string, err
 grep = function(opt)
-    local arg_builder = argBuilder:new():add(path.join(env.yock_bin, "rg.exe"))
+    local arg_builder = argBuilder:new():add(path.join(env.yock_bin, "grep", wrapexf("rg")))
     if opt["color"] ~= nil then
         arg_builder:add_str("--color=" .. opt["color"], opt["color"])
     end
@@ -17,10 +18,15 @@ grep = function(opt)
         table.insert(files, file)
     end
     arg_builder:add(strings.Join(files, " "))
-    sh(arg_builder:build())
+    local res, err = sh({ redirect = false }, arg_builder:build())
+    if #res > 0 then
+        return res[1], err
+    end
+    return "", err
 end
 
----@param opt table
+---@param opt awk_opt
+---@return string, err
 awk = function(opt)
     local vars = {}
     for k, v in pairs(opt["var"]) do
@@ -42,14 +48,19 @@ awk = function(opt)
     for _, file in ipairs(opt["file"]) do
         table.insert(files, file)
     end
-    local arg_builder = argBuilder:new():add(path.join(env.yock_bin, "goawk.exe"))
+    local arg_builder = argBuilder:new():add(path.join(env.yock_bin, "awk", wrapexf("goawk")))
     arg_builder:add(strings.Join(vars, " ")):add(progs):add(strings.Join(files, " "))
-    sh(arg_builder:build())
+    local res, err = sh({ redirect = false }, arg_builder:build())
+    if #res > 0 then
+        return res[1], err
+    end
+    return "", err
 end
 
----@param opt table
+---@param opt sed_opt
+---@return string, err
 sed = function(opt)
-    local arg_builder = argBuilder:new():add(path.join(env.yock_bin, "sd.exe"))
+    local arg_builder = argBuilder:new():add(path.join(env.yock_bin, "sed", wrapexf("sd")))
     arg_builder:add_str("-f " .. (opt["f"] or ""), opt["f"])
     arg_builder:add_str(string.format([['%s']], opt["old"]), opt["old"])
     arg_builder:add_str(string.format([['%s']], opt["new"]), opt["new"])
@@ -58,5 +69,9 @@ sed = function(opt)
     end
     local files = strings.Join(opt["file"], " ")
     arg_builder:add(files)
-    sh(arg_builder:build())
+    local res, err = sh({ redirect = false }, arg_builder:build())
+    if #res > 0 then
+        return res[1], err
+    end
+    return "", err
 end

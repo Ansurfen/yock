@@ -2,8 +2,6 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
----@diagnostic disable: missing-fields
-
 --[[
 require:
     go version 1.20
@@ -24,7 +22,6 @@ option({
     sync = false
 })
 
-local zip_name = "yock"
 local yock_path = pathf("$/../yock")
 if not find(yock_path) then
     mkdir(yock_path)
@@ -105,16 +102,138 @@ go build -o $yockw ../watch/main.go]]
 
     -- sh("$yock run ../auto/bin-tidy.lua")
     -- mv(path.join(wd, "../bin"), path.join(yock_path, "bin"))
-    if os == "all" then
-        for _, o in ipairs({ "linux", "windows", "darwin" }) do
-            ctx.set_os(o)
-            local target = string.format(pathf("$/../tmp/%s/yock"), o)
-            cp(yock_path .. "/*", target)
-            compress(target, pathf("..", string.format("%s-%s%s", o, ctx.flags["v"], ctx.platform:Zip())))
+    ctx.exit(2)
+end)
+
+local SD_LICENSE = [[MIT License
+Copyright (c) 2018 Gregory
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.]]
+
+job("tidy", function(ctx)
+    local wd = pwd()
+    local o  = ctx.flags["os"]
+
+    rm({ safe = false }, "../auto/bin/dist")
+
+    local install_deps = function(os, target)
+        cd(pathf("../auto/bin"))
+        ctx.set_os(os)
+        mkdir("./dist/awk", "./dist/sed", "./dist/grep")
+        mkdir(pathf(target, "awk"), pathf(target, "sed"), pathf(target, "grep"))
+        for _, v in ipairs(find({ dir = false, pattern = "awk" }, ".")) do
+            if strings.Contains(v, env.platform.Arch) and strings.Contains(v, os) then
+                local dir    = string.format("./dist/awk/%s", os)
+                local _, err = uncompress(v, dir)
+                yassert(err)
+                local res, err = find({
+                    pattern = "goawk" .. ctx.platform:Exf(),
+                    dir = false
+                }, dir)
+                yassert(err)
+                for _, value in ipairs(res) do
+                    if path.base(value) == "goawk" .. ctx.platform:Exf() then
+                        mv(value, pathf(target, "awk"))
+                    end
+                end
+                res, err = find({
+                    pattern = "LICENSE.txt",
+                    dir = false
+                }, dir)
+                yassert(err)
+                if #res > 0 then
+                    mv(res[1], pathf(target, "awk"))
+                end
+                break
+            end
+        end
+        for _, v in ipairs(find({ dir = false, pattern = "sd" }, ".")) do
+            if strings.Contains(v, os) then
+                local dir    = string.format("./dist/sed/%s", os)
+                local _, err = uncompress(v, dir)
+                yassert(err)
+                local res, err = find({
+                    pattern = "sd" .. ctx.platform:Exf(),
+                    dir = false
+                }, dir)
+                yassert(err)
+                for _, value in ipairs(res) do
+                    if path.base(value) == "sd" .. ctx.platform:Exf() then
+                        mv(value, pathf(target, "sed"))
+                    end
+                end
+                err = write(pathf(target, "sed", "LICENSE"), SD_LICENSE)
+                yassert(err)
+                break
+            end
+        end
+        for _, v in ipairs(find({ dir = false, pattern = "grep" }, ".")) do
+            if strings.Contains(v, os) then
+                local dir    = string.format("./dist/grep/%s", os)
+                local _, err = uncompress(v, dir)
+                yassert(err)
+                local res, err = find({
+                    pattern = "rg" .. ctx.platform:Exf() .. "$",
+                    dir = false
+                }, dir)
+                yassert(err)
+                for _, value in ipairs(res) do
+                    if path.base(value) == "rg" .. ctx.platform:Exf() then
+                        mv(value, pathf(target, "grep"))
+                    end
+                end
+                res, err = find({
+                    pattern = "COPYING",
+                    dir = false
+                }, dir)
+                yassert(err)
+                if #res > 0 then
+                    mv(res[1], pathf(target, "grep"))
+                end
+                res, err = find({
+                    pattern = "LICENSE-MIT",
+                    dir = false
+                }, dir)
+                yassert(err)
+                if #res > 0 then
+                    mv(res[1], pathf(target, "grep"))
+                end
+                res, err = find({
+                    pattern = "UNLICENSE",
+                    dir = false
+                }, dir)
+                yassert(err)
+                if #res > 0 then
+                    mv(res[1], pathf(target, "grep"))
+                end
+                break
+            end
+        end
+        cd(wd)
+    end
+
+    if o == "all" then
+        for _, os in ipairs({ "linux", "darwin", "windows" }) do
+            install_deps(os, pathf(wd, "../tmp/", os, "yock", "bin"))
         end
     else
-        zip_name = assign.string(zip_name, ctx.flags.o)
-        compress(yock_path, pathf("..", zip_name .. ctx.platform:Zip()))
+        install_deps(o, pathf(yock_path, "bin"))
     end
     ctx.exit(2)
 end)
@@ -139,7 +258,7 @@ end)
 job("clean", function(ctx)
     rm({
         safe = false
-    }, yock_path, pathf("$/../tmp"))
+    }, yock_path, pathf("$/../tmp"), pathf("$/../auto/bin/dist"))
 end)
 
 job("remote", function(ctx)
@@ -203,6 +322,21 @@ enable = true
     -- end)
 end)
 
-jobs("all", "build", "remote", "clean")
-jobs("alldev", "build", "depoly-dev", "remote", "clean")
+job("pack", function(ctx)
+    local os = ctx.flags["os"]
+    if os == "all" then
+        for _, o in ipairs({ "linux", "windows", "darwin" }) do
+            ctx.set_os(o)
+            local target = string.format(pathf("$/../tmp/%s/yock"), o)
+            cp({ recurse = true, force = true }, { [yock_path .. "/*"] = target })
+            compress(target, pathf("..", string.format("%s-%s%s", o, ctx.flags["v"], ctx.platform:Zip())))
+        end
+    else
+        compress(yock_path, pathf("..", string.format("%s-%s", os, ctx.flags["v"]) .. ctx.platform:Zip()))
+    end
+    ctx.exit(2)
+end)
+
+jobs("all", "build", "tidy", "pack", "remote", "clean")
+jobs("alldev", "build", "tidy", "pack", "depoly-dev", "remote", "clean")
 jobs("dist", "build")

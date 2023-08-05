@@ -1,0 +1,18 @@
+{
+    "depend": {
+        "ark": {
+            "resolved": [
+                "github.tag/ansurfen/ark@0.0.2",
+                "gitea.tag/ansurfen/ark@0.0.2"
+            ],
+            "version": "0.0.2"
+        },
+        "opencmd": {
+            "resolved": [
+                "github.tag/ansurfen/opencmd@0.0.1",
+                "gitea.tag/ansurfen/opencmd@0.0.1"
+            ],
+            "version": "0.0.1"
+        }
+    }
+}

@@ -7,9 +7,13 @@
 
 package util
 
+// #include <dlfcn.h>
+// #include <stdlib.h>
+import "C"
 import (
 	"errors"
-	"plugin"
+	"fmt"
+	"unsafe"
 )
 
 var (
@@ -18,43 +22,47 @@ var (
 )
 
 type PosixPlugin struct {
-	*plugin.Plugin
+	handle unsafe.Pointer
 }
 
 func NewPlugin(path string) (Plugin, error) {
-	plugin, err := plugin.Open(path)
+	c_str := C.CString(path)
+	defer C.free(unsafe.Pointer(c_str))
+
+	h := C.dlopen(c_str, C.int(C.RTLD_NOW))
+	if h == nil {
+		return nil, fmt.Errorf("%s", C.GoString(C.dlerror()))
+	}
+
 	return &PosixPlugin{
-		Plugin: plugin,
-	}, err
+		handle: h,
+	}, nil
 }
 
 // Func return PluginFunc which is an abstract function to be exported dynamic library
 // according to funcName. You can use PluginFunc to call function from dynamic library.
 func (pp *PosixPlugin) Func(name string) (PluginFunc, error) {
-	sym, err := pp.Lookup(name)
-	if err != nil {
-		return nil, err
+	c_sym := C.CString(name)
+	defer C.free(unsafe.Pointer(c_sym))
+	c_addr := C.dlsym(pp.handle, c_sym)
+	if c_addr == nil {
+		return nil, fmt.Errorf("%s not found", name)
 	}
 	return &PosixPluginFunc{
-		Symbol: sym,
+		sym: uintptr(c_addr),
 	}, nil
 }
 
 type PosixPluginFunc struct {
-	plugin.Symbol
+	sym uintptr
 }
 
 // Call return excuted result from dynamic library
 func (ppf *PosixPluginFunc) Call(params ...uintptr) (uintptr, error) {
-	switch f := ppf.Symbol.(type) {
-	case func(...uintptr) uintptr:
-		return f(params...), nil
-	default:
-		return uintptr(0), errors.New("fail to assert func")
-	}
+	return uintptr(0), errors.New("fail to assert func")
 }
 
 // Call return excuted result from dynamic library
 func (ppf *PosixPluginFunc) Addr() uintptr {
-	return ppf.Symbol.(uintptr)
+	return ppf.sym
 }

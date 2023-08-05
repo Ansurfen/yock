@@ -43,7 +43,8 @@ interface/c/libyock/cJSON.c
 **/secret.*
 **/openssl.cfg
 
-/bin
+bin
+dist
 
 *.pyc
 __pycache__

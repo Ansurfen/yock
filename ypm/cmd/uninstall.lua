@@ -3,7 +3,7 @@
 --  license that can be found in the LICENSE file.
 
 return {
-    desc = { use = "uninstall" },
+    desc = { use = "uninstall", short = "Uninstall module to be specified" },
     run = function(cmd, args)
         if #args == 0 then
             yassert("arguments too little")

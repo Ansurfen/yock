@@ -6,7 +6,7 @@
 ---@diagnostic disable: undefined-field
 
 return {
-    desc = { use = "cache" },
+    desc = { use = "cache", short = "Manage local ypm' cache" },
     sub = {
         {
             desc = { use = "free" },

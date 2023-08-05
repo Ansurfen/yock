@@ -4,35 +4,21 @@
 
 ---@meta _
 
----{{.Windows}}
 ---@return boolean
-function Windows()
-    return false
-end
+function Windows() end
 
----{{.Darwin}}
 ---@return boolean
-function Darwin()
-    return false
-end
+function Darwin() end
 
----{{.Linux}}
 ---@return boolean
-function Linux()
-    return false
-end
+function Linux() end
 
----{{.OS}}
 ---@param want_os string
 ---@param want_ver string
 ---@return boolean
-function OS(want_os, want_ver)
-    return false
-end
+function OS(want_os, want_ver) end
 
 ---@param want string
 ---@param got string
 ---@return boolean
-function CheckVersion(want, got)
-    return false
-end
+function CheckVersion(want, got) end

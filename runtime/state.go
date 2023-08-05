@@ -228,9 +228,11 @@ func (s *YockState) LState() *lua.LState {
 	return s.ls
 }
 
-func (s *YockState) PopTop() {
+func (s *YockState) PopAll() {
 	s.ls.Pop(s.ls.GetTop())
 }
+
+// PopTop/PopBack
 
 func (s *YockState) Argc() int {
 	return s.ls.GetTop()

@@ -3,7 +3,7 @@
 -- license that can be found in the LICENSE file.
 
 return {
-    desc = { use = "proxy" },
+    desc = { use = "proxy", short = "WIP" },
     run = function(cmd, args)
         local rows = {}
         path.walk(pathf("#1", "../../proxy"), function(p, info, err)
@@ -101,7 +101,6 @@ return {
                     yassert("arguments too little")
                 end
                 local file = args[1]
-                
             end
         }
     }

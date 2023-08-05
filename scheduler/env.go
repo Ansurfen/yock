@@ -23,7 +23,6 @@ func loadEnv(yocks yocki.YockScheduler) {
 		"conf":      yocke.GetEnv[*conf.YockConf]().Conf(),
 	})
 	lib.SetFunctions(map[string]lua.LGFunction{
-		"environ":  envEnviron,
 		"set_args": envSetArgs,
 	})
 	// yocks.MntYocksFn(lib, yocki.YocksFuncs{
@@ -115,18 +114,6 @@ func envExport(yocks yocki.YockScheduler, s yocki.YockState) int {
 func envPrint(yocks yocki.YockScheduler, s yocki.YockState) int {
 	yocks.EnvVar().Print()
 	return 0
-}
-
-// envEnviron returns table of enviroment variable
-//
-// @return table
-func envEnviron(l *lua.LState) int {
-	envs := &lua.LTable{}
-	for i, e := range os.Environ() {
-		envs.Insert(i+1, lua.LString(e))
-	}
-	l.Push(envs)
-	return 1
 }
 
 // envSetArgs resets the value of os.Args

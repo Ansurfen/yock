@@ -642,11 +642,11 @@ func (expr cronExpr) toSchtasks() (ret []string) {
 		return
 	}
 	for _, tl := range st.tls {
-		// ret = append(ret, tl.String())
+		ret = append(ret, tl.String())
 		if len(tl.schdule) == 0 {
 			tl.schdule = st.delaySc
 		}
-		fmt.Println(tl)
+		// fmt.Println(tl)
 	}
 	return
 }

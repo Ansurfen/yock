@@ -6,7 +6,7 @@
 ---@diagnostic disable: duplicate-set-field
 
 env.yock_modules = path.join(env.yock_path, "yock_modules")
-
+env.pwd = pwd()
 
 local ypm_path = pathf("~/ypm")
 if not find(ypm_path) then
@@ -100,7 +100,7 @@ function load_module(target)
             end
         end
     else
-        absPath = pathf("$", "modules.json")
+        absPath = pathf(env.pwd, "modules.json")
     end
     local found = true
     if version == nil then

@@ -8,22 +8,30 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ansurfen/yock/util/test"
 	lua "github.com/yuin/gopher-lua"
 )
 
 func TestCreateYockLib(t *testing.T) {
+	testset := map[string][]any{
+		"ver": {"10", lua.LTString},
+		"echo": {func() {
+			fmt.Println("Hello, I'm Golang")
+		}, lua.LTFunction},
+	}
 	s := NewYState()
 	lib := CreateYockLib(s, "os")
-	lib.SetField(map[string]any{
-		"ver": "10",
-		"echo": func() {
-			fmt.Println("Hello, I'm Golang")
-		},
-	})
+	for k, v := range testset {
+		lib.SetField(map[string]any{
+			k: v[0],
+		})
+	}
 	lib.Meta().Value().ForEach(func(l1, l2 lua.LValue) {
-		fmt.Println(l1, l2)
+		v := testset[l1.String()]
+		test.Assert(l2.Type() == v[1].(lua.LValueType))
 	})
-	s.LState().DoString("print(os.ver); os.echo()")
+	err := s.LState().DoString("print(os.ver); os.echo()")
+	test.Assert(err == nil)
 }
 
 func TestOpenYockLib(t *testing.T) {
@@ -35,6 +43,7 @@ func TestOpenYockLib(t *testing.T) {
 			fmt.Println("Hello, I'm Golang")
 		},
 	})
+	test.Assert(lib.Name() == "os")
 	lib.Meta().Value().ForEach(func(l1, l2 lua.LValue) {
 		fmt.Println(l1, l2)
 	})

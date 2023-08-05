@@ -51,6 +51,9 @@ func LoadGNU(yocks yocki.YockScheduler) {
 		"pgrep":    gnuPGrep,
 		"ifconfig": gnuIfconfig,
 		"lsof":     gnuLsof,
+		"exportl":  gnuExportL,
+		"unsetl":   gnuUnsetL,
+		"environ":  gnuEnviron,
 	})
 	systemCtl := yocks.CreateLib("systemctl")
 	systemCtl.SetYFunction(map[string]yocki.YGFunction{
@@ -329,9 +332,15 @@ func gnuKill(s yocki.YockState) int {
 }
 
 func gnuUnset(s yocki.YockState) int {
-	name := s.CheckString(1)
-	err := yockc.Unset(name)
-	ychoLogger(err, "%sunset %s", s.Stacktrace(), name)
+	key := s.CheckString(1)
+	value := ""
+	opt := yockc.UnsetOpt{}
+	if strings.Contains(key, ":") {
+		opt.Expand = true
+		key, value, _ = strings.Cut(key, ":")
+	}
+	err := yockc.Unset(opt, key, value)
+	ychoLogger(err, "%sunset %s", s.Stacktrace(), key)
 	s.PushError(err)
 	return 1
 }
@@ -355,6 +364,57 @@ func gnuExport(s yocki.YockState) int {
 		}
 	}
 	s.PushNil()
+	return 1
+}
+
+func gnuExportL(s yocki.YockState) int {
+	k := s.CheckString(1)
+	v := s.CheckString(2)
+	err := yockc.ExportL(k, v)
+	ychoLogger(err, "%sexportl %s=%s", s.Stacktrace(), k, v)
+	s.PushError(err)
+	return 1
+}
+
+// envEnviron returns table of enviroment variable
+//
+// @return table
+func gnuEnviron(s yocki.YockState) int {
+	envs := &lua.LTable{}
+	l := s.LState()
+	if l.GetTop() >= 1 {
+		k := l.CheckString(1)
+		for _, e := range os.Environ() {
+			before, after, ok := strings.Cut(e, "=")
+			if ok && before == k {
+				sep := ":"
+				if util.CurPlatform.OS == "windows" {
+					sep = ";"
+				}
+				for _, v := range strings.Split(after, sep) {
+					envs.Append(lua.LString(v))
+				}
+			}
+		}
+	} else {
+		for i, e := range os.Environ() {
+			before, after, ok := strings.Cut(e, "=")
+			if ok {
+				envs.RawSetString(before, lua.LString(after))
+			} else {
+				envs.Insert(i+1, lua.LString(e))
+			}
+		}
+	}
+	l.Push(envs)
+	return 1
+}
+
+func gnuUnsetL(s yocki.YockState) int {
+	k := s.CheckString(1)
+	err := yockc.UnsetL(k)
+	ychoLogger(err, "%sunsetl %s", s.Stacktrace(), k)
+	s.PushError(err)
 	return 1
 }
 
@@ -452,7 +512,7 @@ func gnuSudo(s yocki.YockState) int {
 		sudo = filepath.Join(util.YockPath, "bin", "sudo.bat")
 	}
 	cmd := s.CheckString(1)
-	_, err := yockc.Exec(yockc.ExecOpt{Quiet: true}, sudo+" "+cmd)
+	_, err := yockc.Exec(yockc.ExecOpt{Quiet: true, Sandbox: true}, sudo+" "+cmd)
 	ychoLogger(err, "%ssudo %s", s.Stacktrace(), cmd)
 	return 0
 }

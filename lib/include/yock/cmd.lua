@@ -4,11 +4,17 @@
 
 ---@meta _
 
+---@class sh_opt
+---@field redirect? boolean
+---@field quiet? strfopt
+---@field sandbox? boolean
+local sh_opt = {}
+
 -- Example:
 -- ```lua
 -- sh({redirect = true}, "echo Hello World")
 -- ```
----@param opt table
+---@param opt sh_opt
 ---@vararg string
 ---@return table<string>, err
 function sh(opt, ...) end
@@ -35,13 +41,13 @@ local promptoptdesc = {}
 local promptoptflag = {}
 
 ---@class promptopt
----@field desc promptoptdesc
----@field sub table<promptopt>
----@field flags table<promptoptflag>
----@field run fun(cmd: userdata, args: table<string>)
+---@field desc? promptoptdesc
+---@field sub? table<promptopt>
+---@field flags? table<promptoptflag>
+---@field run? fun(cmd: userdata, args: table<string>)
 local promptopt = {}
 
----{{.prompt}}
+
 ---@param opt promptopt
 function prompt(opt) end
 
@@ -52,11 +58,9 @@ function prompt(opt) end
 ---@field Run fun(cmd: command, args: table)
 local command = {}
 
----{{.new_command}}
 ---@return command
 function new_command() end
 
----{.new_command_AddCommand}
 ---@vararg command
 function command:AddCommand(...) end
 
@@ -72,9 +76,9 @@ function cmdf(...) end
 
 ---@class flag_type
 ---@field str number
----@field number_type number
----@field array_type number
----@field bool_type number
+---@field num number
+---@field arr number
+---@field bool number
 flag_type = {}
 
 -- ```lua

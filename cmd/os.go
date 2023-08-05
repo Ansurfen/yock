@@ -10,7 +10,9 @@ import "github.com/ansurfen/yock/util"
 type ExecOpt struct {
 	// Redirect set stdout, stderr, stdin stream
 	Redirect bool
-	Quiet  bool
+	Quiet    bool
+
+	Sandbox bool
 
 	Terminal uint8
 }

@@ -37,7 +37,8 @@ const cronExprs = `0 * * * *
 
 func TestCronParse(t *testing.T) {
 	util.ReadLineFromString(cronExprs, func(s string) string {
-		fmt.Println(CronParse(s))
+		expr, cmd := CronParse(s)
+		fmt.Println(expr.String(), cmd)
 		return ""
 	})
 }
@@ -52,18 +53,18 @@ func TestCronToSchTasks(t *testing.T) {
 }
 
 func TestCrontabList(t *testing.T) {
-	fmt.Println(CrontabList("MyTest"))
+	_, err := CrontabList("MyTest")
+	test.Assert(err == nil)
 }
 
 func TestCrontabAdd(t *testing.T) {
-	CrontabAdd("* * * * * echo a", "MyTest")
+	err := CrontabAdd("* * * * * echo a", "MyTest")
+	test.Assert(err == nil)
 }
 
 func TestCrontabDel(t *testing.T) {
 	err := CrontabDel("* * * * ? echo a", "MyTest")
-	if err != nil {
-		panic(err)
-	}
+	test.Assert(err == nil)
 }
 
 func TestCrontabListPosix(t *testing.T) {
@@ -85,16 +86,18 @@ func TestCrontabListWindowsV1(t *testing.T) {
 }
 
 func TestCrontabListWindowsV2(t *testing.T) {
-	str, err := Exec(ExecOpt{Quiet: true}, "schtasks /query /XML")
-	if err != nil {
-		panic(err)
+	if util.CurPlatform.OS == "windows" {
+		str, err := Exec(ExecOpt{Quiet: true}, "schtasks /query /XML")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(crontabListWindowsV2(str, true))
+		str, err = Exec(ExecOpt{Quiet: true}, "schtasks /query /tn MyTest /XML")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(crontabListWindowsV2(str, false))
 	}
-	fmt.Println(crontabListWindowsV2(str, true))
-	str, err = Exec(ExecOpt{Quiet: true}, "schtasks /query /tn MyTest /XML")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(crontabListWindowsV2(str, false))
 }
 
 func TestCronAnchor(t *testing.T) {
@@ -123,7 +126,7 @@ func TestCronExpr(t *testing.T) {
 			// hour: cronAnchor{nums: []cronTime{12, 14}, attr: A_ROUND},
 			day: cronAnchor{nums: []cronTime{6}, attr: A_ENUM},
 			mon: cronAnchor{nums: []cronTime{6}, attr: A_ENUM},
-			// mon:  cronAnchor{nums: []int{1, 2}, attr: A_ROUND},
+			// mon:  cronAnchor{nums: []cronTime{1, 2}, attr: A_ROUND},
 			week: cronAnchor{nums: []cronTime{6, 3}, attr: A_NO},
 			year: cronAnchor{nums: []cronTime{2006}},
 		},
@@ -132,8 +135,14 @@ func TestCronExpr(t *testing.T) {
 			hour: cronAnchor{nums: []cronTime{10}, attr: A_ENUM},
 		},
 	}
-	for _, expr := range exprs {
-		fmt.Println(expr)
-		fmt.Println(expr.toSchtasks())
+	want := []string{
+		"* * 0/1 * * * *",
+		"* 0/5 1-10/2 6 6 6#3 2006",
+		"* 15 10 * * * *",
+	}
+	schtask_wants := []int{1, 0, 1}
+	for i, expr := range exprs {
+		test.Assert(expr.String() == want[i])
+		test.Assert(len(expr.toSchtasks()) == schtask_wants[i])
 	}
 }

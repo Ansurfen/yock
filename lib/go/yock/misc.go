@@ -133,12 +133,12 @@ func loadbalance(s yocki.YockState) int {
 			if msg := s.CheckString(1); len(msg) > 0 {
 				err = errors.New(msg)
 			}
-			s.PopTop()
+			s.PopAll()
 			return err
 		})
 	})
-	s.PopTop()
-	s.PopTop()
+	s.PopAll()
+	s.PopAll()
 	if opt.MaxRetry == 0 {
 		opt.MaxRetry = len(elements)/2 + 1
 	}

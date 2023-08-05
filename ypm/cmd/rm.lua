@@ -3,7 +3,7 @@
 --  license that can be found in the LICENSE file.
 
 return {
-    desc = { use = "rm" },
+    desc = { use = "rm", short = "Remove doc from include directory" },
     run = function(cmd, args)
         if #args == 0 then
             yassert("arguments too little")
