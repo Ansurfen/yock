@@ -26,9 +26,9 @@ type CurlOpt struct {
 	Method string
 	Data   string
 	Cookie *http.Cookie
-	// Save will write body into specify file
+	// Save will write body into specified file
 	Save bool
-	// Dir set root directionary of file to be saved
+	// Dir set root directory of file to be saved
 	Dir string
 	// FilenameHandle returns filename that will be saved according to url
 	FilenameHandle func(string) string

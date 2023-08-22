@@ -10,7 +10,6 @@ var libyock = []loader{
 	liby.LoadCheck,
 	liby.LoadGoroutine,
 	liby.LoadXML,
-	liby.LoadTemplate,
 	liby.LoadType,
 	liby.LoadGNU,
 	liby.LoadJSON,
@@ -18,8 +17,9 @@ var libyock = []loader{
 	liby.LoadMisc,
 	liby.LoadRandom,
 	liby.LoadCrypto,
-	liby.LoadTea,
+	// liby.LoadTea,
 	liby.LoadBit,
 	loadEnv,
 	loadTask,
+	liby.LoadGin,
 }

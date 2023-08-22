@@ -4,32 +4,24 @@
 
 ---@meta _
 
----{{.xmlDocWriteSettings}}
 ---@class xmlDocWriteSettings
 ---@field UseCRLF boolean
 local xmlDocWriteSettings = {}
 
----{{.xmlDoc}}
 ---@class xmlDoc
 ---@field WriteSettings xmlDocWriteSettings
 local xmlDoc = {}
 
----{{.xml}}
 ---@return xmlDoc
-function xml()
-    return {}
-end
+function xml() end
 
----{{.xmlDoc_ReadFromBytes}}
 ---@param b string
 ---@return userdata
-function xmlDoc:ReadFromBytes(b)
-end
+function xmlDoc:ReadFromBytes(b) end
 
 ---@param s string
 ---@return userdata
-function xmlDoc:ReadFromString(s)
-end
+function xmlDoc:ReadFromString(s) end
 
 ---@param file string
 ---@return userdata
@@ -38,9 +30,7 @@ end
 
 ---@param e string
 ---@return xmlDoc
-function xmlDoc:SelectElement(e)
-    return {}
-end
+function xmlDoc:SelectElement(e) end
 
 ---@param e string
 ---@return userdata

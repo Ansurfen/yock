@@ -2,6 +2,7 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
+---@deprecated
 function pull(opt)
     if opt ~= nil then
         if opt.drivers ~= nil then
@@ -72,6 +73,7 @@ function pull(opt)
     end
 end
 
+---@deprecated
 -- uninit_driver is a shell that wrap exist and non-exist driver
 -- if driver is non-exist, it'll be set in null_driver
 ---@param fn string
@@ -135,7 +137,7 @@ function uninit_driver(fn)
     end
 end
 
----@see installs
+---@deprecated
 function installs(opt, ...)
     if opt ~= nil and opt.plugins ~= nil then
         pull({ plugins = opt.plugins })

@@ -5,11 +5,6 @@
 ---@meta _
 
 ---@class random
+---@field str fun(n:number): string # str returns the string of given length n
+---@field port fun():integer # port returns an idle port
 random = {}
-
----@param n number
----@return string
-function random.str(n) end
-
----@return number
-function random.port() end

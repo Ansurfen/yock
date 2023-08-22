@@ -23,7 +23,7 @@ func Nohup(cmds string) error {
 			name = cmds[:idx]
 			args = cmds[idx:]
 		}
-		cmds = fmt.Sprintf(`Start-Process -FilePath "%s" -ArgumentList "%s" -WindowStyle Hidden`, name, args)
+		cmds = fmt.Sprintf(`Start-Process -FilePath %s -ArgumentList "%s" -WindowStyle Hidden`, name, args)
 	} else {
 		cmds += " &"
 	}

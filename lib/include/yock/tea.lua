@@ -8,28 +8,22 @@ tea = {}
 
 ---@param model teaModel
 ---@return teaProgram
-function tea.NewProgram(model)
-end
+function tea.NewProgram(model) end
 
 ---@return teaModel
-function tea.NewModel()
-end
+function tea.NewModel() end
 
-function tea.Quit()
-end
+function tea.Quit() end
 
 ---@class teaModel
 ---@field InitCallback function
 ---@field UpdateCallback function
 ---@field ViewCallback function
-local teaModel = {}
 
 ---@class teaCmd
-local teaCmd = {}
 
 ---@class teaProgram
 local teaProgram = {}
 
 ---@return teaModel, err
-function teaProgram:Run()
-end
+function teaProgram:Run() end

@@ -94,3 +94,12 @@ end
 rename = function(src, dst)
     mv(src, dst)
 end
+
+os.O_RDONLY = 0
+os.O_WRONLY = 1
+os.O_RDWR = 2
+os.O_APPEND = 1024
+os.O_CREATE = 64
+os.O_EXCL = 128
+os.O_SYNC = 4096
+os.O_TRUNC = 512

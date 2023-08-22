@@ -62,9 +62,9 @@ var (
 			if runParameter.cooperate {
 				opts = append(opts, yocks.OptionUpgradeSingalStream())
 			}
-			if runParameter.enableAnalyse {
-				opts = append(opts, yocks.OptionEnableYockDriverMode())
-			}
+			// if runParameter.enableAnalyse {
+			// 	opts = append(opts, yocks.OptionEnableYockDriverMode())
+			// }
 
 			yocks := yocks.Default(opts...)
 			go yocks.EventLoop()

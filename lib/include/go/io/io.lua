@@ -17,6 +17,8 @@
 ---@field ErrClosedPipe any
 io = {}
 
+---@class ioWriter: any
+
 --- ReadFull reads exactly len(buf) bytes from r into buf.
 --- It returns the number of bytes copied and an error if fewer bytes were read.
 --- The error is EOF only if no bytes were read.

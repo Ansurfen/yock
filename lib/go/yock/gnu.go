@@ -6,6 +6,7 @@ package liby
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -590,33 +591,38 @@ func gnuEcho(s yocki.YockState) int {
 //
 // @return table|string, err
 func gnuLs(s yocki.YockState) int {
-	opt := yockc.LsOpt{}
-	if s.IsTable(1) {
-		err := s.CheckTable(1).Bind(&opt)
-		if err != nil {
-			s.PushNil().Throw(err)
-			return 2
-		}
-	} else {
-		opt.Dir = s.CheckString(1)
+	opt := yockc.LsOpt{
+		Dir: s.CheckString(1),
 	}
 
-	st, str, err := yockc.Ls(opt)
-	if opt.Str {
-		s.PushString(str)
-	} else {
-		fileinfos := &lua.LTable{}
-		for idx, info := range st {
-			linfo := &lua.LTable{}
-			linfo.Insert(1, lua.LString(info.Perm))
-			linfo.Insert(2, lua.LNumber(info.Size))
-			linfo.Insert(3, lua.LString(info.ModTime))
-			linfo.Insert(4, lua.LString(info.Filename))
-			fileinfos.Insert(idx+1, linfo)
+	if s.IsFunction(2) {
+		opt.SetRecurse()
+		opt.Callack = func(path string, info fs.FileInfo) bool {
+			tmp := s.Clone()
+			if err := tmp.Call(yocki.YockFuncInfo{
+				NRet: 1,
+				Fn:   s.CheckFunction(2),
+			}, path, info); err != nil {
+				return false
+			}
+			return true
 		}
-		s.Push(fileinfos)
 	}
-	s.PushError(err)
+
+	st, err := yockc.Ls(opt)
+	fileinfos := &lua.LTable{}
+	for idx, info := range st {
+		linfo := &lua.LTable{}
+		linfo.Insert(1, lua.LString(info.Perm))
+		linfo.Insert(2, lua.LNumber(info.Size))
+		linfo.Insert(3, lua.LString(info.ModTime))
+		linfo.Insert(4, lua.LString(info.Filename))
+		fileinfos.Insert(idx+1, linfo)
+	}
+	if fileinfos.Len() == 0 {
+		return s.PushNil().PushError(err).Exit()
+	}
+	s.Push(fileinfos).PushError(err)
 	return 2
 }
 

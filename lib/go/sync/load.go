@@ -21,13 +21,13 @@ func LoadSync(yocks yocki.YockScheduler) {
 		// variable
 	})
 	lib.SetYFunction(map[string]yocki.YGFunction{
-		"new":   syncNew,
-		"mutex": syncMutex,
+		"wait_group": syncWaitGroup,
+		"mutex":      syncMutex,
 	})
 }
 
 // @return userdata
-func syncNew(l yocki.YockState) int {
+func syncWaitGroup(l yocki.YockState) int {
 	l.Pusha(&sync.WaitGroup{})
 	return 1
 }

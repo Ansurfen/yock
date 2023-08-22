@@ -5,89 +5,6 @@
 ---@meta _
 
 ---@class http
----@field SameSiteDefaultMode any
----@field SameSiteLaxMode any
----@field SameSiteStrictMode any
----@field SameSiteNoneMode any
----@field MethodGet any
----@field MethodHead any
----@field MethodPost any
----@field MethodPut any
----@field MethodPatch any
----@field MethodDelete any
----@field MethodConnect any
----@field MethodOptions any
----@field MethodTrace any
----@field TrailerPrefix any
----@field DefaultMaxHeaderBytes any
----@field TimeFormat any
----@field StateNew any
----@field StateActive any
----@field StateIdle any
----@field StateHijacked any
----@field StateClosed any
----@field StatusContinue any
----@field StatusSwitchingProtocols any
----@field StatusProcessing any
----@field StatusEarlyHints any
----@field StatusOK any
----@field StatusCreated any
----@field StatusAccepted any
----@field StatusNonAuthoritativeInfo any
----@field StatusNoContent any
----@field StatusResetContent any
----@field StatusPartialContent any
----@field StatusMultiStatus any
----@field StatusAlreadyReported any
----@field StatusIMUsed any
----@field StatusMultipleChoices any
----@field StatusMovedPermanently any
----@field StatusFound any
----@field StatusSeeOther any
----@field StatusNotModified any
----@field StatusUseProxy any
----@field StatusTemporaryRedirect any
----@field StatusPermanentRedirect any
----@field StatusBadRequest any
----@field StatusUnauthorized any
----@field StatusPaymentRequired any
----@field StatusForbidden any
----@field StatusNotFound any
----@field StatusMethodNotAllowed any
----@field StatusNotAcceptable any
----@field StatusProxyAuthRequired any
----@field StatusRequestTimeout any
----@field StatusConflict any
----@field StatusGone any
----@field StatusLengthRequired any
----@field StatusPreconditionFailed any
----@field StatusRequestEntityTooLarge any
----@field StatusRequestURITooLong any
----@field StatusUnsupportedMediaType any
----@field StatusRequestedRangeNotSatisfiable any
----@field StatusExpectationFailed any
----@field StatusTeapot any
----@field StatusMisdirectedRequest any
----@field StatusUnprocessableEntity any
----@field StatusLocked any
----@field StatusFailedDependency any
----@field StatusTooEarly any
----@field StatusUpgradeRequired any
----@field StatusPreconditionRequired any
----@field StatusTooManyRequests any
----@field StatusRequestHeaderFieldsTooLarge any
----@field StatusUnavailableForLegalReasons any
----@field StatusInternalServerError any
----@field StatusNotImplemented any
----@field StatusBadGateway any
----@field StatusServiceUnavailable any
----@field StatusGatewayTimeout any
----@field StatusHTTPVersionNotSupported any
----@field StatusVariantAlsoNegotiates any
----@field StatusInsufficientStorage any
----@field StatusLoopDetected any
----@field StatusNotExtended any
----@field StatusNetworkAuthenticationRequired any
 ---@field DefaultMaxIdleConnsPerHost any
 ---@field DefaultClient any
 ---@field ErrUseLastResponse any
@@ -1627,7 +1544,7 @@ local httpFileSystem = {}
 local httpPusher = {}
 
 
----@class any
+---@class Server
 ---@field Addr string
 ---@field Handler httpHandler
 ---@field DisableGeneralOptionsHandler boolean
@@ -1642,7 +1559,7 @@ local httpPusher = {}
 ---@field ErrorLog any
 ---@field BaseContext any
 ---@field ConnContext any
-local any = {}
+local Server = {}
 
 --- Close immediately closes all active net.Listeners and any
 --- connections in state StateNew, StateActive, or StateIdle. For a
@@ -1654,7 +1571,7 @@ local any = {}
 --- Close returns any error returned from closing the Server's
 --- underlying Listener(s).
 ---@return err
-function any:Close() end
+function Server:Close() end
 
 --- ListenAndServeTLS listens on the TCP network address srv.Addr and
 --- then calls ServeTLS to handle requests on incoming TLS connections.
@@ -1674,14 +1591,14 @@ function any:Close() end
 ---@param certFile string
 ---@param keyFile string
 ---@return err
-function any:ListenAndServeTLS(certFile, keyFile) end
+function Server:ListenAndServeTLS(certFile, keyFile) end
 
 --- SetKeepAlivesEnabled controls whether HTTP keep-alives are enabled.
 --- By default, keep-alives are always enabled. Only very
 --- resource-constrained environments or servers in the process of
 --- shutting down should disable them.
 ---@param v boolean
-function any:SetKeepAlivesEnabled(v) end
+function Server:SetKeepAlivesEnabled(v) end
 
 --- Shutdown gracefully shuts down the server without interrupting any
 --- active connections. Shutdown works by first closing all open
@@ -1705,7 +1622,7 @@ function any:SetKeepAlivesEnabled(v) end
 --- future calls to methods such as Serve will return ErrServerClosed.
 ---@param ctx contextContext
 ---@return err
-function any:Shutdown(ctx) end
+function Server:Shutdown(ctx) end
 
 --- RegisterOnShutdown registers a function to call on Shutdown.
 --- This can be used to gracefully shutdown connections that have
@@ -1713,7 +1630,7 @@ function any:Shutdown(ctx) end
 --- This function should start protocol-specific graceful shutdown,
 --- but should not wait for shutdown to complete.
 ---@param f any
-function any:RegisterOnShutdown(f) end
+function Server:RegisterOnShutdown(f) end
 
 --- ListenAndServe listens on the TCP network address srv.Addr and then
 --- calls Serve to handle requests on incoming connections.
@@ -1724,7 +1641,7 @@ function any:RegisterOnShutdown(f) end
 --- ListenAndServe always returns a non-nil error. After Shutdown or Close,
 --- the returned error is ErrServerClosed.
 ---@return err
-function any:ListenAndServe() end
+function Server:ListenAndServe() end
 
 --- Serve accepts incoming connections on the Listener l, creating a
 --- new service goroutine for each. The service goroutines read requests and
@@ -1738,7 +1655,7 @@ function any:ListenAndServe() end
 --- After Shutdown or Close, the returned error is ErrServerClosed.
 ---@param l netListener
 ---@return err
-function any:Serve(l) end
+function Server:Serve(l) end
 
 --- ServeTLS accepts incoming connections on the Listener l, creating a
 --- new service goroutine for each. The service goroutines perform TLS
@@ -1757,7 +1674,7 @@ function any:Serve(l) end
 ---@param certFile string
 ---@param keyFile string
 ---@return err
-function any:ServeTLS(l, certFile, keyFile) end
+function Server:ServeTLS(l, certFile, keyFile) end
 
 --- The HandlerFunc type is an adapter to allow the use of
 --- ordinary functions as HTTP handlers. If f is a function

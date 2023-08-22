@@ -888,21 +888,6 @@ local netConn = {}
 ---@class netAddr
 local netAddr = {}
 
-
----@class any
-local any = {}
-
---- SetUnlinkOnClose sets whether the underlying socket file should be removed
---- from the file system when the listener is closed.
----
---- The default behavior is to unlink the socket file only when package net created it.
---- That is, when the listener and the underlying socket file were created by a call to
---- Listen or ListenUnix, then by default closing the listener will remove the socket file.
---- but if the listener was created by a call to FileListener to use an already existing
---- socket file, then by default closing the listener will not remove the socket file.
----@param unlink boolean
-function any:SetUnlinkOnClose(unlink) end
-
 --- An IP is a single IP address, a slice of bytes.
 --- Functions in this package accept either 4-byte (IPv4)
 --- or 16-byte (IPv6) slices as input.

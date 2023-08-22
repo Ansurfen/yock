@@ -36,13 +36,8 @@ function plugin_list:AddPlugin(pid, path) end
 ---@field init fun(env: any)
 local exportOpt = {}
 
----
----{{.export}}
----
 ---@param opt exportOpt
----
-function export(opt)
-end
+function export(opt) end
 
 ---@param opt table
 ---@vararg string

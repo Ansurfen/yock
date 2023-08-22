@@ -17,7 +17,6 @@ import (
 	"github.com/ansurfen/yock/util"
 	"github.com/ansurfen/yock/ycho"
 	lua "github.com/yuin/gopher-lua"
-	luar "layeh.com/gopher-luar"
 )
 
 var _ yocki.YockScheduler = (*YockScheduler)(nil)
@@ -50,7 +49,7 @@ type YockScheduler struct {
 	envVar yocki.EnvVar
 
 	// it's deprecated in lateset version
-	driverManager *yockDriverManager
+	// driverManager *yockDriverManager
 
 	// task is the smallest scheduling unit for asynchronous tasks,
 	// which is consists of single or multiple jobs.
@@ -98,11 +97,11 @@ func New(opts ...YockSchedulerOption) *YockScheduler {
 		}
 	}
 
-	if yocks.driverManager != nil {
-		if err := util.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
-			ycho.Fatal(err)
-		}
-	}
+	// if yocks.driverManager != nil {
+	// 	if err := util.SafeBatchMkdirs([]string{util.PluginPath, util.DriverPath}); err != nil {
+	// 		ycho.Fatal(err)
+	// 	}
+	// }
 
 	yocks.yockLoader = NewYockLoader(yocks.State())
 	yocks.env = yocks.CreateLib("env")
@@ -152,19 +151,19 @@ func (yocks *YockScheduler) Signal() yocki.SignalStream {
 	return yocks.signals
 }
 
-func (yocks *YockScheduler) getPlugins() yocki.Table {
-	if yocks.driverManager != nil {
-		return yocks.driverManager.plugins
-	}
-	return &yockr.Table{}
-}
+// func (yocks *YockScheduler) getPlugins() yocki.Table {
+// 	if yocks.driverManager != nil {
+// 		return yocks.driverManager.plugins
+// 	}
+// 	return &yockr.Table{}
+// }
 
-func (yocks *YockScheduler) getDrivers() yocki.Table {
-	if yocks.driverManager != nil {
-		return yocks.driverManager.drivers
-	}
-	return &yockr.Table{}
-}
+// func (yocks *YockScheduler) getDrivers() yocki.Table {
+// 	if yocks.driverManager != nil {
+// 		return yocks.driverManager.drivers
+// 	}
+// 	return &yockr.Table{}
+// }
 
 // parseFlags parses -- the following parameters serve as the flags of script
 func (yocks *YockScheduler) parseFlags() {
@@ -251,11 +250,11 @@ func (yocks *YockScheduler) LoadLibs() {
 		"env": yocks.env.Meta().Value(),
 	}
 
-	if yocks.driverManager != nil {
-		yockGlobalVars["plugins"] = yocks.driverManager.plugins.Value()
-		yockGlobalVars["ldns"] = luar.New(yocks.State().LState(), yocks.driverManager.localDNS)
-		yockGlobalVars["gdns"] = luar.New(yocks.State().LState(), yocks.driverManager.globalDNS)
-	}
+	// if yocks.driverManager != nil {
+	// 	yockGlobalVars["plugins"] = yocks.driverManager.plugins.Value()
+	// 	yockGlobalVars["ldns"] = luar.New(yocks.State().LState(), yocks.driverManager.localDNS)
+	// 	yockGlobalVars["gdns"] = luar.New(yocks.State().LState(), yocks.driverManager.globalDNS)
+	// }
 	yocks.setGlobalVars(yockGlobalVars)
 
 	files, err := os.ReadDir(yocks.libPath)

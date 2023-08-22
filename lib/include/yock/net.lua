@@ -6,12 +6,8 @@
 
 ---@param path string
 ---@return boolean
-function is_url(path)
-    return false
-end
+function is_url(path) end
 
 ---@param url string
 ---@return boolean
-function is_localhost(url)
-    return false
-end
+function is_localhost(url) end

@@ -5,14 +5,11 @@
 package path
 
 import (
-	"io/fs"
 	"path/filepath"
 
 	yocki "github.com/ansurfen/yock/interface"
 	filepathlib "github.com/ansurfen/yock/lib/go/path/filepath"
 	"github.com/ansurfen/yock/util"
-	"github.com/ansurfen/yock/ycho"
-	lua "github.com/yuin/gopher-lua"
 )
 
 func LoadPath(yocks yocki.YockScheduler) {
@@ -22,7 +19,6 @@ func LoadPath(yocks yocki.YockScheduler) {
 		"Separator": filepath.Separator,
 	})
 	lib.SetYFunction(map[string]yocki.YGFunction{
-		"exist":    pathExist,
 		"filename": pathFilename,
 		"join":     pathJoin,
 		"dir":      pathDir,
@@ -30,17 +26,7 @@ func LoadPath(yocks yocki.YockScheduler) {
 		"clean":    pathClean,
 		"ext":      pathExt,
 		"abs":      pathAbs,
-		"walk":     pathWalk,
 	})
-}
-
-// @param path string
-//
-// @return bool
-func pathExist(s yocki.YockState) int {
-	ok := util.IsExist(s.CheckString(1))
-	s.PushBool(ok)
-	return 1
 }
 
 // @param path string
@@ -102,33 +88,4 @@ func pathAbs(s yocki.YockState) int {
 	abs, err := filepath.Abs(s.CheckString(1))
 	s.PushString(abs).PushError(err)
 	return 2
-}
-
-// @param root string
-//
-// @param fn fun(path: string, info: fileinfo, err:err): bool
-//
-// @return err
-func pathWalk(s yocki.YockState) int {
-	fn := s.CheckFunction(2)
-	err := filepath.Walk(s.CheckString(1), func(path string, info fs.FileInfo, err error) error {
-		e := lua.LNil
-		if err != nil {
-			e = lua.LString(err.Error())
-		}
-		if err := s.Call(yocki.YockFuncInfo{
-			Fn:   fn,
-			NRet: 1,
-		}, path, info, e); err != nil {
-			ycho.Fatal(err)
-		}
-		ok := s.CheckBool(-1)
-		s.PopAll()
-		if ok {
-			return nil
-		}
-		return err
-	})
-	s.PushError(err)
-	return 1
 }

@@ -4,16 +4,8 @@
 
 ---@meta _
 
----
----{{.optional}}
----
 ---@param cases table
 ---@param bad_case fun()
-function optional(cases, bad_case)
-end
+function optional(cases, bad_case) end
 
----
----{{.case}}
----
-function case(...)
-end
+function case(...) end

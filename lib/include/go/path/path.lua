@@ -75,6 +75,7 @@ function path.ext(path) end
 ---@return string, string
 function path.abs(path) end
 
+---@deprecated
 ---@param root string
 ---@param fn fun(path: string, info: fileinfo, err:err): boolean
 ---@return err

@@ -42,7 +42,7 @@ end
 
 ---@param str string
 ---@return jsonobject
-function jsonobject.from_str(str)
+function json.from_str(str)
     local obj = {
         buf = json.decode(str)
     }

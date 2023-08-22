@@ -4,11 +4,16 @@
 
 ---@meta _
 
--- present data between table
--- 
--- Example:
--- ```lua
---  table.dump({1, 2, 3})
--- ```
+---dump presents data between table on terminal
+---
+---### Example:
+---```lua
+--- table.dump({1, 2, 3})
+---```
 ---@param tbl table
 function table.dump(tbl) end
+
+---clone returns a table where values is the
+---same with received tbl, which is deep copy.
+---@return table
+function table.clone(tbl) end

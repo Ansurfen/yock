@@ -278,38 +278,38 @@ enable = true
     go(function()
         local cloud = c:read("cloud")
         if cloud ~= nil and cloud["enable"] then
-            ssh(cloud, function(s)
+            ssh(cloud, function(client)
                 local remote_lua = random.str(8) .. ".lua"
                 local tmp_zip = random.str(8)
-                s:Put("../auto/remote.lua", remote_lua)
-                local o = strings.ToLower(s:OS())
+                client:Put("../auto/remote.lua", remote_lua)
+                local o = strings.ToLower(client:OS())
                 if strings.Contains(o, "linux") then
-                    s:Put(string.format("../linux-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
+                    client:Put(string.format("../linux-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
                 elseif strings.Contains(o, "windows") then
-                    s:Put(string.format("../windows-%s.zip", ctx.flags["v"]), tmp_zip .. ".zip")
+                    client:Put(string.format("../windows-%s.zip", ctx.flags["v"]), tmp_zip .. ".zip")
                 elseif strings.Contains(o, "darwin") then
-                    s:Put(string.format("../darwin-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
+                    client:Put(string.format("../darwin-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
                 end
-                s:Sh("../auto/remote.sh", tmp_zip, remote_lua)
+                client:Sh("../auto/remote.sh", tmp_zip, remote_lua)
             end)
         end
         notify("cloud")
     end)
     local vm = c:read("vm")
     if vm ~= nil and vm["enable"] then
-        ssh(vm, function(s)
+        ssh(vm, function(client)
             local remote_lua = random.str(8) .. ".lua"
             local tmp_zip = random.str(8)
-            s:Put("../auto/remote.lua", remote_lua)
-            local o = strings.ToLower(s:OS())
+            client:Put("../auto/remote.lua", remote_lua)
+            local o = strings.ToLower(client:OS())
             if strings.Contains(o, "linux") then
-                s:Put(string.format("../linux-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
+                client:Put(string.format("../linux-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
             elseif strings.Contains(o, "windows") then
-                s:Put(string.format("../windows-%s.zip", ctx.flags["v"]), tmp_zip .. ".zip")
+                client:Put(string.format("../windows-%s.zip", ctx.flags["v"]), tmp_zip .. ".zip")
             elseif strings.Contains(o, "darwin") then
-                s:Put(string.format("../darwin-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
+                client:Put(string.format("../darwin-%s.tar.gz", ctx.flags["v"]), tmp_zip .. ".tar")
             end
-            s:Sh("../auto/remote.sh", tmp_zip, remote_lua)
+            client:Sh("../auto/remote.sh", tmp_zip, remote_lua)
         end)
     end
 

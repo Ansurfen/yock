@@ -32,3 +32,35 @@ function table.dump(tbl, level, filteDefault)
     end
     print(indent_str .. "}")
 end
+
+table.clone = function(tbl)
+    if tbl == nil then
+        return nil
+    end
+    if type(tbl) ~= "table" then
+        return tbl
+    end
+    local new_tab = {}
+    local mt = getmetatable(tbl)
+    if mt ~= nil then
+        setmetatable(new_tab, mt)
+    end
+    for i, v in pairs(tbl) do
+        if type(v) == "table" then
+            new_tab[i] = table.clone(v)
+        else
+            new_tab[i] = v
+        end
+    end
+    return new_tab
+end
+
+table.unpack = unpack
+
+strings.Join = table.concat
+
+path.walk = function(root, fn)
+    ls(root, function(path, info)
+        return fn(path, info, nil)
+    end)
+end

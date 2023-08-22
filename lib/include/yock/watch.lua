@@ -12,64 +12,52 @@ cpu = {}
 
 ---@param percpu boolean
 ---@return table,err
-function cpu.times(percpu)
-end
+function cpu.times(percpu) end
 
 ---@param interval number
 ---@param percpu boolean
 ---@return table,err
-function cpu.percent(interval, percpu)
-end
+function cpu.percent(interval, percpu) end
 
 disk = {}
 
 ---@vararg string
 ---@return table, err
-function disk.info(...)
-end
+function disk.info(...) end
 
 ---@param all boolean
 ---@return table, err
-function disk.partitions(all)
-end
+function disk.partitions(all) end
 
 ---@param path string
 ---@return table, err
-function disk.usage(path)
-end
+function disk.usage(path) end
 
 mem = {}
 
 ---@return table
-function mem.info()
-end
+function mem.info() end
 
 ---@return table
-function mem.swap()
-end
+function mem.swap() end
 
 host = {}
 
 ---@return string
-function host.boot_time()
-end
+function host.boot_time() end
 
 ---@return string, string, string, err
-function host.info()
-end
+function host.info() end
 
 net = {}
 
 ---@param pernic boolean
 ---@return table, err
-function net.io(pernic)
-end
+function net.io(pernic) end
 
 ---@return table, err
-function net.interfaces()
-end
+function net.interfaces() end
 
 ---@param kind string
 ---@return table, err
-function net.connections(kind)
-end
+function net.connections(kind) end

@@ -167,18 +167,54 @@ service = json.create(pathf("~/ypm/service.json"))
 ---@param cmd fun(port: integer): string
 ---@return integer
 function register_service(name, cmd)
-    if service:rawget(name) == nil then
+    local s = service:rawget(name)
+    if s == nil then
         local port = random.port()
         local c = cmd(port)
         yassert(nohup(c))
+        time.Sleep(500 * time.Millisecond)
+        local pid
+        for _, info in ipairs(lsof(port)) do
+            pid = info.pid
+        end
         service:rawset(name, {
             port = port,
-            cmd = c
+            cmd = c,
+            pid = pid
         })
         service:save(true)
         return port
+    else
+        local res = lsof(s.port)
+        local reg = false
+        if #res > 0 then
+            for _, info in ipairs(res) do
+                if info.pid ~= s.pid then
+                    reg = true
+                end
+            end
+        else
+            reg = true
+        end
+        if reg then
+            local port = random.port()
+            local c = cmd(port)
+            yassert(nohup(c))
+            time.Sleep(500 * time.Millisecond)
+            local pid
+            for _, info in ipairs(lsof(port)) do
+                pid = info.pid
+            end
+            service:rawset(name, {
+                port = port,
+                cmd = c,
+                pid = pid
+            })
+            service:save(true)
+            return port
+        end
     end
-    return service:rawget(name).port
+    return s.port
 end
 
 ---@param name string
@@ -186,8 +222,8 @@ function unregister_service(name)
     if service:rawget(name) ~= nil then
         local meta = service:rawget(name)
         local infos = lsof(meta.port)
-        if #infos > 0 then
-            for _, info in ipairs(infos) do
+        for _, info in ipairs(infos) do
+            if info.pid == meta.pid then
                 kill(info.pid)
             end
         end
@@ -197,6 +233,7 @@ function unregister_service(name)
 end
 
 ---@param target string
+---@return any
 function init(target)
     local module = target
     local version = ""
@@ -214,5 +251,5 @@ function init(target)
         version = tmp:getstr(strf("depend.%s.version", module))
     end
     version = strings.ReplaceAll(version, ".", "_")
-    dofile(pathf(env.yock_modules, module, version, "init.lua"))
+    return dofile(pathf(env.yock_modules, module, version, "init.lua"))
 end

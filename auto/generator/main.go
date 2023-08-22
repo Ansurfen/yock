@@ -11,7 +11,10 @@ import (
 func main() {
 	archive.SetInfo("The Yock Authors", "MIT")
 	archive.EnableYockComment()
-	archive.LoadDir("path", `D:\D\langs\go\src\path`)
+	archive.ExportGoFile()
+	archive.LoadDir("bytes", `D:\D\langs\go\src\bytes`)
+	// archive.LoadDir("path", `D:\D\langs\go\src\path`)
+	// archive.LoadDir("gin", `D:\D\langs\go\pkg\mod\github.com\gin-gonic\gin@v1.9.1`)
 	// archive.LoadDir("tar", `D:\D\langs\go\src\archive\tar`)
 	// archive.LoadDir("zip", `D:\D\langs\go\src\archive\zip`)
 	// archive.LoadDir("bufio", `D:\D\langs\go\src\bufio`)

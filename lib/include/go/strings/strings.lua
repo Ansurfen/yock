@@ -7,8 +7,11 @@
 ---@class strings
 strings = {}
 
---- Join concatenates the elements of its first argument to create a single string. The separator
---- string sep is placed between elements in the resulting string.
+---@deprecated
+---Please use table.contact() to instead of it
+---
+---Join concatenates the elements of its first argument to create a single string. The separator
+---string sep is placed between elements in the resulting string.
 ---@param elems string[]
 ---@param sep string
 ---@return string

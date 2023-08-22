@@ -4,26 +4,23 @@
 
 ---@meta _
 
+---@class crypto
 crypto = {}
 
 ---@param s string
 ---@return string
-function crypto.md5(s)
-end
+function crypto.md5(s) end
 
 ---@param s string
 ---@return string
-function crypto.sha256(s)
-end
+function crypto.sha256(s) end
 
 ---@param k string
 ---@param s string
 ---@return string
-function crypto.encode_aes(k, s)
-end
+function crypto.encode_aes(k, s) end
 
 ---@param k string
 ---@param s string
 ---@return string
-function crypto.decode_aes(k, s)
-end
+function crypto.decode_aes(k, s) end

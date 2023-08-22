@@ -9,12 +9,10 @@
 ---@field Lang string
 ---@field Yockd yockd_opt
 ---@field Yockw yockw_opt
-local yockConf = {}
 
 ---@class yockw_opt
 ---@field SelfBoot boolean
 ---@field Port integer
-local yockwOpt = {}
 
 ---@class ychoOpt
 ---@field Level string
@@ -26,17 +24,15 @@ local yockwOpt = {}
 ---@field MaxAge number
 ---@field Compress boolean
 ---@field Stdout boolean
-local ychoOpt = {}
 
 ---@class yockd_opt
 ---@field IP string
 ---@field Port integer
 ---@field Name string
 ---@field SelfBoot boolean
-local yockdOpt = {}
 
 ---@class env
----@field args table<string>
+---@field args string[]
 ---@field platform platform
 ---@field flags table
 ---@field job string
@@ -88,16 +84,31 @@ env = {}
 function env.set_args(args) end
 
 ---@class platform
----@field OS string
+---@field OS string|"aix"|"android"|"darwin"|"dragonfly"|"freebsd"|"hurd"|"illumos"|"ios"|"js"|"linux"|"nacl"|"netbsd"|"openbsd"|"plan9"|"solaris"|"windows"|"zos"
 ---@field Ver string
----@field Arch string
+---@field Arch string|"386"|"amd64"|"amd64p32"|"arm"|"armbe"|"arm64"|"arm64be"|"loong64"|"mips"|"mipsle"|"mips64"|"mips64le"|"mips64p32"|"mips64p32le"|"ppc"|"ppc64"|"ppc64le"|"riscv"|"riscv64"|"s390"|"s390x"|"sparc"|"sparc64"|"wasm"
 local platform = {}
 
+---Exf returns executable file extension name in default.
+---
+---windows: .exe
+---
+---posix:
 ---@return string
 function platform:Exf() end
 
+---Script returns script extension name in default.
+---
+---windows: .bat
+---
+---posix: .sh
 ---@return string
 function platform:Script() end
 
+---Zip returns zip extension name in default.
+---
+---windows: .zip
+---
+---posix: .tar.gz
 ---@return string
 function platform:Zip() end

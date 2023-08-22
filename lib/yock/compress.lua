@@ -28,11 +28,8 @@ tarc = function(src, dst)
         if not (bit.And(info:Mode(), fs.ModeType) == 0) then
             return true
         end
-        local fr, err = os.Open(fileName)
-        yassert(err)
-        _, err = io.Copy(tw, fr)
-        yassert(err)
-        fr:Close()
+        local data = cat(fileName)
+        tw:Write(data)
         return true
     end)
     tw:Close()
@@ -66,11 +63,9 @@ zipc = function(src, dst)
         if info:IsDir() then
             return true
         end
-        local fp, err = os.Open(p)
+        local data, err = cat(p)
         yassert(err)
-        _, err = io.Copy(headerWriter, fp)
-        yassert(err)
-        fp:Close()
+        headerWriter:Write(data)
         return true
     end)
     zw:Close()

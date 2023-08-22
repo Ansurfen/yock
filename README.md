@@ -14,17 +14,18 @@ Yock is a solution of cross platform to compose distributed build stream. It's a
 ![arch](docs/static/arch.png)
 
 * Yctl: it's used for scheduling yock's commands.
-* YockPack: it's mainly used for preprocessing lua file, such as schema decomposition, decomposing a lua source file into multiple lua files according to a given modes for distributed system.
-* YockScheduler: the scheduler is responsible for running the lua code, and launchs goroutines to execute in tasks.
+* Yockp: it's mainly used for preprocessing lua file, such as schema decomposition, decomposing a lua source file into multiple lua files according to a given modes for distributed system.
+* Yocks: the scheduler is responsible for running the lua code, and launchs goroutines to execute in tasks.
 * YPM: yock package manager, used for completion and loading dependencies.
 * Yockd: yock's daemon responsible for cross-process and cross-end communication, building P2P or centralized cluster.
-* Yockr: yock's runtime。
+* Yockr: yock's runtime.
 * Yockw: yock's monitoring, used for log search and metric monitoring.
+* Ycho: yock's logger module, is used for show information in running.
 
 ## Installation
 
 You can download the binary version [here](https://github.com/Ansurfen/yock/releases), or try the following methods.
-`NOTE`: After downloading, you must mount yock to the local environment. Enter directory of executable fileto run `yock run install.lua` command to make it after uncompress.
+`NOTE`: After downloading, you must mount yock to the local environment. Enter directory of executable file to run `yock run install.lua` command to make it after uncompress.
 
 #### Package manager (Lag in Version Update)
 npm: npm install @ansurfen/yock -g

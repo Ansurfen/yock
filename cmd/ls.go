@@ -5,8 +5,10 @@
 package yockc
 
 import (
-	"fmt"
+	"errors"
+	"io/fs"
 	"os"
+	"path/filepath"
 )
 
 type LsFileInfo struct {
@@ -17,29 +19,44 @@ type LsFileInfo struct {
 }
 
 type LsOpt struct {
-	Dir string
-	Str bool
+	Dir     string
+	recurse bool
+	Callack func(path string, info fs.FileInfo) bool
 }
 
-func Ls(opt LsOpt) ([]LsFileInfo, string, error) {
+func (opt *LsOpt) SetRecurse() {
+	opt.recurse = true
+}
+
+func Ls(opt LsOpt) ([]LsFileInfo, error) {
 	fileinfo := []LsFileInfo{}
-	fileinfoStr := ""
-	files, err := os.ReadDir(opt.Dir)
-	if err != nil {
-		return fileinfo, fileinfoStr, err
-	}
-	for _, file := range files {
-		info, err := file.Info()
+	if opt.recurse {
+		err := filepath.Walk(opt.Dir, func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !opt.Callack(path, info) {
+				return errors.New("error")
+			}
+			return nil
+		})
 		if err != nil {
-			return fileinfo, fileinfoStr, err
+			return nil, err
 		}
-		perm := info.Mode().Perm().String()
-		size := info.Size()
-		modeTime := info.ModTime().Format("Jan _2 15:04")
-		filename := file.Name()
-		if opt.Str {
-			fileinfoStr += fmt.Sprintf("%s\t%d\t%s\t%s\n", perm, size, modeTime, filename)
-		} else {
+	} else {
+		files, err := os.ReadDir(opt.Dir)
+		if err != nil {
+			return fileinfo, err
+		}
+		for _, file := range files {
+			info, err := file.Info()
+			if err != nil {
+				return fileinfo, err
+			}
+			perm := info.Mode().Perm().String()
+			size := info.Size()
+			modeTime := info.ModTime().Format("Jan _2 15:04")
+			filename := file.Name()
 			fileinfo = append(fileinfo, LsFileInfo{
 				Perm:     perm,
 				Size:     size,
@@ -48,5 +65,5 @@ func Ls(opt LsOpt) ([]LsFileInfo, string, error) {
 			})
 		}
 	}
-	return fileinfo, fileinfoStr, nil
+	return fileinfo, nil
 }

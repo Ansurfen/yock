@@ -4,21 +4,8 @@
 
 ---@meta _
 
+---@class reglib
+---@field new fun(self: reglib, patterns: string): table
+---@field find_str fun(self: reglib, p: string, s: string): string|nil
+---@field match_str fun(self: reglib, p: string, s: string): boolean
 reglib = {}
-
----@param patterns table
----@return table
-function reglib:new(patterns)
-end
-
----@param p string
----@param s string
----@return string|nil
-function reglib:find_str(p, s)
-end
-
----@param p string
----@param s string
----@return boolean
-function reglib:match_str(p, s)
-end

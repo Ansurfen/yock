@@ -2,13 +2,15 @@
 -- Use of this source code is governed by a MIT-style
 -- license that can be found in the LICENSE file.
 ---@diagnostic disable: lowercase-global
----@diagnostic disable: duplicate-set-field
 
----@class conf
----@field buf table
----@field viper Viper
+---conf can open and parse configuration with easy and fast way,
+---supporting yaml, yml, json, toml, hcl, tfvars, ini, properties,
+---props, prop, dotenv, env file format.
+---@type conf
+---@diagnostic disable-next-line: missing-fields
 conf = {}
 
+---create returns parsed conf object, and creates a new file and panics when file isn't exist.
 ---@param file string
 ---@param tmpl string
 ---@return conf
@@ -20,6 +22,7 @@ function conf.create(file, tmpl)
     return conf.open(file)
 end
 
+---open must open specified file, otherwise it would panic.
 ---@param file string
 ---@return conf
 function conf.open(file)
@@ -33,6 +36,7 @@ function conf.open(file)
     return obj
 end
 
+---read returns value by json path
 ---@param k string
 ---@return table|nil
 function conf:read(k)
@@ -47,12 +51,14 @@ function conf:read(k)
     return x
 end
 
+---writes v to specified k, and required to call the save function for persisting on configuration file.
 ---@param k string
 ---@param v any
 function conf:write(k, v)
     self.viper:Set(k, v)
 end
 
+---save persists data based-on memory into configuration.
 function conf:save()
     self.viper:WriteConfig()
 end

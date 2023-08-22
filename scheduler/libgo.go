@@ -11,9 +11,8 @@ import (
 	"github.com/ansurfen/yock/lib/go/fmt"
 	iolib "github.com/ansurfen/yock/lib/go/io"
 	netlib "github.com/ansurfen/yock/lib/go/net"
-	"github.com/ansurfen/yock/lib/go/os"
+	oslib "github.com/ansurfen/yock/lib/go/os"
 	"github.com/ansurfen/yock/lib/go/path"
-	reflectlib "github.com/ansurfen/yock/lib/go/reflect"
 	"github.com/ansurfen/yock/lib/go/regexp"
 	"github.com/ansurfen/yock/lib/go/strconv"
 	libstrings "github.com/ansurfen/yock/lib/go/strings"
@@ -23,7 +22,6 @@ import (
 )
 
 var libgo = []loader{
-	reflectlib.LoadReflect,
 	fmt.LoadFmt,
 	netlib.LoadNet,
 	path.LoadPath,

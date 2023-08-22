@@ -2,7 +2,7 @@
 --  Use of this source code is governed by a MIT-style
 --  license that can be found in the LICENSE file.
 
----@param opt promptopt
+---@param opt prompt_opt
 function prompt(opt)
     if env.params == nil then
         env.params = {}

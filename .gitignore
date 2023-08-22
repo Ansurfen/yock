@@ -25,6 +25,7 @@ go.work
 **/.dart_tool
 **/node_modules
 **/.vscode
+**/.idea
 
 **/*.zip
 **/*.tar

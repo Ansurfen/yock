@@ -15,12 +15,19 @@ import (
 
 // RmOpt indicates configuration of rm
 type RmOpt struct {
-	Safe bool
+	Safe    bool
+	Recurse bool
 	// Pattern delete file to be matched
 	Pattern string
 }
 
 func Rm(opt RmOpt, target string) error {
+	if opt.Safe {
+		opt.Recurse = opt.Safe
+	}
+	if opt.Recurse {
+		opt.Safe = opt.Recurse
+	}
 	if len(opt.Pattern) != 0 {
 		err := filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -82,7 +89,7 @@ func Cp(opt CpOpt, src, dst string) error {
 		}
 	}
 	_, err := term.Exec(&ExecOpt{
-		Quiet: true,
+		Quiet:    true,
 		Redirect: true,
 	})
 	return err

@@ -21,12 +21,12 @@ func OptionUpgradeSingalStream() YockSchedulerOption {
 // OptionEnableYockDriverMode enables dependency analysis pattern.
 //
 // NOTE: It was deprecated in latest version, please use ypm to instead.
-func OptionEnableYockDriverMode() YockSchedulerOption {
-	return func(ys *YockScheduler) error {
-		ys.driverManager = newDriverManager()
-		return nil
-	}
-}
+// func OptionEnableYockDriverMode() YockSchedulerOption {
+// 	return func(ys *YockScheduler) error {
+// 		ys.driverManager = newDriverManager()
+// 		return nil
+// 	}
+// }
 
 // OptionEnableEnvVar can CRUD environment variable.
 // In some systems, you need administrator privileges to start

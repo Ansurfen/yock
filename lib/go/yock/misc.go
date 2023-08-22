@@ -5,9 +5,13 @@
 package liby
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -37,6 +41,11 @@ func LoadMisc(yocks yocki.YockScheduler) {
 		"eval":         eval,
 		"loadbalance":  loadbalance,
 		"yassert":      yassert,
+		"proxy": func(ys yocki.YockState) int {
+			DoProxy(ys.CheckAny(1).(*lua.LUserData).Value.(http.ResponseWriter),
+				ys.CheckAny(2).(*lua.LUserData).Value.(*http.Request))
+			return 0
+		},
 	})
 	yocks.RegYocksFn(yocki.YocksFuncs{
 		"curl": netCurl,
@@ -62,6 +71,43 @@ func LoadMisc(yocks yocki.YockScheduler) {
 			return 0
 		},
 	})
+}
+
+func DoProxy(w http.ResponseWriter, r *http.Request) {
+	cli := &http.Client{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	proxyRequest, err := http.NewRequest(r.Method, r.URL.String(), strings.NewReader(string(body)))
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	for k, v := range r.Header {
+		proxyRequest.Header.Set(k, v[0])
+	}
+	proxyResponse, err := cli.Do(proxyRequest)
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	defer proxyResponse.Body.Close()
+	for k, v := range proxyResponse.Header {
+		w.Header().Set(k, v[0])
+	}
+	var data []byte
+	data, err = ioutil.ReadAll(proxyResponse.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+
+	resProxyBody := ioutil.NopCloser(bytes.NewBuffer(data))
+	defer resProxyBody.Close()
+	w.WriteHeader(proxyResponse.StatusCode)
+	io.Copy(w, resProxyBody)
 }
 
 func ychoInfo(s yocki.YockState) int {
@@ -178,25 +224,29 @@ func openConf(s yocki.YockState) int {
 func osStrf(s yocki.YockState) int {
 	out := ""
 	format := s.CheckString(1)
-	if s.IsTable(2) {
-		opt := make(map[string]any)
-		if err := s.CheckTable(2).Bind(&opt); err != nil {
-			s.PushString(out)
-			return 1
-		}
-		tmpl := util.NewTemplate()
-		out, _ = tmpl.OnceParse(format, opt)
-		if v := opt["Charset"]; v != nil {
-			if charset, ok := v.(string); ok {
-				out = util.ConvertByte2String([]byte(out), util.Charset(charset))
+	if s.Argc() > 1 {
+		if s.IsTable(2) {
+			opt := make(map[string]any)
+			if err := s.CheckTable(2).Bind(&opt); err != nil {
+				s.PushString(out)
+				return 1
 			}
+			tmpl := util.NewTemplate()
+			out, _ = tmpl.OnceParse(format, opt)
+			if v := opt["Charset"]; v != nil {
+				if charset, ok := v.(string); ok {
+					out = util.ConvertByte2String([]byte(out), util.Charset(charset))
+				}
+			}
+		} else {
+			a := []any{}
+			for i := 2; i <= s.Argc(); i++ {
+				a = append(a, s.CheckAny(i))
+			}
+			out = fmt.Sprintf(format, a...)
 		}
 	} else {
-		a := []any{}
-		for i := 2; i <= s.Argc(); i++ {
-			a = append(a, s.CheckAny(i))
-		}
-		out = fmt.Sprintf(format, a...)
+		out = format
 	}
 	s.PushString(out)
 	return 1

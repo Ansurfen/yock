@@ -14,10 +14,10 @@ import (
 func LoadStrings(yocks yocki.YockScheduler) {
 	lib := yocks.CreateLib("strings")
 	lib.SetYFunction(map[string]yocki.YGFunction{
-		"HasPrefix":     stringsHasPrefix,
-		"HasSuffix":     stringsHasSuffix,
-		"Contains":      stringsContains,
-		"Join":          stringsJoin,
+		"HasPrefix": stringsHasPrefix,
+		"HasSuffix": stringsHasSuffix,
+		"Contains":  stringsContains,
+		// "Join":          stringsJoin,
 		"Cut":           stringsCut,
 		"CutSuffix":     stringsCutSuffix,
 		"CutPrefix":     stringsCutPrefix,
@@ -101,20 +101,6 @@ func stringsHasSuffix(l yocki.YockState) int {
 func stringsContains(l yocki.YockState) int {
 	ok := strings.Contains(l.LState().CheckString(1), l.LState().CheckString(2))
 	l.PushBool(ok)
-	return 1
-}
-
-/*
-* @param elems string[]
-* @param sep string
-* @return string
- */
-func stringsJoin(l yocki.YockState) int {
-	elems := []string{}
-	l.CheckTable(1).Value().ForEach(func(_, s lua.LValue) {
-		elems = append(elems, s.String())
-	})
-	l.Push(lua.LString(strings.Join(elems, l.LState().CheckString(2))))
 	return 1
 }
 

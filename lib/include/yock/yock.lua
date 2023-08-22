@@ -10,11 +10,15 @@
 ---@param success_handle? function
 function yassert(e, success_handle) end
 
+---@class yocki
+---@field connect fun(name: string, ip: string, port: integer) # dial server to be specified by ip and port, and name it for call.
+---@field call fun(name: string, fn: string, arg: string): string, err # calls function on specified server
+---@field list fun(): string[] # returns a list of services that have been connected
 yocki = {}
 
 ---@param name string
 ---@param ip string
----@param port number
+---@param port integer
 function yocki.connect(name, ip, port) end
 
 ---@param name string
@@ -23,7 +27,7 @@ function yocki.connect(name, ip, port) end
 ---@return string, err
 function yocki.call(name, fn, arg) end
 
----@return table<string>
+---@return string[]
 function yocki.list() end
 
 cachetable = {}
@@ -67,14 +71,33 @@ function ycache:save() end
 
 ---@alias charset "UTF-8" | "GB18030"
 
----@class strfopt
-local strfopt = {}
+---@class strf_opt: table
 
+---strf wraps template engine to format string.
+---
+---`NOTE`: Because of the golang sake, string to be
+---replaced must allows capital case in the first letter.
+---Having a `Charset` field saved in internal, strf will
+---converts string encoding.
+---### Example:
+---```lua
+---print(strf("{{.A}} {{.B}}", { A = "Hello", B = "World" }))
+---print(strf("你好", { Charset = "GB18030" }))
+---```
 ---@param format string
----@param opt strfopt
+---@param opt strf_opt
 ---@return string
 function strf(format, opt) end
 
+---strf is just like string.format(),
+---and you can think it's short for
+---string format. Using it isn't different
+---with string.format().
+---### Example:
+---```lua
+---print(string.format("%s %s", "Hello", "World"))
+---print(strf("%s %s", "Hello", "World"))
+---```
 ---@param format string
 ---@vararg any
 ---@return string
@@ -84,23 +107,27 @@ function strf(format, ...) end
 ---@param rows string[][]
 function printf(title, rows) end
 
----`#(integer)` returns the real path of function from stack
+---pathf joins any number of path elements into a single path,
+---separating them with slashes. Empty elements are ignored.
+---The result is Cleaned. However, if the argument list is empty
+---or all its elements are empty, Join returns an empty string.
 ---
----`$` returns process's worksapce
+---Except joining any number of path, pathf's first element can
+---alias regular path according to different parameter.
+---### Mapping rule:
+---* `#(integer)` returns the real path of function from stack
+---* `$` returns process's worksapce
+---* `~` returns the path of executable file
+---* `@` returns yock's worksapce
 ---
----`~` returns the path of executable file
----
----`@` returns yock's worksapce
----
----example:
+---### Example:
 ---```lua
----pathf("@/", "a", "b")
----pathf("#1")
+---# assumes working directory is D:/tmp/main.lua
+---pathf("@/", "a", "b") -- mapping: {HomeDir}/.yock/a/b
+---pathf("#1", "../a") -- mapping: #1 returns D:/tmp/main.lua path, then joins "../a" to output "D:/tmp/a"
 ---```
----
 ---@vararg string
 ---@return string
----
 function pathf(...) end
 
 ---@param opt table
@@ -118,14 +145,35 @@ function multi_fetch(fileType, want, opt) end
 ---@return table
 function multi_bind(todo, handle) end
 
+---wrapzip returns string that wrapped platform zip format in default
+---### Example:
+---```lua
+---wrapzip("a") -- on windows, result is a.zip
+---
+---wrapzip("a") -- on linux, darwin and etc, result is a.tar.gz
+---```
 ---@param s string
 ---@return string
 function wrapzip(s) end
 
+---wrapexf returns string that wrapped platform executable filename extension in default
+---### Example:
+---```lua
+---wrapexf("a") -- on windows, result is a.exe
+---
+---wrapexf("a") -- on linux, darwin and etc, result is a
+---```
 ---@param s string
 ---@return string
 function wrapexf(s) end
 
+---wrapscript returns string that wrapped platform script format in default
+---### Example:
+---```lua
+---wrapscript("a") -- on windows, result is a.bat
+---
+---wrapscript("a") -- on linux, darwin and etc, result is a.sh
+---```
 ---@param s string
 ---@return string
 function wrapscript(s) end
@@ -425,13 +473,9 @@ function Viper:SafeWriteConfigAs(filename)
 end
 
 ---@class FlagValueSet
-local FlagValueSet = {}
 
 ---@class FlagValue
-local FlagValue = {}
 
 ---@class pflagFlag
-local pflagFlag = {}
 
 ---@class pflagFlagSet
-local pflagFlagSet = {}

@@ -71,12 +71,12 @@ func pluginLoadPlugin(yocks yocki.YockScheduler, state yocki.YockState) int {
 //
 // @param tbl table
 func pluginPlugin(yocks yocki.YockScheduler, state yocki.YockState) int {
-	uid := state.CheckString(1)
-	tbl := yocks.(*YockScheduler).getPlugins()
-	cur := &lua.LTable{}
-	tbl.Value().RawSetString(uid, cur)
-	state.CheckLTable(2).ForEach(func(fn, callback lua.LValue) {
-		cur.RawSetString(fn.String(), callback)
-	})
+	// uid := state.CheckString(1)
+	// tbl := yocks.(*YockScheduler).getPlugins()
+	// cur := &lua.LTable{}
+	// tbl.Value().RawSetString(uid, cur)
+	// state.CheckLTable(2).ForEach(func(fn, callback lua.LValue) {
+	// 	cur.RawSetString(fn.String(), callback)
+	// })
 	return 0
 }
